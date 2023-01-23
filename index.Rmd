@@ -1,0 +1,50 @@
+---
+title: "RelativeSize Main"
+author: "Emanuele Giacomuzzo"
+date: "`r Sys.time()`"
+output: 
+  html_document:
+    code_folding: hide
+bibliography: library.bib
+html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    number_sections: true
+    includes:
+      after_body: tabset-dropdown.html
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r renv-seetings, eval = FALSE, echo = FALSE}
+
+#Manage package versions using the package "renv". 
+
+#renv::repair()
+#renv::restore()
+#renv::snapshot()
+```
+
+```{r echo = FALSE, results = FALSE, messages = FALSE}
+library("here")
+library("tidyverse")
+```
+
+#  {.tabset}
+
+## Overview {.tabset .tabset-pills}
+
+![](images/Experimental%20design.png)
+
+## Data {.tabset .tabset-pills}
+
+```{r}
+culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"))
+```
+
+## Material needed {.tabset .tabset-pills}
+
+```{r child = here("r_files", "material_needed.Rmd")}
+```
+

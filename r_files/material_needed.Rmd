@@ -1,0 +1,216 @@
+---
+title: "Material Needed"
+output: html_document
+date: "2023-01-06"
+editor_options: 
+  chunk_output_type: console
+---
+
+### Pipette tips {.tabset .tabset-pills}
+
+```{r}
+tips_per_box_yellow = 92
+tips_per_box_blue = 92
+tips_per_box_green = 24
+```
+
+```{r}
+nr_cultures = max(culture_info$culture_ID)
+time_points = 8
+n_exchanges = 6
+```
+
+```{r}
+extra_tips_factor = 1.5
+```
+
+```{r}
+yellow_tips_needed = nr_cultures * time_points * extra_tips_factor
+
+yellow_boxes_needed = yellow_tips_needed / tips_per_box_yellow
+yellow_boxes_needed = ceiling(yellow_boxes_needed)
+
+green_tips_needed = nr_cultures * n_exchanges * extra_tips_factor
+
+green_boxes_needed = green_tips_needed / tips_per_box_green
+green_boxes_needed = ceiling(green_boxes_needed)
+```
+
+Pipette tips I'll need are:
+
+-   Yellow tips for taking the videos. I'll need `r yellow_boxes_needed` boxes for the whole experiment (`r yellow_boxes_needed/time_points` boxes per time point).
+
+-   Green tips for exchanging resources between cultures. I'll need `r green_boxes_needed` boxes for the whole experiment (`r green_boxes_needed/n_exchanges` boxes per time point).
+
+### PPM & Bacterial solution {.tabset .tabset-pills}
+
+```{r}
+
+#Parameters for the PPM 
+
+pellet_per_litre_needed_g = 0.46
+
+#Parameters for the bacterial solutions
+
+volume_bacs_bottles = 0.2
+
+#Parameters for the high-density cultures (L)
+
+volume_HDC = 0.2
+
+HDC_ratio_protists = 0.10
+HDC_ratio_bacs = 0.05
+HDC_ratio_PPM = 0.85
+
+n_initial_HDC = 90
+n_HDC_first_check = 20
+n_HDC_second_check = 20
+
+n_HDC = n_initial_HDC + n_HDC_first_check + n_HDC_second_check
+```
+
+```{r}
+extra_PPM_factor = 1.5
+```
+
+```{r}
+
+#PPM needed
+
+PPM_needed_for_HDC = n_HDC * volume_HDC * HDC_ratio_PPM
+
+PPM_needed_for_bacs = n_HDC *
+                      volume_HDC *
+                      HDC_ratio_bacs
+
+PPM_needed = ceiling((PPM_needed_for_HDC + PPM_needed_for_bacs) *
+                       extra_PPM_factor)
+
+pellet_needed_g = PPM_needed * pellet_per_litre_needed_g
+```
+
+
+```{r}
+
+#Bacs bottles needed - Initial 
+
+volume_initial_HDC = n_initial_HDC * volume_HDC
+
+bacs_volume_needed_initial = volume_initial_HDC * HDC_ratio_bacs
+
+bacs_bottles_needed_initial = ceiling((bacs_volume_needed_initial / volume_bacs_bottles) * extra_PPM_factor)
+
+#Bacs bottles needed - First check
+
+volume_first_check_HDC = n_HDC_first_check * volume_HDC
+
+bacs_volume_needed_first_check = volume_first_check_HDC * HDC_ratio_bacs
+
+bacs_bottles_needed_first_check = ceiling((bacs_volume_needed_first_check /
+                                             volume_bacs_bottles) * extra_PPM_factor)
+
+#Bacs bottles needed - Second check
+
+volume_second_check_HDC = n_HDC_second_check *
+  volume_HDC
+
+bacs_volume_needed_second_check = volume_second_check_HDC *
+  HDC_ratio_bacs
+
+bacs_bottles_needed_second_check = ceiling((bacs_volume_needed_second_check /
+                                              volume_bacs_bottles) *
+                                             extra_PPM_factor)
+```
+
+-   PPM needed: `r PPM_needed` litres
+
+-   Pellet needed: `r pellet_needed_g` grams
+
+-   Bacs needed for the initial high-density cultures: `r bacs_bottles_needed_initial` bottles (`r volume_bacs_bottles * 1000` ml)
+
+-   Bacs needed for the first check of the high-density cultures: `r bacs_bottles_needed_first_check` bottles (`r volume_bacs_bottles * 1000` ml)
+
+-   Bacs needed for the second check of the high-density cultures: `r bacs_bottles_needed_second_check`bottles (`r volume_bacs_bottles * 1000` ml)
+
+### Protist monocultures from my collection {.tabset .tabset-pills}
+
+```{r}
+bottles_Eug_initial = 20
+bottles_other_protists_initial = 7
+```
+
+
+```{r}
+
+#Volume needed of Euglena to create the high-density cultures
+
+Eug_volume_needed_initial_HDC = bottles_Eug_initial * volume_HDC
+
+Eug_initial_needed = Eug_volume_needed_initial_HDC *
+                     HDC_ratio_protists
+
+## Volume needed of all other protists to create the high-density cultures
+
+volume_HDC_initial_others = bottles_other_protists_initial *
+                                              volume_HDC
+
+other_protists_initial_needed = volume_HDC_initial_others *
+                                HDC_ratio_protists
+```
+
+-   Volume needed from my collection to start the high-density cultures of Eug: `r Eug_initial_needed * 1000` ml
+
+-   Volume needed from my collection to start the high-density cultures of all other protists: `r other_protists_initial_needed * 1000` ml
+
+### High-density cultures (HDC) {.tabset .tabset-pills}
+
+```{r}
+n_other_protists = 10
+```
+
+```{r}
+extra_HDC_factor = 1.25
+```
+
+```{r}
+
+#Volume needed of each of the high-density cultures to assemble the experiment
+
+volume_needed_total = (sum(culture_info$patch_size_ml) * extra_HDC_factor) / 1000 
+
+volume_needed_Eug = volume_needed_total/2
+volume_needed_others = volume_needed_total/2
+volume_needed_ech_protist = volume_needed_others / n_other_protists
+
+## Euglena
+
+bottles_HDC_Eug_needed = ceiling((volume_needed_Eug / volume_HDC))
+
+## All other protists
+
+bottles_HDC_other_protists_needed = ceiling((volume_needed_ech_protist / volume_HDC))
+```
+
+-   Eug high-density cultures bottles needed to assemble the experiment: `r bottles_HDC_Eug_needed` (I need `r volume_needed_Eug` litres of Eug)
+
+-   All other protists high-density cultures bottles needed to assemble the experiment: `r bottles_HDC_other_protists_needed` per protist (I need `r volume_needed_ech_protist` litres of each other protist)
+
+### PPM + Bacs big bottle first time high-density {.tabset .tabset-pills}
+
+```{r}
+extra_PPM_mixing_bottle_factor = 1.20
+```
+
+```{r}
+
+PPM_needed_for_initial_HDC = volume_initial_HDC * HDC_ratio_PPM * extra_PPM_mixing_bottle_factor
+
+bacs_needed_for_initial_HDC = volume_initial_HDC * HDC_ratio_bacs * extra_PPM_mixing_bottle_factor
+
+min_size_mixing_bottle = ceiling(PPM_needed_for_initial_HDC +
+                                 bacs_needed_for_initial_HDC)
+```
+
+- PPM needed for the initial HDC, which I will mix into the mixing bottle: `r PPM_needed_for_initial_HDC`
+
+- Bacterial solution needed for the initial HDC, which I will mix into the mixing bottle: `r bacs_needed_for_initial_HDC`
