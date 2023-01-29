@@ -1,0 +1,21 @@
+---
+title: "Data - Culture info"
+output: html_document
+date: "2023-01-23"
+---
+
+### Experimental cultures (`culture_info`)
+
+This dataset contains information about the 192 cultures of the experiment.
+
+```{r experimental-cultures}
+culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
+```
+
+```{r, eval = displays_datasets}
+datatable(culture_info[,1:10],
+          rownames = FALSE,
+          options = list(scrollX = TRUE),
+          filter = list(position = 'top', 
+                        clear = FALSE))
+```
