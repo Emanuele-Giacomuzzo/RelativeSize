@@ -38,7 +38,7 @@ library("here")
 
 ![](images/Experimental%20design.png)
 
-### Preparation {.tabset .tabset-pills}
+### Preparation {.tabset .tabset-dropdown}
 
 ```{r child = here("r_files", "material_needed.Rmd")}
 ```
@@ -57,66 +57,86 @@ library("here")
 ```{r child = here("r_files", "data_metaecosystems.Rmd")}
 ```
 
-## Isolated Patches {.tabset .tabset-pills}
+## Isolated Patches {.tabset .tabset-dropdown}
 
 ### Autotrophic {.tabset .tabset-pills}
 
-#### Absolute
+#### 10-30-50-70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "isolated_autotrophic_absolute_biomass.Rmd")}
 ```
 
-#### Relative
+#### 70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "isolated_autotrophic_relative_biomass.Rmd")}
 ```
 
 ### Heterotrophic {.tabset .tabset-pills}
 
-#### Absolute
+#### 10-30-50-70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "isolated_heterotrophic_absolute_biomass.Rmd")}
 ```
 
-#### Relative
+#### 70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "isolated_heterotrophic_relative_biomass.Rmd")}
 ```
 
-## Connected Patches {.tabset .tabset-pills}
+## Connected Patches {.tabset .tabset-dropdown}
 
 ### Autotrophic {.tabset .tabset-pills}
 
-#### Absolute
+#### 10-30-50-70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "connected_autotrophic_absolute_biomass.Rmd")}
 ```
 
-#### Relative
+#### 70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "connected_autotrophic_relative_biomass.Rmd")}
 ```
 
 ### Heterotrophic {.tabset .tabset-pills}
 
-#### Absolute
+#### 10-30-50-70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "connected_heterotrophic_absolute_biomass.Rmd")}
 ```
 
-#### Relative
+#### 70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "connected_heterotrophic_relative_biomass.Rmd")}
 ```
 
 ## Meta-ecosystems {.tabset .tabset-pills}
 
-### Absolute
+### 10-30-50-70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "metaecosystems_absolute_biomass.Rmd")}
 ```
 
-### Relative
+### 70% Flow {.tabset .tabset-pills}
+
+##### Biomass
 
 ```{r child = here("r_files", "metaecosystems_relative_biomass.Rmd")}
 ```

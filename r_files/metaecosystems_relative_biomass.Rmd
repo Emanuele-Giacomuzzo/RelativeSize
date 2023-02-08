@@ -2,15 +2,16 @@
 title: "Metaecosystems Absolute - Biomass"
 output: html_document
 date: "2023-02-07"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
-ds_metaecosystems %>%
-  filter(flow == "relative") %>%
-  ggplot(aes(x = day,
-             y = bioarea_per_volume,
-             group = interaction(day, patch_size_ml),
-             fill = patch_size_ml)) +
-  geom_boxplot()
+plot_metaecos_biomass(
+  flow_input = "relative"
+)
+```
 
+```{r}
+plot.metaecos.biomass.single.point(flow_input = "relative")
 ```

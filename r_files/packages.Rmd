@@ -47,6 +47,7 @@ library("MASS")
 library("scales")
 library("patchwork")
 library("Rmisc")
+library("viridis")
 
 conflict_prefer("load", "base")
 conflict_prefer("here", "here")

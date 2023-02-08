@@ -2,12 +2,15 @@
 title: "Parameter setting"
 output: html_document
 date: "2023-02-07"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
 displays_datasets = FALSE
 
 dodging = 0.4
+dodging_effect_sizes = 1.4
 
 resource_flow_days = c(5,9)
 resource_flow_line_type = "dotdash"
@@ -28,4 +31,12 @@ x_axis_patch_size = "Patch size (ml)"
 x_axis_log_patch_size = "Log Patch size (ml)"
 y_axis_patch_bioarea = "Bioarea Density (µm²/μl)"
 y_axis_patch_bioarea_ES = "Bioarea Density ES"
+y_axis_tot_bioarea = "Tot Bioarea (µm²)"
+
+legend_fill_patch_size = "Patch size (ml)"
+
+colour_lowest_autotrophic = "lightgreen"
+colour_highest_autotrophic = "darkgreen"
+colour_lowest_heterotrophic = "lightblue"
+colour_highest_heterotrophic = "darkblue"
 ```

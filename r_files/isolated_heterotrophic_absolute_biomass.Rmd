@@ -7,38 +7,21 @@ editor_options:
 ---
 
 ```{r}
-ds_patches %>%
-  filter(trophic_type == "heterotrophic",
-         flow == "absolute",
-         metaecosystem == "no") %>%
-  ggplot(
-    aes(
-      x = day,
-      y = bioarea_per_volume,
-      group = interaction(day, patch_size_ml),
-      color = patch_size_ml
-    )
-  ) +
-  geom_boxplot() +
-  geom_vline(
-    xintercept = resource_flow_days,
-    linetype = resource_flow_line_type,
-    color = resource_flow_line_color,
-    size = resource_flow_line_size
-  ) +
-  labs(
-    x = x_axis_date, 
-    y = y_axis_patch_bioarea,
-    color = ""
-  ) +
-  theme_bw() +
-  theme(
-    panel.grid.major = element_blank(),
-    panel.grid.minor = element_blank(),
-    legend.position = legend_position
-  ) +
-  geom_hline(yintercept = 0,
-             color = zero_line_colour,
-             linetype = zero_line_line_type,
-             size = zero_line_size)
+metaecosystem_input = "no"
+trophic_type_input = "heterotrophic"
+flow_input = "absolute"
+```
+
+```{r}
+plot_patches_biomass(
+  metaecosystem_input = metaecosystem_input,
+  trophic_type_input = trophic_type_input,
+  flow_input = flow_input
+)
+```
+
+```{r}
+plot.patch.biomass.single.point(metaecosystem_input = metaecosystem_input,
+                                trophic_type_input = trophic_type_input,
+                                flow_input = flow_input)
 ```

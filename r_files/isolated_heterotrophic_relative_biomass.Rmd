@@ -6,3 +6,22 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r}
+metaecosystem_input = "no"
+trophic_type_input = "heterotrophic"
+flow_input = "relative"
+```
+
+```{r}
+plot_patches_biomass(
+  metaecosystem_input = metaecosystem_input,
+  trophic_type_input = trophic_type_input,
+  flow_input = flow_input
+)
+```
+
+```{r}
+plot.patch.biomass.single.point(metaecosystem_input = metaecosystem_input,
+                                trophic_type_input = trophic_type_input,
+                                flow_input = flow_input)
+```
