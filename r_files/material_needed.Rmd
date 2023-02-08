@@ -6,7 +6,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-### Pipette tips {.tabset .tabset-pills}
+```{r}
+culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
+```
+
+#### Pipette tips {.tabset .tabset-pills}
 
 ```{r}
 tips_per_box_yellow = 92
@@ -42,7 +46,7 @@ Pipette tips I'll need are:
 
 -   Green tips for exchanging resources between cultures. I'll need `r green_boxes_needed` boxes for the whole experiment (`r green_boxes_needed/n_exchanges` boxes per time point).
 
-### PPM & Bacterial solution {.tabset .tabset-pills}
+#### PPM & Bacterial solution {.tabset .tabset-pills}
 
 ```{r}
 
@@ -132,7 +136,7 @@ bacs_bottles_needed_second_check = ceiling((bacs_volume_needed_second_check /
 
 -   Bacs needed for the second check of the high-density cultures: `r bacs_bottles_needed_second_check`bottles (`r volume_bacs_bottles * 1000` ml)
 
-### Protist monocultures from my collection {.tabset .tabset-pills}
+#### Protist monocultures from my collection {.tabset .tabset-pills}
 
 ```{r}
 bottles_Eug_initial = 20
@@ -162,7 +166,7 @@ other_protists_initial_needed = volume_HDC_initial_others *
 
 -   Volume needed from my collection to start the high-density cultures of all other protists: `r other_protists_initial_needed * 1000` ml
 
-### High-density cultures (HDC) {.tabset .tabset-pills}
+#### High-density cultures (HDC) {.tabset .tabset-pills}
 
 ```{r}
 n_other_protists = 10
@@ -195,7 +199,7 @@ bottles_HDC_other_protists_needed = ceiling((volume_needed_ech_protist / volume_
 
 -   All other protists high-density cultures bottles needed to assemble the experiment: `r bottles_HDC_other_protists_needed` per protist (I need `r volume_needed_ech_protist` litres of each other protist)
 
-### PPM + Bacs big bottle first time high-density {.tabset .tabset-pills}
+#### PPM + Bacs big bottle first time high-density {.tabset .tabset-pills}
 
 ```{r}
 extra_PPM_mixing_bottle_factor = 1.20

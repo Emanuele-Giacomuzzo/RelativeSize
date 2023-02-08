@@ -1,0 +1,15 @@
+---
+title: "Metaecosystems Absolute - Biomass"
+output: html_document
+date: "2023-02-07"
+---
+
+```{r}
+ds_metaecosystems %>%
+  filter(flow == "absolute") %>%
+  ggplot(aes(x = day,
+             y = bioarea_per_volume,
+             group = interaction(day, patch_size_ml),
+             fill = patch_size_ml)) +
+  geom_boxplot()
+```

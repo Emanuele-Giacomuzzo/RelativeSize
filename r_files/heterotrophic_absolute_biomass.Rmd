@@ -1,0 +1,22 @@
+---
+title: "Autotrophic relative"
+output: html_document
+date: "2023-02-07"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+ds_patches %>%
+  filter(trophic_type == "autotrophic",
+         flow == "absolute") %>%
+  ggplot(aes(x = log(patch_size_ml),
+             y = bioarea_per_volume,
+             group = interaction(flow_ml, metaecosystem),
+             fill = metaecosystem)) +
+  geom_boxplot() +
+  labs(
+    x = x_axis_log_patch_size, 
+    y = y_axis_patch_bioarea
+  )
+```

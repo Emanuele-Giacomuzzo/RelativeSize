@@ -1,0 +1,9 @@
+---
+title: "Functions"
+output: html_document
+date: "2023-02-07"
+---
+
+```{r}
+source(here("r_files", "functions", "calculate.hedges_d.R"))
+```

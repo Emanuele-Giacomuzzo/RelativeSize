@@ -1,0 +1,31 @@
+---
+title: "Parameter setting"
+output: html_document
+date: "2023-02-07"
+---
+
+```{r}
+displays_datasets = FALSE
+
+dodging = 0.4
+
+resource_flow_days = c(5,9)
+resource_flow_line_type = "dotdash"
+resource_flow_line_color = "grey"
+resource_flow_line_size = 0.7
+
+first_time_point = 0
+last_time_point = 4
+
+zero_line_colour = "black"
+zero_line_line_type = "solid"
+zero_line_size = 0.5
+
+legend_position = "top"
+
+x_axis_date = "Day"
+x_axis_patch_size = "Patch size (ml)"
+x_axis_log_patch_size = "Log Patch size (ml)"
+y_axis_patch_bioarea = "Bioarea Density (µm²/μl)"
+y_axis_patch_bioarea_ES = "Bioarea Density ES"
+```

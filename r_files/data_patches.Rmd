@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-### Patch biomass & community density (`ds_patches`)
+### Patches (`ds_patches`)
 
 -   Every row is a patch at a certain time point.
 
@@ -37,6 +37,23 @@ t2 = pop_output %>%
          time_point,
          day,
          bioarea_per_volume)
+
+load(here("data", "population", "t3.RData"))
+t3 = pop_output %>%
+  select(culture_ID,
+         date,
+         time_point,
+         day,
+         bioarea_per_volume)
+
+load(here("data", "population", "t4.RData"))
+t4 = pop_output %>%
+  select(culture_ID,
+         date,
+         time_point,
+         day,
+         bioarea_per_volume)
+
 
 rm(pop_output)
 
@@ -106,14 +123,11 @@ rm(pop_output)
 t0 = merge(t0, culture_info, by = "culture_ID")
 t1 = merge(t1, culture_info, by = "culture_ID")
 t2 = merge(t2, culture_info, by = "culture_ID")
-# t3 = merge(t3, species_ID_t3, by = "file")
-# t4 = merge(t4, species_ID_t4, by = "file")
-# t5 = merge(t5, species_ID_t5, by = "file")
-# t6 = merge(t6, species_ID_t6, by = "file")
-# t7 = merge(t7, species_ID_t7, by = "file")
+t3 = merge(t3, culture_info, by = "culture_ID")
+t4 = merge(t4, culture_info, by = "culture_ID")
 
-ds_patches = rbind(t0, t1, t2) 
-rm(t0, t1, t2)
+ds_patches = rbind(t0, t1, t2, t3, t4) 
+rm(t0, t1, t2, t3, t4)
 ```
 
 

@@ -1,5 +1,5 @@
 ---
-title: "RelativeSize"
+title: "PhD Chapter 3 - RelativeSize"
 author: "Emanuele Giacomuzzo"
 date: "`r Sys.time()`"
 output: 
@@ -17,82 +17,33 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r renv-seetings, eval = FALSE, echo = FALSE}
-
-#Manage package versions using the package "renv". 
-
-#renv::repair()
-#renv::restore()
-#renv::snapshot()
-```
-
-```{r packages, echo = FALSE, results = FALSE, message = FALSE, cache = FALSE}
-
-#Packages, conflicts, functions
-
-library("conflicted")
-library("tidyverse")
-library("grid")
-library("gridExtra") 
-library("lme4")
-library("here")
-library("MuMIn")
-library("equatiomatic")
-library("knitr")
-library("optimx")
-library("GenSA")
-library("purrr")
-library("kableExtra")
-library("DT")
-library("renv")
-library("broom")
-library("patchwork")
-library("gganimate") 
-library("gapminder")
-library("gifski")
-library("av")
-library("transformr")
-library("gifski")
-library("GGally")
-#library("strengejacke")
-library("sjPlot")
-library("sjstats")
-library("partR2")
-library("SciViews")
-library("effsize")
-library("boot")
-library("vegan")
-library("betapart")
-library("MASS")
-library("scales")
-library("patchwork")
-
-conflict_prefer("load", "base")
-conflict_prefer("here", "here")
-conflict_prefer("filter", "dplyr")
-conflict_prefer("select", "dplyr")
-conflict_prefer("mutate", "dplyr")
-conflict_prefer("arrange", "dplyr")
-conflict_prefer("summarise", "dplyr")
-conflict_prefer("rename", "dplyr")
-
-```
-
 #  {.tabset}
 
-## Overview {.tabset .tabset-pills}
-
-![](images/Experimental%20design.png)
-```{r}
-displays_datasets = FALSE
-
-label_x_axis_date = "Day"
-label_y_axis_patch_bioarea = "Patch Bioarea (µm²/μl)"
-label_x_axis_patch_size = "Patch size (ml)"
-label_x_axis_log_patch_size = "Log Patch size (ml)"
+```{r echo=FALSE, message=FALSE}
+library("here")
 ```
 
-## Data {.tabset .tabset-pills}
+```{r child = here("r_files", "packages.Rmd"), echo=FALSE}
+```
+
+```{r child = here("r_files", "functions.Rmd"), echo=FALSE}
+```
+
+```{r child = here("r_files", "parameter_setting.Rmd"), echo=FALSE}
+```
+
+## Experiment {.tabset .tabset-pills}
+
+### Design
+
+![](images/Experimental%20design.png)
+
+### Preparation {.tabset .tabset-pills}
+
+```{r child = here("r_files", "material_needed.Rmd")}
+```
+
+## Data {.tabset .tabset-dropdown}
 
 ```{r child = here("r_files", "data_culture_info.Rmd")}
 ```
@@ -100,91 +51,80 @@ label_x_axis_log_patch_size = "Log Patch size (ml)"
 ```{r child = here("r_files", "data_patches.Rmd")}
 ```
 
-## Patches {.tabset .tabset-pills}
+```{r child = here("r_files", "data_patches_effect_size.Rmd")}
+```
 
-### Autotrophic
+```{r child = here("r_files", "data_metaecosystems.Rmd")}
+```
+
+## Isolated Patches {.tabset .tabset-pills}
+
+### Autotrophic {.tabset .tabset-pills}
 
 #### Absolute
 
-```{r}
-ds_patches %>%
-  filter(trophic_type == "autotrophic",
-         flow == "absolute",
-         time_point == 2) %>%
-  ggplot(aes(x = log(patch_size_ml),
-             y = bioarea_per_volume,
-             group = interaction(patch_size_ml, metaecosystem),
-             fill = metaecosystem)) +
-  geom_boxplot() +
-  labs(
-    title = "Autotrophic absolute",
-    x = label_x_axis_log_patch_size, 
-    y = label_y_axis_patch_bioarea
-  )
+```{r child = here("r_files", "isolated_autotrophic_absolute_biomass.Rmd")}
 ```
 
 #### Relative
 
-```{r}
-ds_patches %>%
-  filter(trophic_type == "autotrophic",
-         flow == "relative",
-         time_point == 2) %>%
-  ggplot(aes(x = log(patch_size_ml),
-             y = bioarea_per_volume,
-             group = interaction(flow_ml, metaecosystem),
-             fill = metaecosystem)) +
-  geom_boxplot() +
-  labs(
-    title = "Autotrophic relative",
-    x = label_x_axis_log_patch_size, 
-    y = label_y_axis_patch_bioarea
-  )
+```{r child = here("r_files", "isolated_autotrophic_relative_biomass.Rmd")}
 ```
 
-
-### Heterotrophic
+### Heterotrophic {.tabset .tabset-pills}
 
 #### Absolute
 
-```{r}
-ds_patches %>%
-  filter(trophic_type == "heterotrophic",
-         flow == "absolute",
-         time_point == 2) %>%
-  ggplot(aes(x = log(patch_size_ml),
-             y = bioarea_per_volume,
-             group = interaction(patch_size_ml, metaecosystem),
-             fill = metaecosystem)) +
-  geom_boxplot() +
-  labs(
-    title = "Heterotrophic absolute",
-    x = label_x_axis_log_patch_size, 
-    y = label_y_axis_patch_bioarea
-  )
+```{r child = here("r_files", "isolated_heterotrophic_absolute_biomass.Rmd")}
 ```
 
 #### Relative
 
-```{r}
-ds_patches %>%
-  filter(trophic_type == "heterotrophic",
-         flow == "relative",
-         time_point == 2) %>%
-  ggplot(aes(x = log(patch_size_ml),
-             y = bioarea_per_volume,
-             group = interaction(flow_ml, metaecosystem),
-             fill = metaecosystem)) +
-  geom_boxplot() +
-  labs(
-    title = "Heterotrophic relative",
-    x = label_x_axis_log_patch_size, 
-    y = label_y_axis_patch_bioarea
-  )
+```{r child = here("r_files", "isolated_heterotrophic_relative_biomass.Rmd")}
 ```
 
-## Experiment preparation {.tabset .tabset-pills}
+## Connected Patches {.tabset .tabset-pills}
 
-```{r child = here("r_files", "material_needed.Rmd")}
+### Autotrophic {.tabset .tabset-pills}
+
+#### Absolute
+
+```{r child = here("r_files", "connected_autotrophic_absolute_biomass.Rmd")}
 ```
+
+#### Relative
+
+```{r child = here("r_files", "connected_autotrophic_relative_biomass.Rmd")}
+```
+
+### Heterotrophic {.tabset .tabset-pills}
+
+#### Absolute
+
+```{r child = here("r_files", "connected_heterotrophic_absolute_biomass.Rmd")}
+```
+
+#### Relative
+
+```{r child = here("r_files", "connected_heterotrophic_relative_biomass.Rmd")}
+```
+
+## Meta-ecosystems {.tabset .tabset-pills}
+
+### Absolute
+
+```{r child = here("r_files", "metaecosystems_absolute_biomass.Rmd")}
+```
+
+### Relative
+
+```{r child = here("r_files", "metaecosystems_relative_biomass.Rmd")}
+```
+
+## Moving forward
+
+- Calculate meta-ecosystems
+- Look at the effect size
+
+## Bibliography
 
