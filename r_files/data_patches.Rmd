@@ -54,6 +54,14 @@ t4 = pop_output %>%
          day,
          bioarea_per_volume)
 
+load(here("data", "population", "t5.RData"))
+t5 = pop_output %>%
+  select(culture_ID,
+         date,
+         time_point,
+         day,
+         bioarea_per_volume)
+
 
 rm(pop_output)
 
@@ -125,9 +133,10 @@ t1 = merge(t1, culture_info, by = "culture_ID")
 t2 = merge(t2, culture_info, by = "culture_ID")
 t3 = merge(t3, culture_info, by = "culture_ID")
 t4 = merge(t4, culture_info, by = "culture_ID")
+t5 = merge(t5, culture_info, by = "culture_ID")
 
-ds_patches = rbind(t0, t1, t2, t3, t4) 
-rm(t0, t1, t2, t3, t4)
+ds_patches = rbind(t0, t1, t2, t3, t4, t5) 
+rm(t0, t1, t2, t3, t4, t5)
 ```
 
 
