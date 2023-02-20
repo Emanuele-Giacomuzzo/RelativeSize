@@ -1,4 +1,5 @@
-plot_metaecos_biomass = function(flow_input) {
+plot.metaecos.boxplots = function(flow_input,
+                                  response_variable) {
   
   if(trophic_type_input == "autotrophic"){
     colour_lowest = colour_lowest_autotrophic
@@ -16,7 +17,7 @@ plot_metaecos_biomass = function(flow_input) {
     ) %>%
     ggplot(aes(
       x = day,
-      y = total_bioarea,
+      y = get(response_variable),
       group = interaction(day, patch_size_ml),
       fill = patch_size_ml
     )) +
@@ -27,9 +28,9 @@ plot_metaecos_biomass = function(flow_input) {
       color = resource_flow_line_color,
       linewidth = resource_flow_line_size
     ) +
-    labs(x = x_axis_date,
-         y = y_axis_tot_bioarea,
-         fill = legend_fill_patch_size) +
+    labs(x = axis_names$axis_name[axis_names$variable == "day"],
+         y = axis_names$axis_name[axis_names$variable == response_variable],
+         fill = "") +
     theme_bw() +
     theme(
       panel.grid.major = element_blank(),
@@ -44,8 +45,5 @@ plot_metaecos_biomass = function(flow_input) {
     ) +
     scale_fill_gradient(low = colour_lowest, 
                         high = colour_highest)
-  
-  plot
-  
-  return(plot)
+
 }

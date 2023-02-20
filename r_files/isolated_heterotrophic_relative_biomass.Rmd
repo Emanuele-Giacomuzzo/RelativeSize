@@ -13,7 +13,7 @@ flow_input = "relative"
 ```
 
 ```{r}
-plot_patches_biomass(
+plot.patches.boxplots(
   metaecosystem_input = metaecosystem_input,
   trophic_type_input = trophic_type_input,
   flow_input = flow_input
@@ -21,7 +21,7 @@ plot_patches_biomass(
 ```
 
 ```{r}
-plot.patch.biomass.single.point(metaecosystem_input = metaecosystem_input,
+plot.patches.points(metaecosystem_input = metaecosystem_input,
                                 trophic_type_input = trophic_type_input,
                                 flow_input = flow_input)
 ```

@@ -1,5 +1,6 @@
-plot_patches_biomass_ES = function(trophic_type_input,
-                                   flow_input) {
+plot.patches.biomass.ES = function(trophic_type_input,
+                                   flow_input,
+                                   response_variable) {
   
   if(trophic_type_input == "autotrophic"){
     colour_lowest = colour_lowest_autotrophic
@@ -11,13 +12,12 @@ plot_patches_biomass_ES = function(trophic_type_input,
     colour_highest = colour_highest_heterotrophic
   }
   
-  plot = ds_patches_effect_size %>%
-    filter(day > 0,
-           trophic_type == trophic_type_input,
+  ds_patches_effect_size %>%
+    filter(trophic_type == trophic_type_input,
            flow == flow_input) %>%
-    filter(!is.na(day), !is.na(bioarea_per_volume_d)) %>%
+    filter(!is.na(day), !is.na(get(response_variable))) %>%
     ggplot(aes(x = day,
-               y = bioarea_per_volume_d,
+               y = get(response_variable),
                group = patch_size_ml,
                color = patch_size_ml)) +
     geom_point(position = position_dodge(dodging_effect_sizes)) +
@@ -54,9 +54,5 @@ plot_patches_biomass_ES = function(trophic_type_input,
     ) +
     scale_color_gradient(low = colour_lowest, 
                         high = colour_highest)
-  
-  plot
-  
-  return(plot)
   
 }

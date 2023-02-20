@@ -1,4 +1,5 @@
-plot.metaecos.biomass.single.point = function(flow_input) {
+plot.metaecos.points = function(flow_input,
+                                response_variable) {
   
   if(trophic_type_input == "autotrophic"){
     colour_lowest = colour_lowest_autotrophic
@@ -14,14 +15,14 @@ plot.metaecos.biomass.single.point = function(flow_input) {
     
     print(paste("Time point number", time_point_input))
   
-  plot = ds_metaecosystems %>%
+  ds_metaecosystems %>%
     filter(
       flow == flow_input,
       time_point == time_point_input
     ) %>%
     ggplot(aes(
       x = patch_size_ml,
-      y = total_bioarea,
+      y = get(response_variable),
       group = patch_size_ml,
       fill = patch_size_ml
     )) +
@@ -42,9 +43,6 @@ plot.metaecos.biomass.single.point = function(flow_input) {
     ) +
     scale_fill_gradient(low = colour_lowest, 
                         high = colour_highest)
-
-  
-  print(plot)
   
   }
 }

@@ -8,9 +8,9 @@ editor_options:
 
 ```{r}
 source(here("r_files", "functions", "calculate.hedges_d.R"))
-source(here("r_files", "functions", "plot_patches_biomass.R"))
-source(here("r_files", "functions", "plot_patches_biomass_ES.R"))
+source(here("r_files", "functions", "plot.patches.boxplots.R"))
+source(here("r_files", "functions", "plot.patches.boxplots_ES.R"))
 source(here("r_files", "functions", "plot_metaecos_biomass.R"))
 source(here("r_files", "functions", "plot.metaecos.biomass.single.point.R"))
-source(here("r_files", "functions", "plot.patch.biomass.single.point.R"))
+source(here("r_files", "functions", "plot.patches.points.R"))
 ```

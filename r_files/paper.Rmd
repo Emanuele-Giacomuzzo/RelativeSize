@@ -1,0 +1,20 @@
+---
+title: "Paper"
+output: html_document
+date: "2023-02-20"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+ggarrange(
+  p_auto_ES_biomass_relative,
+  p_auto_ES_biomass_70,
+  p_hetero_ES_biomass_relative,
+  p_hetero_ES_biomass_70,
+  nrow = 2,
+  ncol = 2,
+  align = "v",
+  title = "Left: relative, Right: 70%"
+)
+```

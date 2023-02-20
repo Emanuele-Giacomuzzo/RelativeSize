@@ -1,4 +1,4 @@
-plot.patch.biomass.single.point = function(metaecosystem_input,
+plot.patches.points = function(metaecosystem_input,
                                            trophic_type_input,
                                            flow_input) {
   

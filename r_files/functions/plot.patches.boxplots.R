@@ -1,4 +1,4 @@
-plot_patches_biomass = function(metaecosystem_input,
+plot.patches.boxplots = function(metaecosystem_input,
                                 trophic_type_input,
                                 flow_input) {
   
@@ -12,7 +12,7 @@ plot_patches_biomass = function(metaecosystem_input,
     colour_highest = colour_highest_heterotrophic
   }
   
-    plot = ds_patches %>%
+    ds_patches %>%
       filter(
         metaecosystem == metaecosystem_input,
         trophic_type == trophic_type_input,
@@ -50,9 +50,5 @@ plot_patches_biomass = function(metaecosystem_input,
       ) +
       scale_fill_gradient(low = colour_lowest, 
                           high = colour_highest)
-    
-    plot
-    
-    return(plot)
     
 }

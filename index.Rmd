@@ -29,7 +29,7 @@ library("here")
 ```{r child = here("r_files", "functions.Rmd"), echo=FALSE}
 ```
 
-```{r child = here("r_files", "parameter_setting.Rmd"), echo=FALSE}
+```{r child = here("r_files", "parameters.Rmd"), echo=FALSE}
 ```
 
 ## Experiment {.tabset .tabset-pills}
@@ -45,16 +45,16 @@ library("here")
 
 ## Data {.tabset .tabset-dropdown}
 
-```{r child = here("r_files", "data_culture_info.Rmd")}
+```{r child = here("r_files", "ds_culture_info.Rmd")}
 ```
 
-```{r child = here("r_files", "data_patches.Rmd")}
+```{r child = here("r_files", "ds_patches.Rmd")}
 ```
 
-```{r child = here("r_files", "data_patches_effect_size.Rmd")}
+```{r child = here("r_files", "ds_patches_effect_size.Rmd")}
 ```
 
-```{r child = here("r_files", "data_metaecosystems.Rmd")}
+```{r child = here("r_files", "ds_metaecosystems.Rmd")}
 ```
 
 ## Isolated Patches {.tabset .tabset-dropdown}
@@ -141,10 +141,10 @@ library("here")
 ```{r child = here("r_files", "metaecosystems_relative_biomass.Rmd")}
 ```
 
-## Moving forward
+## Paper
 
-- Calculate meta-ecosystems
-- Look at the effect size
+```{r child = here("r_files", "paper.Rmd")}
+```
 
 ## Bibliography
 

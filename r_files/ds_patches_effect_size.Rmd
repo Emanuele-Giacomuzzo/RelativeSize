@@ -8,197 +8,32 @@ editor_options:
 
 ### Patch effect sizes (`ds_patches_effect_size`)
 
-```{r ds_patches_effect_size}
-ds_patches_effect_size = ds_patches %>%
-  group_by(
-    time_point,
-    day,
-    patch_size,
-    trophic_type,
-    patch_size_ml,
-    flow,
-    metaecosystem,
-    metaecosystem_type,
-    eco_metaeco_type
-  ) %>%
-  summarise(
-    sample_size = n(),
-    # baseline_bioarea = mean(baseline_bioarea),
-    # baseline_indiv_per_volume = mean(indiv_per_volume),
-    # baseline_species_richness = mean(species_richness),
-    # baseline_shannon = mean(shannon),
-    # baseline_Ble = mean(Ble),
-    # baseline_Cep = mean(Cep),
-    # baseline_Col = mean(Col),
-    # baseline_Eug = mean(Eug),
-    # baseline_Eup = mean(Eup),
-    # baseline_Lox = mean(Lox),
-    # baseline_Pau = mean(Pau),
-    # baseline_Pca = mean(Pca),
-    # baseline_Spi = mean(Spi),
-    # baseline_Spi_te = mean(Spi_te),
-    # baseline_Tet = mean(Tet),
-    # baseline_Ble_dominance = mean(Ble_dominance),
-    # baseline_Cep_dominance = mean(Cep_dominance),
-    # baseline_Col_dominance = mean(Col_dominance),
-    # baseline_Eug_dominance = mean(Eug_dominance),
-    # baseline_Eup_dominance = mean(Eup_dominance),
-    # baseline_Lox_dominance = mean(Lox_dominance),
-    # baseline_Pau_dominance = mean(Pau_dominance),
-    # baseline_Pca_dominance = mean(Pca_dominance),
-    # baseline_Spi_dominance = mean(Spi_dominance),
-    # baseline_Spi_te_dominance = mean(Spi_te_dominance),
-    # baseline_Tet_dominance = mean(Tet_dominance),
-    bioarea_per_volume_mean = mean(bioarea_per_volume),
-    bioarea_per_volume_sd = sd(bioarea_per_volume),
-    # indiv_per_volume_mean = mean(indiv_per_volume),
-    # indiv_per_volume_sd = sd(indiv_per_volume),
-    # species_richness_mean = mean(species_richness),
-    # species_richness_sd = sd(species_richness),
-    # shannon_mean = mean(shannon),
-    # shannon_sd = sd(shannon),
-    # Ble_mean = mean(Ble),
-    # Ble_sd = sd(Ble),
-    # Cep_mean = mean(Cep),
-    # Cep_sd = sd(Cep),
-    # Col_mean = mean(Col),
-    # Col_sd = sd(Col),
-    # Eug_mean = mean(Eug),
-    # Eug_sd = sd(Eug),
-    # Eup_mean = mean(Eup),
-    # Eup_sd = sd(Eup),
-    # Lox_mean = mean(Lox),
-    # Lox_sd = sd(Lox),
-    # Pau_mean = mean(Pau),
-    # Pau_sd = sd(Pau),
-    # Pca_mean = mean(Pca),
-    # Pca_sd = sd(Pca),
-    # Spi_mean = mean(Spi),
-    # Spi_sd = sd(Spi),
-    # Spi_te_mean = mean(Spi_te),
-    # Spi_te_sd = sd(Spi_te),
-    # Tet_mean = mean(Tet),
-    # Tet_sd = sd(Tet),
-    # Ble_dominance_mean = mean(Ble_dominance),
-    # Ble_dominance_sd = sd(Ble_dominance),
-    # Cep_dominance_mean = mean(Cep_dominance),
-    # Cep_dominance_sd = sd(Cep_dominance),
-    # Col_dominance_mean = mean(Col_dominance),
-    # Col_dominance_sd = sd(Col_dominance),
-    # Eug_dominance_mean = mean(Eug_dominance),
-    # Eug_dominance_sd = sd(Eug_dominance),
-    # Eup_dominance_mean = mean(Eup_dominance),
-    # Eup_dominance_sd = sd(Eup_dominance),
-    # Lox_dominance_mean = mean(Lox_dominance),
-    # Lox_dominance_sd = sd(Lox_dominance),
-    # Pau_dominance_mean = mean(Pau_dominance),
-    # Pau_dominance_sd = sd(Pau_dominance),
-    # Pca_dominance_mean = mean(Pca_dominance),
-    # Pca_dominance_sd = sd(Pca_dominance),
-    # Spi_dominance_mean = mean(Spi_dominance),
-    # Spi_dominance_sd = sd(Spi_dominance),
-    # Spi_te_dominance_mean = mean(Spi_te_dominance),
-    # Spi_te_dominance_sd = sd(Spi_te_dominance),
-    # Tet_dominance_mean = mean(Tet_dominance),
-    # Tet_dominance_sd = sd(Tet_dominance)
-  ) %>% #Initialise columns
-  mutate(bioarea_per_volume_d = NA,
-         bioarea_per_volume_d_upper = NA,
-         bioarea_per_volume_d_lower = NA,
-         bioarea_per_volume_lnRR = NA
-         # indiv_per_volume_d = NA,
-         # indiv_per_volume_d_upper = NA,
-         # indiv_per_volume_d_lower = NA,
-         # indiv_per_volume_lnRR = NA,
-         # species_richness_d = NA,
-         # species_richness_d_upper = NA,
-         # species_richness_d_lower = NA,
-         # species_richness_lnRR = NA,
-         # shannon_d = NA,
-         # shannon_d_upper = NA,
-         # shannon_d_lower = NA,
-         # shannon_lnRR = NA,
-         # Ble_d = NA,
-         # Cep_d = NA,
-         # Col_d = NA,
-         # Eug_d = NA,
-         # Eup_d = NA,
-         # Lox_d = NA,
-         # Pau_d = NA,
-         # Pca_d = NA,
-         # Spi_d = NA,
-         # Spi_te_d = NA,
-         # Tet_d = NA,
-         # Ble_dominance_d = NA,
-         # Cep_dominance_d = NA,
-         # Col_dominance_d = NA,
-         # Eug_dominance_d = NA,
-         # Eup_dominance_d = NA,
-         # Lox_dominance_d = NA,
-         # Pau_dominance_d = NA,
-         # Pca_dominance_d = NA,
-         # Spi_dominance_d = NA,
-         # Spi_te_dominance_d = NA,
-         # Tet_dominance_d = NA,
-         # Ble_d_upper = NA,
-         # Ble_d_lower = NA,
-         # Ble_lnRR = NA,
-         # Cep_d_upper = NA,
-         # Cep_d_lower = NA,
-         # Cep_lnRR = NA,
-         # Col_d_upper = NA,
-         # Col_d_lower = NA,
-         # Col_lnRR = NA,
-         # Eug_d_upper = NA,
-         # Eug_d_lower = NA,
-         # Eug_lnRR = NA,
-         # Eup_d_upper = NA,
-         # Eup_d_lower = NA,
-         # Eup_lnRR = NA,
-         # Lox_d_upper = NA,
-         # Lox_d_lower = NA,
-         # Lox_lnRR = NA,
-         # Pau_d_upper = NA,
-         # Pau_d_lower = NA,
-         # Pau_lnRR = NA,
-         # Pca_d_upper = NA,
-         # Pca_d_lower = NA,
-         # Pca_lnRR = NA,
-         # Spi_d_upper = NA,
-         # Spi_d_lower = NA,
-         # Spi_lnRR = NA,
-         # Spi_te_d_upper = NA,
-         # Spi_te_d_lower = NA,
-         # Spi_te_lnRR = NA,
-         # Tet_d_upper = NA,
-         # Tet_d_lower = NA,
-         # Tet_lnRR = NA,
-         # Ble_dominance_d_upper = NA,
-         # Ble_dominance_d_lower = NA,
-         # Cep_dominance_d_upper = NA,
-         # Cep_dominance_d_lower = NA,
-         # Col_dominance_d_upper = NA,
-         # Col_dominance_d_lower = NA,
-         # Eug_dominance_d_upper = NA,
-         # Eug_dominance_d_lower = NA,
-         # Eup_dominance_d_upper = NA,
-         # Eup_dominance_d_lower = NA,
-         # Lox_dominance_d_upper = NA,
-         # Lox_dominance_d_lower = NA,
-         # Pau_dominance_d_upper = NA,
-         # Pau_dominance_d_lower = NA,
-         # Pca_dominance_d_upper = NA,
-         # Pca_dominance_d_lower = NA,
-         # Spi_dominance_d_upper = NA,
-         # Spi_dominance_d_lower = NA,
-         # Spi_te_dominance_d_upper = NA,
-         # Spi_te_dominance_d_lower = NA,
-         # Tet_dominance_d_upper = NA,
-         # Tet_dominance_d_lower = NA
-         )
-```
-
 ```{r}
+
+#Calculate the mean & sd of response variables for each treatment at each time point
+ds_patches_effect_size <- ds_patches %>%
+  group_by(eco_metaeco_type, 
+           trophic_type,
+           flow,
+           patch_size, 
+           patch_size_ml,
+           time_point, 
+           day) %>%
+  summarise(across(all_of(vars),
+                   list(mean = mean, sd = sd)),
+            sample_size = n())
+
+#Initialise columns
+for (var in vars) {
+  ds_patches_effect_size <- ds_patches_effect_size %>%
+    mutate(
+      !!paste0(var, "_d") := NA,
+      !!paste0(var, "_d_upper") := NA,
+      !!paste0(var, "_d_lower") := NA
+    )
+}
+
+#Define treatments and controls
 treatments_and_controls = data.frame(
   treatment = c(
     "AutoS_absolute_connected",
@@ -239,7 +74,9 @@ treatments_and_controls = data.frame(
 )
 
 n_of_treatments = nrow(treatments_and_controls)
+```
 
+```{r}
 row_n = 0
 for (treatment_n in 1:n_of_treatments) {
   for (time_point_input in first_time_point:last_time_point) {
@@ -287,42 +124,32 @@ for (treatment_n in 1:n_of_treatments) {
         ds_patches_effect_size$time_point == time_point_input] =
       hedges_d_bioarea$lower_CI
     
-    ds_patches_effect_size$bioarea_per_volume_lnRR[
-      ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-        ds_patches_effect_size$time_point == time_point_input] =
-      ln(treatment_row$bioarea_per_volume_mean / control_row$bioarea_per_volume_mean)
-    
-    
-    # ### Individuals per volume
-    # 
-    # hedges_d_indiv_per_volume = calculate.hedges_d(
-    #   treatment_row$indiv_per_volume_mean,
-    #   treatment_row$indiv_per_volume_sd,
-    #   treatment_row$sample_size,
-    #   control_row$indiv_per_volume_mean,
-    #   control_row$indiv_per_volume_sd,
-    #   control_row$sample_size
-    # )
-    # 
-    # ds_patches_effect_size$indiv_per_volume_d[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-    #                                             ds_patches_effect_size$time_point == time_point_input &
-    #                                             ds_patches_effect_size$disturbance == disturbance_input] =
-    #   hedges_d_indiv_per_volume$d
-    # 
-    # ds_patches_effect_size$indiv_per_volume_d_lower[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-    #                                                   ds_patches_effect_size$time_point == time_point_input &
-    #                                                   ds_patches_effect_size$disturbance == disturbance_input] =
-    #   hedges_d_indiv_per_volume$lower_CI
-    # 
-    # ds_patches_effect_size$indiv_per_volume_d_upper[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-    #                                                   ds_patches_effect_size$time_point == time_point_input &
-    #                                                   ds_patches_effect_size$disturbance == disturbance_input] =
-    #   hedges_d_indiv_per_volume$upper_CI
-    # 
-    # ds_patches_effect_size$indiv_per_volume_lnRR[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-    #                                                ds_patches_effect_size$time_point == time_point_input &
-    #                                                ds_patches_effect_size$disturbance == disturbance_input] =
-    #   ln(treatment_row$indiv_per_volume_mean / control_row$indiv_per_volume_mean)
+    ### Individuals per volume
+
+    hedges_d_indiv_per_volume = calculate.hedges_d(
+      treatment_row$indiv_per_volume_mean,
+      treatment_row$indiv_per_volume_sd,
+      treatment_row$sample_size,
+      control_row$indiv_per_volume_mean,
+      control_row$indiv_per_volume_sd,
+      control_row$sample_size
+    )
+
+    ds_patches_effect_size$indiv_per_volume_d[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
+                                                ds_patches_effect_size$time_point == time_point_input &
+                                                ds_patches_effect_size$disturbance == disturbance_input] =
+      hedges_d_indiv_per_volume$d
+
+    ds_patches_effect_size$indiv_per_volume_d_lower[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
+                                                      ds_patches_effect_size$time_point == time_point_input &
+                                                      ds_patches_effect_size$disturbance == disturbance_input] =
+      hedges_d_indiv_per_volume$lower_CI
+
+    ds_patches_effect_size$indiv_per_volume_d_upper[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
+                                                      ds_patches_effect_size$time_point == time_point_input &
+                                                      ds_patches_effect_size$disturbance == disturbance_input] =
+      hedges_d_indiv_per_volume$upper_CI
+
     # 
     # ### Species richness
     # 
@@ -1015,6 +842,17 @@ for (treatment_n in 1:n_of_treatments) {
     
   }
 }
+```
+
+```{r}
+#Add baselines (from t1).
+baselines <- ds_patches_effect_size %>%
+  filter(time_point == 1) %>%
+  group_by(eco_metaeco_type) %>%
+  summarise(across(paste0(vars, "_d"), 
+                   .names = "baseline_{.col}"))
+
+ds_patches_effect_size = full_join(ds_patches_effect_size, baselines)
 ```
 
 ```{r}

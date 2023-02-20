@@ -1,0 +1,245 @@
+---
+title: "Data - Patches"
+output: html_document
+date: "2023-01-23"
+editor_options: 
+  chunk_output_type: console
+---
+
+### Patches (`ds_patches`)
+
+-   Every row is a patch at a certain time point.
+
+```{r, message = FALSE, echo = TRUE}
+time_points_ds = NULL
+for (time_point in first_time_point:last_time_point) {
+  
+  load(here("data", "population", paste0(paste0("t",time_point),".RData")))
+  
+    time_points_ds[[time_point+1]] = pop_output #%>%
+  #   left_join(read.csv(here("data", 
+  #                           "population_species_ID_Ble", 
+  #                           paste0("species_ID_t", time_point, ".csv"))) %>%
+  #               select(file,
+  #                      Ble),
+  #             by = "file") %>%
+  #   left_join(read.csv(here("data", 
+  #                           "population_species_ID", 
+  #                           paste0("species_ID_t", time_point, ".csv"))) %>%
+  #               select(file,
+  #                      Cep:Tet),
+  #             by = "file")
+  
+  time_points_ds[[time_point+1]] = time_points_ds[[time_point+1]] %>%
+    select(file,
+           culture_ID,
+           bioarea_per_volume,
+           # protist_species[1]:protist_species[n_protist_species]
+           indiv_per_volume) %>%
+    mutate(time_point = time_point,
+           day = sampling_days[time_point + 1])
+  
+}
+
+ds_patches = time_points_ds %>%
+  bind_rows() %>%
+  left_join(culture_info,
+            by = "culture_ID")
+```
+
+```{r}
+ds_patches = ds_patches %>%
+  filter(! culture_ID %in% ecosystems_to_take_off)
+```
+
+```{r}
+
+#Change all the measures to ml
+#1. Bioarea_per_volume in the original data is in µm2 / µl -> convert to µm2 / ml
+#2. Indiv_per_volume & all protists in the original data are in individuals / µl -> convert to individuals / ml
+ds_patches = ds_patches %>%
+  mutate(bioarea_per_volume = bioarea_per_volume / 1000,
+        indiv_per_volume = indiv_per_volume / 1000)
+         # Ble = Ble / 1000,
+         # Cep = Cep / 1000,
+         # Col = Col / 1000,
+         # Eug = Eug / 1000,
+         # Eup = Eup / 1000,
+         # Lox = Lox / 1000,
+         # Pau = Pau / 1000,
+         # Pca = Pca / 1000,
+         # Spi = Spi / 1000,
+         # Spi_te = Spi_te / 1000,
+         # Tet = Tet / 1000)
+```
+
+```{r}
+#Calculate total response variable for the whole patch
+
+ds_patches = ds_patches %>%
+  mutate(bioarea_tot = bioarea_per_volume * patch_size_ml,
+         indiv_tot = indiv_per_volume * patch_size_ml)
+         # Ble_tot = Ble * patch_size_ml,
+         # Cep_tot = Cep * patch_size_ml,
+         # Col_tot = Col * patch_size_ml,
+         # Eug_tot = Eug * patch_size_ml,
+         # Eup_tot = Eup * patch_size_ml,
+         # Lox_tot = Lox * patch_size_ml,
+         # Pau_tot = Pau * patch_size_ml,
+         # Pca_tot = Pca * patch_size_ml,
+         # Spi_tot = Spi * patch_size_ml,
+         # Spi_te_tot = Spi_te * patch_size_ml,
+         # Tet_tot = Tet * patch_size_ml)
+```
+
+```{r}
+
+#Calculate species dominance
+# ds_patches = ds_patches %>%
+#   mutate(Ble_dominance = (Ble / indiv_per_volume) * 100,
+#          Cep_dominance = (Cep / indiv_per_volume) * 100,
+#          Col_dominance = (Col / indiv_per_volume) * 100,
+#          Eug_dominance = (Eug / indiv_per_volume) * 100,
+#          Eup_dominance = (Eup  / indiv_per_volume) * 100,
+#          Lox_dominance = (Lox / indiv_per_volume) * 100,
+#          Pau_dominance = (Pau / indiv_per_volume) * 100,
+#          Pca_dominance = (Pca / indiv_per_volume) * 100,
+#          Spi_dominance = (Spi / indiv_per_volume) * 100,
+#          Spi_te_dominance = (Spi_te / indiv_per_volume) * 100,
+#          Tet_dominance = (Tet / indiv_per_volume) * 100)
+```
+
+```{r calculate_alpha_diversity_(ds_patches)}
+
+#Calculate alpha diversity (shannon, simpson, inv simpson, evenness)
+# ds_patches$species_richness = NA
+# ds_patches$shannon = NA
+# ds_patches$simpson = NA
+# ds_patches$inv_simpson = NA
+# ds_patches$evenness_pielou = NA
+# 
+# 
+# for (row in 1:nrow(ds_patches)) {
+#   
+#   species_vector = ds_patches %>%
+#     slice(row) %>%
+#     select(protist_species[1]:protist_species[n_protist_species])
+#   
+#   ds_patches[row,]$species_richness = species_vector %>%
+#     mutate_at(vars(protist_species),
+#               funs(ifelse(. > 0,
+#                           yes = 1,
+#                           no = 0))) %>%
+#     rowSums()
+#   
+#   ds_patches[row, ]$simpson = diversity(species_vector,
+#                                         index = "simpson")
+#   
+#   ds_patches[row, ]$shannon = diversity(species_vector,
+#                                         index = "shannon")
+#   
+#   ds_patches[row, ]$inv_simpson = diversity(species_vector,
+#                                             index = "invsimpson")
+#   
+#   ds_patches[row, ]$evenness_pielou = diversity(species_vector) / 
+#                                       log(specnumber(species_vector))
+#   
+# }
+```
+
+```{r add_baselines_(ds_patches)}
+
+#Add baselines (from t1).
+baselines <- ds_patches %>%
+  filter(time_point == 1) %>%
+  group_by(culture_ID) %>%
+  summarise(across(vars, .names = "baseline_{.col}"))
+
+ds_patches = full_join(ds_patches, baselines)
+```
+
+```{r}
+
+#Rename patches
+# ds_patches$eco_metaeco_type <- recode(
+#   ds_patches$eco_metaeco_type,
+#   "AutoS_absolute" = "Small autotrophic isolated (absolute)",
+#   "AutoSM_absolute" = "Small-Medium autotrophic isolated (absolute)",
+#   "AutoML_absolute" = "Medium-Large autotrophic isolated (absolute)",
+#   "AutoL_absolute" = "Large autotrophic isolated (absolute)",
+#   "HeteroS_absolute" = "Small heterotrophic isolated (absolute)",
+#   "HeteroSM_absolute" = "Small-Medium heterotrophic isolated (absolute)",
+#   "HeteroML_absolute" = "Medium-Large heterotrophic isolated (absolute)",
+#   "HeteroL_absolute" = "Large heterotrophic isolated (absolute)",
+#   "AutoS_absolute_connected" = "Small autotrophic (absolute)",
+#   "AutoSM_absolute_connected" = "Small-Medium autotrophic (absolute)",
+#   "AutoML_absolute_connected" = "Medium-Large autotrophic (absolute)",
+#   "AutoL_absolute_connected" = "Large autotrophic (absolute)",
+#   "HeteroS_absolute_connected" = "Small heterotrophic (absolute)",
+#   "HeteroSM_absolute_connected" = "Small-Medium heterotrophic (absolute)",
+#   "HeteroML_absolute_connected" = "Medium-Large heterotrophic (absolute)",
+#   "HeteroL_absolute_connected" = "Large heterotrophic (absolute)",
+#   "AutoS_relative" = "Small autotrophic isolated (relative)",
+#   "AutoSM_relative" = "Small-Medium autotrophic isolated (relative)",
+#   "AutoML_relative" = "Medium-Large autotrophic isolated (relative)",
+#   "AutoL_relative" = "Large autotrophic isolated (relative)",
+#   "HeteroS_relative" = "Small heterotrophic isolated (relative)",
+#   "HeteroSM_relative" = "Small-Medium heterotrophic isolated (relative)",
+#   "HeteroML_relative" = "Medium-Large heterotrophic isolated (relative)",
+#   "HeteroL_relative" = "Large heterotrophic isolated (relative)",
+#   "AutoS_relative_connected" = "Small autotrophic (relative)",
+#   "AutoSM_relative_connected" = "Small-Medium autotrophic (relative)",
+#   "AutoML_relative_connected" = "Medium-Large autotrophic (relative)",
+#   "AutoL_relative_connected" = "Large autotrophic (relative)",
+#   "HeteroS_relative_connected" = "Small heterotrophic (relative)",
+#   "HeteroSM_relative_connected" = "Small-Medium heterotrophic (relative)",
+#   "HeteroML_relative_connected" = "Medium-Large heterotrophic (relative)",
+#   "HeteroL_relative_connected" = "Large heterotrophic (relative)"
+# )
+```
+
+```{r}
+#Reorder patches
+# ds_patches = ds_patches %>%
+#   mutate(eco_metaeco_type = factor(
+#     eco_metaeco_type,
+#     levels = c(
+#       "Small autotrophic isolated (absolute)",
+#       "Small-Medium autotrophic (absolute)",
+#       "Medium-Large autotrophic (absolute)",
+#       "Large autotrophic (absolute)",
+#       "Small heterotrophic (absolute)",
+#       "Small-Medium heterotrophic (absolute)",
+#       "Medium-Large heterotrophic (absolute)",
+#       "Large heterotrophic (absolute)",
+#       "Small autotrophic (absolute)",
+#       "Small-Medium autotrophic (absolute)",
+#       "Medium-Large autotrophic (absolute)",
+#       "Large autotrophic (absolute)",
+#       "Small heterotrophic (absolute)",
+#       "Small-Medium heterotrophic (absolute)",
+#       "Medium-Large heterotrophic (absolute)",
+#       "Large heterotrophic (absolute)",
+#       "Small autotrophic isolated (relative)",
+#       "Small-Medium autotrophic (relative)",
+#       "Medium-Large autotrophic (relative)",
+#       "Large autotrophic (relative)",
+#       "Small heterotrophic (relative)",
+#       "Small-Medium heterotrophic (relative)",
+#       "Medium-Large heterotrophic (relative)",
+#       "Large heterotrophic (relative)",
+#       "Small autotrophic (relative)",
+#       "Small-Medium autotrophic (relative)",
+#       "Medium-Large autotrophic (relative)",
+#       "Large autotrophic (relative)",
+#       "Small heterotrophic (relative)",
+#       "Small-Medium heterotrophic (relative)",
+#       "Medium-Large heterotrophic (relative)",
+#       "Large heterotrophic (relative)"
+#     )
+#   ))
+```
+
+```{r}
+saveRDS(ds_patches, file = here("results", "ds_patches.RData"))
+```
