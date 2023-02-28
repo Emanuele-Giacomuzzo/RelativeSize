@@ -6,11 +6,10 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
-source(here("r_files", "functions", "calculate.hedges_d.R"))
-source(here("r_files", "functions", "plot.patches.boxplots.R"))
-source(here("r_files", "functions", "plot.patches.boxplots_ES.R"))
-source(here("r_files", "functions", "plot_metaecos_biomass.R"))
-source(here("r_files", "functions", "plot.metaecos.biomass.single.point.R"))
-source(here("r_files", "functions", "plot.patches.points.R"))
+```{r echo=FALSE, message=FALSE, results=FALSE}
+functions_paths = list.files(here("..", "Functions"), pattern = ".R$", full.names = TRUE)
+lapply(functions_paths, source)
+
+functions_paths = list.files(here("r_files", "functions"), pattern = ".R$", full.names = TRUE)
+lapply(functions_paths, source)
 ```

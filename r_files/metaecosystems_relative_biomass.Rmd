@@ -7,11 +7,18 @@ editor_options:
 ---
 
 ```{r}
-plot_metaecos_biomass(
-  flow_input = "relative"
+flow_input = "relative"
+response_variable = "bioarea_per_volume"
+```
+
+```{r}
+plot.metaecos.boxplots(
+  flow_input,
+  response_variable
 )
 ```
 
 ```{r}
-plot.metaecos.biomass.single.point(flow_input = "relative")
+plot.metaecos.boxplots.time.points(flow_input,
+                                   response_variable)
 ```

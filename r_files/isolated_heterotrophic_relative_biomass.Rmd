@@ -21,7 +21,7 @@ plot.patches.boxplots(
 ```
 
 ```{r}
-plot.patches.points(metaecosystem_input = metaecosystem_input,
+plot.patches.size.response.boxplots(metaecosystem_input = metaecosystem_input,
                                 trophic_type_input = trophic_type_input,
                                 flow_input = flow_input)
 ```

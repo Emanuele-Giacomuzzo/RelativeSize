@@ -8,13 +8,48 @@ editor_options:
 
 ```{r}
 ggarrange(
-  p_auto_ES_biomass_relative,
-  p_auto_ES_biomass_70,
-  p_hetero_ES_biomass_relative,
-  p_hetero_ES_biomass_70,
+  p_auto_ES_biomass_relative +
+    rremove("xlab") + 
+    labs(y = "Bioarea Density ES Relative"),
+   p_hetero_ES_biomass_relative+
+    rremove("xlab") +
+    rremove("ylab") +
+    labs(y = "Bioarea Density ES Relative"),
+  p_auto_ES_biomass_70 +
+    rremove("legend") +
+    labs(y = "Bioarea Density ES 70"),
+  p_hetero_ES_biomass_70 +
+    rremove("ylab") +
+    rremove("legend") +
+    labs(y = "Bioarea Density ES 70"),
   nrow = 2,
   ncol = 2,
-  align = "v",
-  title = "Left: relative, Right: 70%"
+  align = "v"
+)
+```
+
+```{r}
+ggarrange(
+  p_auto_ES_biomass_relative +
+    rremove("xlab") + 
+    labs(y = "Bioarea Density ES Relative"),
+   p_auto_ES_biomass_70 +
+    rremove("legend") +
+    labs(y = "Bioarea Density ES 70"),
+  nrow = 2,
+  align = "v"
+)
+```
+
+```{r}
+ggarrange(
+  p_hetero_ES_biomass_relative +
+    rremove("xlab") + 
+    labs(y = "Bioarea Density ES Relative"),
+   p_hetero_ES_biomass_70 +
+    rremove("legend") +
+    labs(y = "Bioarea Density ES 70"),
+  nrow = 2,
+  align = "v"
 )
 ```

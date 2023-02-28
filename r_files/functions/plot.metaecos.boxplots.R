@@ -11,7 +11,7 @@ plot.metaecos.boxplots = function(flow_input,
     colour_highest = colour_highest_heterotrophic
   }
   
-  plot = ds_metaecosystems %>%
+  ds_metaecosystems %>%
     filter(
       flow == flow_input
     ) %>%
@@ -25,12 +25,12 @@ plot.metaecos.boxplots = function(flow_input,
     geom_vline(
       xintercept = resource_flow_days,
       linetype = resource_flow_line_type,
-      color = resource_flow_line_color,
-      linewidth = resource_flow_line_size
+      color = resource_flow_line_colour,
+      linewidth = resource_flow_line_width
     ) +
     labs(x = axis_names$axis_name[axis_names$variable == "day"],
          y = axis_names$axis_name[axis_names$variable == response_variable],
-         fill = "") +
+         fill = axis_names$axis_name[axis_names$variable == "patch_size_ml"]) +
     theme_bw() +
     theme(
       panel.grid.major = element_blank(),
@@ -41,7 +41,7 @@ plot.metaecos.boxplots = function(flow_input,
       yintercept = 0,
       color = zero_line_colour,
       linetype = zero_line_line_type,
-      linewidth = zero_line_size
+      linewidth = zero_line_line_width
     ) +
     scale_fill_gradient(low = colour_lowest, 
                         high = colour_highest)

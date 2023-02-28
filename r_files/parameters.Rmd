@@ -96,6 +96,7 @@ legend_fill_patch_size = "Patch size (ml)"
 axis_names = data.frame(variable = NA,
                     axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Day") %>%
+  add_row(variable = "patch_size_ml", axis_name = "Patch Size (ml)") %>%
   add_row(variable = "log_size_class", axis_name = "Log size (μm2)") %>%
   add_row(variable = "size_class_abundance", axis_name = "Density (ind/ml)") %>%
   add_row(variable = "bioarea_per_volume", axis_name = "Bioarea Density (µm²/ml)") %>%

@@ -129,14 +129,14 @@ library("here")
 
 ### 10-30-50-70% Flow {.tabset .tabset-pills}
 
-##### Biomass
+#### Biomass
 
 ```{r child = here("r_files", "metaecosystems_absolute_biomass.Rmd")}
 ```
 
 ### 70% Flow {.tabset .tabset-pills}
 
-##### Biomass
+#### Biomass
 
 ```{r child = here("r_files", "metaecosystems_relative_biomass.Rmd")}
 ```

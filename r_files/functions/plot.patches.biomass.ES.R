@@ -30,9 +30,9 @@ plot.patches.biomass.ES = function(trophic_type_input,
       position = position_dodge(dodging_effect_sizes)
     ) +
     labs(
-      x = x_axis_date,
-      y = y_axis_patch_bioarea_ES,
-      color = ""
+      x = axis_names$axis_name[axis_names$variable == "day"],
+      y = axis_names$axis_name[axis_names$variable == response_variable],
+      color = axis_names$axis_name[axis_names$variable == "patch_size_ml"]
     ) +
     theme_bw() +
     theme(
@@ -43,8 +43,8 @@ plot.patches.biomass.ES = function(trophic_type_input,
     geom_vline(
       xintercept = resource_flow_days,
       linetype = resource_flow_line_type,
-      color = resource_flow_line_color,
-      linewidth = resource_flow_line_size
+      color = resource_flow_line_colour,
+      linewidth = resource_flow_line_width
     ) +
     geom_hline(
       yintercept = 0,

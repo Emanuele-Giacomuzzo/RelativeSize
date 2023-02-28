@@ -135,19 +135,19 @@ for (treatment_n in 1:n_of_treatments) {
       control_row$sample_size
     )
 
-    ds_patches_effect_size$indiv_per_volume_d[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-                                                ds_patches_effect_size$time_point == time_point_input &
-                                                ds_patches_effect_size$disturbance == disturbance_input] =
+    ds_patches_effect_size$indiv_per_volume_d[
+      ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
+        ds_patches_effect_size$time_point == time_point_input] =
       hedges_d_indiv_per_volume$d
 
-    ds_patches_effect_size$indiv_per_volume_d_lower[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-                                                      ds_patches_effect_size$time_point == time_point_input &
-                                                      ds_patches_effect_size$disturbance == disturbance_input] =
+    ds_patches_effect_size$indiv_per_volume_d_lower[
+      ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
+        ds_patches_effect_size$time_point == time_point_input] =
       hedges_d_indiv_per_volume$lower_CI
 
-    ds_patches_effect_size$indiv_per_volume_d_upper[ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
-                                                      ds_patches_effect_size$time_point == time_point_input &
-                                                      ds_patches_effect_size$disturbance == disturbance_input] =
+    ds_patches_effect_size$indiv_per_volume_d_upper[
+      ds_patches_effect_size$eco_metaeco_type == eco_metaeco_treatment &
+        ds_patches_effect_size$time_point == time_point_input] =
       hedges_d_indiv_per_volume$upper_CI
 
     # 
