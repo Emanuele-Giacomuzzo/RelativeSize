@@ -1,10 +1,82 @@
 ---
-title: "Paper"
+title: "Paper CHAPTER 3"
 output: html_document
 date: "2023-02-20"
 editor_options: 
   chunk_output_type: console
 ---
+
+### Title page
+
+Title: Relative vs Absolute: effects of patch size changes according to disturbance depends upon patch size
+
+Authors: Emanuele Giacomuzzo 1,2, Tianna Peller 1,2 , Isabelle Gounand 3, Florian Altermatt 1,2
+
+1 Department of Evolutionary Biology and Environmental Studies, University of Zurich, Zurich, Switzerland
+
+2 Department of Aquatic Ecology, Eawag: Swiss Federal Institute of Aquatic Science and Technology, Dübendorf, Switzerland
+
+3 Institute of Ecology and Environmental Sciences (iEES-Paris)
+
+Number of words: ... Number of figures: ...
+
+### Abstract
+
+Keywords: ecosystem function, meta-ecosystem, homogenisation, detritus, protists, patch size, scaling, subsidies, subsidies island biogeography, disturbance
+
+### Introduction
+
+### Methods
+
+#### Experimental design
+
+The effects of relative vs absolute to patch size resource flow on meta-ecosystems was examined through a protist microcosm experiment (@Altermatt2015). Each meta-ecosystem consisted of an autotrophic and an heterotrophic cultures that were exposed to a disturbance regime. During each disturbance event, a portion of the community was transformed into detritus, which flowed bidirectionally between cultures. Within a meta-ecosystem, only detritus was exchanged. No organism dispersed.
+
+Detritus flow was created in different ways whether it was absolute or relative to patch size. In the absolute flow, a fixed volume of each patch was killed, leading to a greater level of disturbance from large to small patches. In the relative flow, 70% of the volume of each patch was killed, leading to the same disturbance in all patch sizes. This method was also used in isolated patches, with the detritus remaining in the originating patch.
+
+Meta-ecosystems had four sizes: two small patches of 6.43 ml, two small-medium patches of 9 ml, two medium-large patches of 15 ml, or two large patches of 45 ml. We then classified them into absolute or relative flow. Note that for meta-ecosystems with small patches relative and absolute flow are the same. Control isolated patches were also created to mimic the other patches. See Figure 1.
+
+```{r}
+figure_caption_1 = "Figure 1. Experimental design. The effects of absolute vs relative to patch size resource flows on meta-ecosystems were investigated by constructing meta-ecosystems consisting of one autotrophic and one heterotrophic patches. Patches exchanged only detritus, without any organism dispersal. Comparisons were made along a meta-ecosystem size gradient of four sizes - small, small-medium, medium-large, and large. For each meta-ecosystem size two meta-ecosystems were compared: one where resource flow was absolute (4.5 ml), the other where resource flow was relative (70% of the patch). We also examined the effect of detritus flow on singular patches by comparing them to isolated patches. Autotrophic ecosystems were monocultures of the alga Euglena gracilis. Heterotrophic ecosystems were mixed cultures of 10 heterotrophic species. Each treatment was replicated six times.
+[To do: think about how to explain the absolute and relative resource flow so that you can also explain that you did the same thing in isolated patches.]"
+```
+
+![`r figure_caption_1`](images/Experimental%20design.png)
+
+As we noted that part of the cultures evaporated, we added water and medium regularly to keep the volume of cultures unchanged (see supplementary information).
+
+#### Experimental setup
+
+In preparation for the experiment, we cultured 11 microbial species, which we refer to as protists. These were nine water ciliates (*Euplotes aediculatus*, *Colpidium sp.*, *Loxocephalus sp.*, *Paramecium aurelia*, *Paramecium caudatum*, *Spirostomum sp.*, *Spirostomum teres*, *Tetrahymena cf. pyriformis*, and *Blepharisma sp.*), one alga (*Euglena gracilis*), and one rotifer (*Cephalodella sp.*). Protists were cultured in autoclaved bottles with medium (0.46 g/L of Protozoa Pellet by Carolina), two wheat seeds, and a bacterial mix comprising *Serratia fonticola*, *Bacillus subtilis*, and *Brevibacillus brevis* (see @Altermatt2015 for protocols). The bacterial mix constituted 5% of the total culture volume. Protists were brought close to carrying capacity before we assembled the experiment.
+
+On day zero, we filled two large bottles. In the first we assembled the heterotrophic community by filling it with the same volume of each of the ten heterotrophic protists. In the second we created a large monoculture of Euglena gracilis. From this large bottles, we pipetted into sterile cell flasks according to whether they were autotrophs or heterotrophs. We pipetted 7.5 ml, 22.5 ml, and 37.5 ml into the small, medium, and large patches, respectively. The cultures were then randomized and kept in an incubator at 20°C with constant lighting.\
+[To do: ask if I should put the brand and model of the incubator] [To do: check brand of cell flasks] [To do: check volume of cell flasks]
+
+#### Disturbance & detritus flow
+
+To connect meta-ecosystem patches through detritus flow, we periodically boiled to death part of the community and made it flow to the other patch. This happened at the same time for both patches, creating a simultaneous bidirectional flow. To make isolated patches comparable to meta-ecosystem patches, we also boiled part of their community, but poured back the boiled community into its original patch.
+
+Cultures were subjected to two levels of disturbance: either absolute (4.5 ml) or relative to their size (70% of size). This meant that at absolute disturbance 70% of the small patches, 50% of the small-medium patches, 30% of the medium-large patches, and 10% of the small patches were disturbed. The smaller the patch, the more disturbed. At high disturbance, 90% of the small patches, 30% of the medium patches, and 18% of the large patches was disturbed. Patches were disturbed every four days, starting on day five. We boiled cultures using a microwave (Sharp R-202).
+
+#### Sampling
+
+To characterise the community, we periodically sampled 0.2 ml of each microcosm, which we filmed for five seconds under a dissecting microscope (@Pennekamp2013; @Pennekamp2015). The patches were sampled every four days, starting on day zero. At day zero, we sampled the community present inside the large bottle from which we assembled the cultures. The last two time points were sampled twice to minimise the large error coming from detecting individuals in sparse cultures.
+
+To identify species in the videos we would have taken during the experiment to sample the protist community, we sampled the monocultures from which we assembled the protist community. We took videos of the monocultures until we reached at least 100 individuals identified. We did this the day before the assembling of the experiment.
+
+#### Deriving biomass and biodiversity
+
+To characterise protist communities, we extracted the abundance and traits (e.g., speed, shape, size) of moving particles in the videos. Then used such traits to filter out particles that weren't protists. The area of protists gave us a proxy for biomass, which we call bioarea. This was done using the R-package BEMOVI (@Pennekamp2015). Species were identified using support vector machine (ref) with the r package svm (ref). As a training dataset we used the videos of protist monocultures used for assembling the experiment. The predictive model included all the traits measured in the video (see ref. bemovi paper).
+
+We computed biodiversity as follows. For each patch, we calculated Evenness as Pielou index (ref) and biodiversity as Shannon Index (ref). For each meta-ecosystem, we calculated alpha diversity as the mean Shannon Index among patches, beta diversity as Bray-Curtis index among patches of the same meta-ecosystem (ref), and gamma diversity as the number of species persisting in at least one of the two patches.
+
+#### Statistical analysis
+
+The effect sizes of the connection of patches was calculated as the response variable of the treatment (e.g., Shannon index of small patches connected to large) compared to the response variable of the isolated (e.g., Shannon index of small isolated patches). The response for the treatment and the isolated were computed across disturbance level and time point. The effect size was measured as Hedge's d, which is the difference in the mean between treatment and control corrected for the variance of the pooled treatment and control (ref).
+
+Where possible, response variables were analysed using mixed effect models (ref) using the r package lme4 (ref). Null models always included two effects. The first was the time as fixed variable. The second was the random effect of replicate on the slope and intercept of the effect of time on the response variable. However, for effect sizes replicates were pooled and the effect of replicates couldn't be included. Therefore, we used linear models instead. Models were select according to the Akaike Information Criterion (AIC) (ref), computed using the AIC function of r package base (ref).
+
+To investigate the effects of resource flow in Small-Large and Medium-Medium meta-ecosystems, we constructed what we call isolated systems. Small-Large isolated systems were made of one small and one large isolated patches. Medium-Medium isolated systems were made of two medium isolated patches - which could not be the same patch. To compare meta-ecosystems with their isolated counterpart, we iterated multiple comparisons from which we derived a distribution of p-values and ΔAIC. Each iteration comprised isolated systems in which patches were combined differently, without resampling. The p-value and ΔAIC we present is the mean of their distribution.
 
 ```{r}
 ggarrange(
