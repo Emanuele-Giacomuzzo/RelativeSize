@@ -6,46 +6,15 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r knitting-options}
-knitr::opts_chunk$set(message = FALSE, 
-                      cache = FALSE,
-                      autodep = FALSE)
-recompute_analyses = FALSE #Lengthy analyses have been suppressed. Set recompute_analyses = TRUE to redo them. 
-compute_n_display_datasets = TRUE
-include_non_clean_scripts = FALSE
-include_incomplete_time_series = FALSE
-include_GIFS = FALSE
-save_figures = TRUE
-displays_datasets = FALSE
+```{r}
+#Resource flow
+resource_flow_days = c(5, 9, 13, 17, 21, 25)
 ```
 
-```{r experiment}
- 
-#Protists
-protist_species_hetero = c("Ble", "Cep", "Col", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
-n_protist_species_hetero = length(protist_species_hetero)
-
-#Patches
-culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
-n_cultures = max(culture_info$culture_ID)
-eco_metaeco_types = unique(culture_info$eco_metaeco_type)
-ecosystems_to_take_off = c(NA)
- 
-#Meta-ecosystems
-system_nr_metaecosystems = culture_info %>%
-  filter(metaecosystem == "yes") %>%
-  pull(system_nr) %>%
-  unique
-
-n_metaecosystems = length(system_nr_metaecosystems)
-
-metaecosystems_to_take_off = culture_info %>%
-  filter(culture_ID %in% ecosystems_to_take_off) %>%
-  pull(system_nr) %>%
-  unique
-
-#Sampling
+```{r}
+#Sampling parameters
 time_point_names = c("t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7")
+time_points = 0:7
 sampling_days = c(0, 4, 8, 12, 16, 20, 24, 28)
 first_time_point = 0
 last_time_point = length(sampling_days) - 1
@@ -55,34 +24,197 @@ time_point_day = data.frame(
   time_point = first_time_point:last_time_point,
   day = sampling_days
 )
-
-# #Resource flow
-resource_flow_days = c(5, 9, 13, 17, 21, 25)
-resource_flow_line_type = "dotdash"
-resource_flow_line_colour = "grey"
-resource_flow_line_width = 0.7
 ```
 
 ```{r}
-#Define the variables whose effect size I want to calculate
-vars = c("bioarea_per_volume",
-         "indiv_per_volume")
-         # "species_richness",
-         # "shannon",
-         # "evenness_pielou",
-         # protist_species_hetero,
-         # paste0(protist_species_hetero, "_dominance"))
+#Protist parameters
+protist_species_hetero = c("Ble", "Cep", "Col", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
+protist_species_hetero_indiv_per_ml = paste0(protist_species_hetero, "_indiv_per_ml")
+n_protist_species_hetero = length(protist_species_hetero)
+```
 
-#Define the variables I want to calculate but for meta-ecosystems
-vars_metaecos = c(
-  "total_metaecosystem_bioarea"
-  # "jaccard_index",
-  # "bray_curtis",
-  # "metaecosystem_richness"
+```{r}
+#Patch parameters
+patches_to_take_off = NA
+culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
+n_cultures = max(culture_info$culture_ID)
+
+patch_variables = c("indiv_per_ml")
+# "species_richness",
+# "shannon",
+# "evenness_pielou",
+# protist_species_hetero,
+# paste0(protist_species_hetero, "_dominance"))
+
+columns_to_group_by = c("time_point",
+                        "day",
+                        "culture_ID",
+                        "system_nr",
+                        "patch_type",
+                        "patch_size",
+                        "patch_size_ml",
+                        "metaecosystem",
+                        "metaecosystem_type")
+
+patch_types_ordered = c(
+  "Green small isolated (s*d)",
+  "Green small-medium isolated (s*d)",
+  "Green medium-large isolated (s*d)",
+  "Green large isolated (s*d)",
+  "Blue small isolated (s*d)",
+  "Blue small-medium isolated (s*d)",
+  "Blue medium-large isolated (s*d)",
+  "Blue large isolated (s*d)",
+  "Green small isolated (s)",
+  "Green small-medium isolated (s)",
+  "Green medium-large isolated (s)",
+  "Green large isolated (s)",
+  "Blue small isolated (s)",
+  "Blue small-medium isolated (s)",
+  "Blue medium-large isolated (s)",
+  "Blue large isolated (s)",
+  "Green small connected (s*d)",
+  "Green small-medium connected (s*d)",
+  "Green medium-large connected (s*d)",
+  "Green large connected (s*d)",
+  "Blue small connected (s*d)",
+  "Blue small-medium connected (s*d)",
+  "Blue medium-large connected (s*d)",
+  "Blue large connected (s*d)",
+  "Green small connected (s)",
+  "Green small-medium connected (s)",
+  "Green medium-large connected (s)",
+  "Green large connected (s)",
+  "Blue small connected (s)",
+  "Blue small-medium connected (s)",
+  "Blue medium-large connected (s)",
+  "Blue large connected (s)"
+)
+
+patch_types_renamed = data.frame(
+  new = c(
+   "Green small isolated (s*d)",
+  "Green small-medium isolated (s*d)",
+  "Green medium-large isolated (s*d)",
+  "Green large isolated (s*d)",
+  "Blue small isolated (s*d)",
+  "Blue small-medium isolated (s*d)", 
+  "Blue medium-large isolated (s*d)", 
+  "Blue large isolated (s*d)", 
+  "Green small isolated (s)", 
+  "Green small-medium isolated (s)", 
+  "Green medium-large isolated (s)", 
+  "Green large isolated (s)",  
+  "Blue small isolated (s)", 
+  "Blue small-medium isolated (s)", 
+  "Blue medium-large isolated (s)", 
+  "Blue large isolated (s)",
+  "Green small connected (s*d)",
+  "Green small-medium connected (s*d)", 
+  "Green medium-large connected (s*d)", 
+  "Green large connected (s*d)",
+  "Blue small connected (s*d)", 
+  "Blue small-medium connected (s*d)", 
+  "Blue medium-large connected (s*d)", 
+  "Blue large connected (s*d)", 
+  "Green small connected (s)", 
+  "Green small-medium connected (s)", 
+  "Green medium-large connected (s)", 
+  "Green large connected (s)",  
+  "Blue small connected (s)", 
+  "Blue small-medium connected (s)",
+  "Blue medium-large connected (s)", 
+  "Blue large connected (s)"),
+  old = c(
+    "AutoS_absolute",
+    "AutoSM_absolute",
+    "AutoML_absolute",
+    "AutoL_absolute",
+    "HeteroS_absolute",
+    "HeteroSM_absolute", 
+    "HeteroML_absolute", 
+    "HeteroL_absolute", 
+    "AutoS_relative", 
+    "AutoSM_relative", 
+    "AutoML_relative", 
+    "AutoL_relative",  
+    "HeteroS_relative", 
+    "HeteroSM_relative", 
+    "HeteroML_relative", 
+    "HeteroL_relative",
+    "AutoS_absolute_connected",
+    "AutoSM_absolute_connected", 
+    "AutoML_absolute_connected", 
+    "AutoL_absolute_connected",
+    "HeteroS_absolute_connected", 
+    "HeteroSM_absolute_connected", 
+    "HeteroML_absolute_connected", 
+    "HeteroL_absolute_connected", 
+    "AutoS_relative_connected", 
+    "AutoSM_relative_connected", 
+    "AutoML_relative_connected", 
+    "AutoL_relative_connected",  
+    "HeteroS_relative_connected", 
+    "HeteroSM_relative_connected",
+    "HeteroML_relative_connected", 
+    "HeteroL_relative_connected")
+)
+
+patch_treatments_and_controls = data.frame(
+  treatment = c(
+    "Green small connected (s*d)",
+    "Green small-medium connected (s*d)",
+    "Green medium-large connected (s*d)",
+    "Green large connected (s*d)",
+    "Blue small connected (s*d)",
+    "Blue small-medium connected (s*d)",
+    "Blue medium-large connected (s*d)",
+    "Blue large connected (s*d)",
+    "Green small connected (s)",
+    "Green small-medium connected (s)",
+    "Green medium-large connected (s)",
+    "Green large connected (s)",
+    "Blue small connected (s)",
+    "Blue small-medium connected (s)",
+    "Blue medium-large connected (s)",
+    "Blue large connected (s)"
+  ),
+  control = c(
+    "Green small isolated (s*d)",
+    "Green small-medium isolated (s*d)",
+    "Green medium-large isolated (s*d)",
+    "Green large isolated (s*d)",
+    "Blue small isolated (s*d)",
+    "Blue small-medium isolated (s*d)",
+    "Blue medium-large isolated (s*d)",
+    "Blue large isolated (s*d)",
+    "Green small isolated (s)",
+    "Green small-medium isolated (s)",
+    "Green medium-large isolated (s)",
+    "Green large isolated (s)",
+    "Blue small isolated (s)",
+    "Blue small-medium isolated (s)",
+    "Blue medium-large isolated (s)",
+    "Blue large isolated (s)"
+  )
 )
 ```
 
+```{r experiment}
+#Meta-ecosystem parameters
+system_nr_metaecosystems = culture_info %>%
+  filter(metaecosystem == "yes") %>%
+  pull(system_nr) %>%
+  unique
+
+n_metaecosystems = length(system_nr_metaecosystems)
+
+#Define the variables I want to calculate but for meta-ecosystems
+metaecosystem_variables = c("total_metaecosystem_bioarea")
+```
+
 ```{r}
+#Plotting parameters
 dodging = 0.4
 dodging_error_bar = 0.5
 dodging_effect_sizes = 1.4
@@ -90,9 +222,45 @@ width_errorbar = 0.2
 boxplot_width = 2
 legend_position = "top"
 legend_fill_patch_size = "Patch size (ml)"
-```
 
-```{r axes}
+parameters_treatments = data.frame(treatment = NA,
+                                colour = NA,
+                                linetype = NA) %>%
+  add_row(treatment = "Green small connected (s*d)", colour = "#edf8fb", linetype = "solid") %>% 
+  add_row(treatment = "Green small-medium connected (s*d)", colour = "#b2e2e2", linetype = "solid") %>%
+  add_row(treatment = "Green medium-large connected (s*d)", colour = "#66c2a4", linetype = "solid") %>%
+  add_row(treatment = "Green large connected (s*d)", colour = "#238b45", linetype = "solid") %>%
+  add_row(treatment = "Blue small connected (s*d)", colour = "#eff3ff", linetype = "solid") %>%
+  add_row(treatment = "Blue small-medium connected (s*d)" , colour = "#bdd7e7", linetype = "solid") %>%
+  add_row(treatment = "Blue medium-large connected (s*d)", colour = "#6baed6", linetype = "solid") %>%
+  add_row(treatment = "Blue large connected (s*d)", colour = "#2171b5", linetype = "solid") %>%
+  add_row(treatment = "Green small connected (s)", colour = "#edf8fb", linetype = "solid") %>% 
+  add_row(treatment = "Green small-medium connected (s)", colour = "#b2e2e2", linetype = "solid") %>%
+  add_row(treatment = "Green medium-large connected (s)", colour = "#66c2a4", linetype = "solid") %>%
+  add_row(treatment = "Green large connected (s)", colour = "#238b45", linetype = "solid") %>%
+  add_row(treatment = "Blue small connected (s)", colour = "#eff3ff", linetype = "solid") %>%
+  add_row(treatment = "Blue small-medium connected (s)" , colour = "#bdd7e7", linetype = "solid") %>%
+  add_row(treatment = "Blue medium-large connected (s)", colour = "#6baed6", linetype = "solid") %>%
+  add_row(treatment = "Blue large connected (s)", colour = "#2171b5", linetype = "solid") %>%
+  add_row(treatment = "Green small isolated (s*d)", colour = "#edf8fb", linetype = "longdash") %>% 
+  add_row(treatment = "Green small-medium isolated (s*d)", colour = "#b2e2e2", linetype = "longdash") %>%
+  add_row(treatment = "Green medium-large isolated (s*d)", colour = "#66c2a4", linetype = "longdash") %>%
+  add_row(treatment = "Green large isolated (s*d)", colour = "#238b45", linetype = "longdash") %>%
+  add_row(treatment = "Blue small isolated (s*d)", colour = "#eff3ff", linetype = "longdash") %>%
+  add_row(treatment = "Blue small-medium isolated (s*d)" , colour = "#bdd7e7", linetype = "longdash") %>%
+  add_row(treatment = "Blue medium-large isolated (s*d)", colour = "#6baed6", linetype = "longdash") %>%
+  add_row(treatment = "Blue large isolated (s*d)", colour = "#2171b5", linetype = "longdash") %>%
+  add_row(treatment = "Green small isolated (s)", colour = "#edf8fb", linetype = "longdash") %>% 
+  add_row(treatment = "Green small-medium isolated (s)", colour = "#b2e2e2", linetype = "longdash") %>%
+  add_row(treatment = "Green medium-large isolated (s)", colour = "#66c2a4", linetype = "longdash") %>%
+  add_row(treatment = "Green large isolated (s)", colour = "#238b45", linetype = "longdash") %>%
+  add_row(treatment = "Blue small isolated (s)", colour = "#eff3ff", linetype = "longdash") %>%
+  add_row(treatment = "Blue small-medium isolated (s)" , colour = "#bdd7e7", linetype = "longdash") %>%
+  add_row(treatment = "Blue medium-large isolated (s)", colour = "#6baed6", linetype = "longdash") %>%
+  add_row(treatment = "Blue large isolated (s)", colour = "#2171b5", linetype = "longdash") %>%
+  slice(-1)
+
+
 axis_names = data.frame(variable = NA,
                     axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Day") %>%
@@ -160,29 +328,22 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "log_abundance", axis_name = "Log Abundance + 1 (ind/μm²)") %>%
   add_row(variable = "abundance_hedges_d", axis_name = "Density ES") %>%
   slice(-1)
-```
 
-```{r colour-treatments}
 colour_lowest_autotrophic = "#e5f5e0"
 colour_highest_autotrophic = "#00441b"
 colour_lowest_heterotrophic = "#deebf7"
 colour_highest_heterotrophic = "#08306b"
-```
 
-```{r}
 #Zero line  
-zero_line_colour = "black"
-zero_line_line_type = "solid"
+zero_line_colour = "grey"
+zero_line_line_type = "longdash"
 zero_line_line_width = 0.5
 
 #Zero line  ES
-zero_line_ES_line_type = "dotted"
+zero_line_ES_line_type = "longdash"
 zero_line_ES_colour = "grey"
 zero_line_ES_line_width = 1
 
-```
-
-```{r figure-sizes}
 #Presentation
 size_legend = 12
 size_x_axis = 16
@@ -198,9 +359,49 @@ ggarrange_margin_top = 0
 ggarrange_margin_bottom = 0
 ggarrange_margin_left = 0
 ggarrange_margin_right = 0
+
+#Resource flow line & caption
+resource_flow_line_type = "solid"
+resource_flow_line_colour = "#d9d9d9"
+resource_flow_line_width = 0.3
+caption_resource_flow = ""
+
+#Mean lines
+treatment_lines_linewidth = 1
+treatment_points_size = 2.5
+
+legend_width_cm = 2
 ```
 
-```{r modelling}
-first_time_point_model = 2
-last_time_point_model = 7
+```{r modeling_parameters}
+#Modeling parameters
+first_time_point_model = 2 #Time point 2 is the first after disturbance
+last_time_point_model = last_time_point
+```
+
+```{r results_table_initialisation}
+results_table = data.frame(
+  Response = as.character(NA),
+  Levels = as.character(NA),
+  ΔAIC_full = NA,
+  p_full = NA,
+  ΔR2_full = NA,
+  ΔAIC_fix = NA,
+  p_fix = NA,
+  ΔR2_fix = NA
+) %>%
+  slice(-1)
+
+iterated_results_table = data.frame(
+  Response = as.character(NA),
+  Levels = as.character(NA),
+  ΔAIC_full = NA,
+  p_full = NA,
+  ΔR2_full = NA,
+  ΔAIC_fix = NA,
+  p_fix = NA,
+  ΔR2_fix = NA,
+  combination_set = NA
+) %>%
+  slice(-1)
 ```

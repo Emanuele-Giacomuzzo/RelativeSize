@@ -1,0 +1,18 @@
+---
+title: "Find combinations of patches"
+output: html_document
+date: "2023-05-02"
+editor_options: 
+  chunk_output_type: console
+---
+
+Here we want to create a dataset where each row is a meta-ecosystem. Or an isolated two-patch system, commposed of two isolated patches (e.g., one medium blue and one medium green).
+
+Let's create a data frame with all the experimental meta-ecosystems and all the possible meta-ecosystems from isolated. 
+
+```{r}
+ds_patches %>%
+    group_by(patch_type) %>%
+    summarise(culture_ID_values = list(unique(culture_ID)))
+```
+

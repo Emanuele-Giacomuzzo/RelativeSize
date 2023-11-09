@@ -1,0 +1,82 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-11-05"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+ds_individuals = import.protist.morph.data()
+```
+
+```{r}
+#Rename columns
+ds_individuals = ds_individuals %>% 
+  rename(patch_type = eco_metaeco_type,
+         body_area_µm2 = mean_area)
+```
+
+```{r}
+#Rename patches
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoS_absolute"] = "Green small isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoSM_absolute"] = "Green small-medium isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoML_absolute"] = "Green medium-large isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoL_absolute"] = "Green large isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroS_absolute"] = "Blue small isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroSM_absolute"] = "Blue small-medium isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroML_absolute"] = "Blue medium-large isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroL_absolute"] = "Blue large isolated (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoS_relative"] = "Green small isolated (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoSM_relative"] = "Green small-medium isolated (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoML_relative"] = "Green medium-large isolated (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoL_relative"] =  "Green large isolated (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroS_relative"] = "Blue small isolated (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroSM_relative"] = "Blue small-medium isolated (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroML_relative"] = "Blue medium-large isolated (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroL_relative"] = "Blue large isolated (s)"
+
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoS_absolute_connected"] = "Green small connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoSM_absolute_connected"] = "Green small-medium connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoML_absolute_connected"] = "Green medium-large connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoL_absolute_connected"] = "Green large connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroS_absolute_connected"] = "Blue small connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroSM_absolute_connected"] = "Blue small-medium connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroML_absolute_connected"] = "Blue medium-large connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroL_absolute_connected"] = "Blue large connected (s*d)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoS_relative_connected"] = "Green small connected (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoSM_relative_connected"] = "Green small-medium connected (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoML_relative_connected"] = "Green medium-large connected (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "AutoL_relative_connected"] =  "Green large connected (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroS_relative_connected"] = "Blue small connected (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroSM_relative_connected"] = "Blue small-medium connected (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroML_relative_connected"] = "Blue medium-large connected (s)"
+ds_individuals$patch_type[ds_individuals$patch_type == "HeteroL_relative_connected"] = "Blue large connected (s)"
+```
+
+```{r}
+#Reorder patches
+ds_individuals = ds_individuals %>%
+  mutate(patch_type = factor(patch_type,
+                             levels = patch_types_ordered))
+```
+
+```{r}
+#Select columns we want. 
+ds_individuals = ds_individuals %>%
+    select(time_point,
+           day, 
+           file, 
+           culture_ID, 
+           system_nr, 
+           patch_type,
+           trophic_type,
+           patch_size, 
+           patch_size_ml,
+           flow,
+           flow_ml,
+           metaecosystem, 
+           metaecosystem_type, 
+           body_area_µm2,
+           N_frames)
+```

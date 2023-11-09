@@ -21,6 +21,10 @@ editor_options:
 
 ```{r echo=FALSE, message=FALSE}
 library("here")
+knitr::opts_chunk$set(message = FALSE, 
+                      cache = FALSE,
+                      autodep = FALSE)
+recompute_analyses = FALSE #Lengthy analyses have been suppressed. Set recompute_analyses = TRUE to redo them. 
 ```
 
 ```{r child = here("r_files", "packages.Rmd"), echo=FALSE}
@@ -36,115 +40,172 @@ library("here")
 
 ### Design
 
-![](images/Experimental%20design.png)
-
-### Preparation {.tabset .tabset-dropdown}
-
-```{r child = here("r_files", "material_needed.Rmd")}
-```
+![](images/Design.png)
 
 ## Data {.tabset .tabset-dropdown}
 
-```{r child = here("r_files", "ds_culture_info.Rmd")}
+```{r}
+culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
+```
+
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "before_ds_individuals.RData"))
+```
+
+```{r child = here("r_files", "ds_individuals.Rmd")}
+```
+
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "before_ds_patches.RData"))
 ```
 
 ```{r child = here("r_files", "ds_patches.Rmd")}
 ```
 
-```{r child = here("r_files", "ds_patches_effect_size.Rmd")}
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "before_ds_patches_effect_size.RData"))
 ```
 
-```{r child = here("r_files", "ds_metaecosystems.Rmd")}
+```{r child = here("r_files", "ds_patches_effect_size.Rmd"), eval = FALSE}
 ```
 
-## Isolated Patches {.tabset .tabset-dropdown}
+### Ds_metaecosystems
 
-### Autotrophic {.tabset .tabset-pills}
-
-#### 10-30-50-70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "isolated_autotrophic_absolute_biomass.Rmd")}
+```{r child = here("r_files", "combinations_patches.Rmd"), eval = FALSE}
 ```
 
-#### 70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "isolated_autotrophic_relative_biomass.Rmd")}
+```{r child = here("r_files", "ds_metaecosystems.Rmd"), eval = FALSE}
 ```
 
-### Heterotrophic {.tabset .tabset-pills}
+## Plots & analysis (s) {.tabset .tabset-dropdown}
 
-#### 10-30-50-70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "isolated_heterotrophic_absolute_biomass.Rmd")}
-```
-
-#### 70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "isolated_heterotrophic_relative_biomass.Rmd")}
-```
-
-## Connected Patches {.tabset .tabset-dropdown}
-
-### Autotrophic {.tabset .tabset-pills}
-
-#### 10-30-50-70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "connected_autotrophic_absolute_biomass.Rmd")}
-```
-
-#### 70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "connected_autotrophic_relative_biomass.Rmd")}
-```
-
-### Heterotrophic {.tabset .tabset-pills}
-
-#### 10-30-50-70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "connected_heterotrophic_absolute_biomass.Rmd")}
-```
-
-#### 70% Flow {.tabset .tabset-pills}
-
-##### Biomass
-
-```{r child = here("r_files", "connected_heterotrophic_relative_biomass.Rmd")}
-```
-
-## Meta-ecosystems {.tabset .tabset-pills}
-
-### 10-30-50-70% Flow {.tabset .tabset-pills}
+### Meta-ecosystems {.tabset .tabset-pills}
 
 #### Biomass
 
-```{r child = here("r_files", "metaecosystems_absolute_biomass.Rmd")}
-```
+### Green isolated {.tabset .tabset-pills}
 
-### 70% Flow {.tabset .tabset-pills}
+```{r}
+patch_type_i = c("Green small isolated (s)",
+                 "Green small-medium isolated (s)",
+                 "Green medium-large isolated (s)",
+                 "Green large isolated (s)")
+trophic_type_i = "green"
+```
 
 #### Biomass
 
-```{r child = here("r_files", "metaecosystems_relative_biomass.Rmd")}
+```{r child = here("r_files", "green_isolated_s_biomass.Rmd")}
 ```
 
-## Paper
+### Blue isolated {.tabset .tabset-pills}
 
-```{r child = here("r_files", "paper.Rmd")}
+```{r}
+patch_type_i = c("Blue small isolated (s)",
+                 "Blue small-medium isolated (s)",
+                 "Blue medium-large isolated (s)",
+                 "Blue large isolated (s)")
+trophic_type_i = "blue"
 ```
+
+#### Biomass
+
+```{r child = here("r_files", "blue_isolated_s_biomass.Rmd")}
+```
+
+#### Shannon
+
+```{r child = here("r_files", "blue_isolated_s_shannon.Rmd")}
+```
+
+#### Evenness
+
+```{r child = here("r_files", "blue_isolated_s_evenness.Rmd")}
+```
+
+#### Median body size
+
+```{r child = here("r_files", "blue_isolated_s_median_body_size.Rmd")}
+```
+
+#### Dominance {.tabset .tabset-pills}
+
+##### Ble
+
+##### Cep
+
+##### Col
+
+##### Eup
+
+##### Lox
+
+##### Pau
+
+##### Pca
+
+##### Spi
+
+##### Spi te
+
+##### Tet
+
+#### Populations
+
+#### BEF
+
+## Plots & analysis (s * d) {.tabset .tabset-dropdown}
+
+### Meta-ecosystems {.tabset .tabset-pills}
+
+#### Biomass
+
+### Green isolated {.tabset .tabset-pills}
+
+#### Biomass
+
+### Blue isolated {.tabset .tabset-pills}
+
+#### Biomass
+
+#### Shannon
+
+#### Evenness
+
+#### Median body size
+
+#### Dominance {.tabset .tabset-pills}
+
+##### Ble 
+
+##### Cep 
+
+##### Col 
+
+##### Eup 
+
+##### Lox 
+
+##### Pau 
+
+##### Pca 
+
+##### Spi 
+
+##### Spi te
+
+##### Tet
+
+#### Populations
+
+#### BEF
 
 ## Bibliography
 
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "end.RData"))
+```

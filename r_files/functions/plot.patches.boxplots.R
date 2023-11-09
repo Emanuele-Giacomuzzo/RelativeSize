@@ -1,13 +1,12 @@
-plot.patches.boxplots = function(metaecosystem_input,
-                                trophic_type_input,
-                                flow_input) {
+plot.patches.boxplots = function(patch_type_i,
+                                 trophic_type_i) {
   
-  if(trophic_type_input == "autotrophic"){
+  if(trophic_type_input == "green"){
     colour_lowest = colour_lowest_autotrophic
     colour_highest = colour_highest_autotrophic 
   }
   
-  if(trophic_type_input == "heterotrophic"){
+  if(trophic_type_input == "blue"){
     colour_lowest = colour_lowest_heterotrophic
     colour_highest = colour_highest_heterotrophic
   }
@@ -16,12 +15,12 @@ plot.patches.boxplots = function(metaecosystem_input,
       filter(
         metaecosystem == metaecosystem_input,
         trophic_type == trophic_type_input,
-        flow == flow_input
+        interaction_size_disturbance == interaction_size_disturbance_i
       ) %>%
       ggplot(
         aes(
           x = day,
-          y = bioarea_per_volume,
+          y = get(response_variable),
           group = interaction(day, patch_size_ml),
           fill = patch_size_ml
         )
