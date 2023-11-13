@@ -1,6 +1,7 @@
 #Plot for each time point the relationship between patch size and the response variable
 
-plot.metaecos.boxplots.time.points = function(flow_input,
+plot.metaecos.boxplots.time.points = function(data,
+                                              flow_input,
                                               response_variable) {
   if (trophic_type_input == "autotrophic") {
     colour_lowest = colour_lowest_autotrophic
@@ -16,7 +17,7 @@ plot.metaecos.boxplots.time.points = function(flow_input,
     print(paste("Time point number", time_point_input))
     
     print(
-      ds_metaecosystems %>%
+      data %>%
         filter(flow == flow_input,
                time_point == time_point_input) %>%
         ggplot(

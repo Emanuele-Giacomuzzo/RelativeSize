@@ -1,4 +1,5 @@
-plot.metaecos.boxplots = function(flow_input,
+plot.metaecos.boxplots = function(data,
+                                  flow_input,
                                   response_variable) {
   
   if(trophic_type_input == "autotrophic"){
@@ -11,7 +12,7 @@ plot.metaecos.boxplots = function(flow_input,
     colour_highest = colour_highest_heterotrophic
   }
   
-  ds_metaecosystems %>%
+  data %>%
     filter(
       flow == flow_input
     ) %>%

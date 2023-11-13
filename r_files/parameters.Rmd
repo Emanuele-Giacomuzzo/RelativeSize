@@ -226,7 +226,7 @@ legend_fill_patch_size = "Patch size (ml)"
 parameters_treatments = data.frame(treatment = NA,
                                 colour = NA,
                                 linetype = NA) %>%
-  add_row(treatment = "Green small connected (s*d)", colour = "#edf8fb", linetype = "solid") %>% 
+  add_row(treatment = "Green small connected (s*d)", colour = "#ccece6", linetype = "solid") %>% 
   add_row(treatment = "Green small-medium connected (s*d)", colour = "#b2e2e2", linetype = "solid") %>%
   add_row(treatment = "Green medium-large connected (s*d)", colour = "#66c2a4", linetype = "solid") %>%
   add_row(treatment = "Green large connected (s*d)", colour = "#238b45", linetype = "solid") %>%
@@ -234,7 +234,7 @@ parameters_treatments = data.frame(treatment = NA,
   add_row(treatment = "Blue small-medium connected (s*d)" , colour = "#bdd7e7", linetype = "solid") %>%
   add_row(treatment = "Blue medium-large connected (s*d)", colour = "#6baed6", linetype = "solid") %>%
   add_row(treatment = "Blue large connected (s*d)", colour = "#2171b5", linetype = "solid") %>%
-  add_row(treatment = "Green small connected (s)", colour = "#edf8fb", linetype = "solid") %>% 
+  add_row(treatment = "Green small connected (s)", colour = "#ccece6", linetype = "solid") %>% 
   add_row(treatment = "Green small-medium connected (s)", colour = "#b2e2e2", linetype = "solid") %>%
   add_row(treatment = "Green medium-large connected (s)", colour = "#66c2a4", linetype = "solid") %>%
   add_row(treatment = "Green large connected (s)", colour = "#238b45", linetype = "solid") %>%
@@ -242,7 +242,7 @@ parameters_treatments = data.frame(treatment = NA,
   add_row(treatment = "Blue small-medium connected (s)" , colour = "#bdd7e7", linetype = "solid") %>%
   add_row(treatment = "Blue medium-large connected (s)", colour = "#6baed6", linetype = "solid") %>%
   add_row(treatment = "Blue large connected (s)", colour = "#2171b5", linetype = "solid") %>%
-  add_row(treatment = "Green small isolated (s*d)", colour = "#edf8fb", linetype = "longdash") %>% 
+  add_row(treatment = "Green small isolated (s*d)", colour = "#ccece6", linetype = "longdash") %>% 
   add_row(treatment = "Green small-medium isolated (s*d)", colour = "#b2e2e2", linetype = "longdash") %>%
   add_row(treatment = "Green medium-large isolated (s*d)", colour = "#66c2a4", linetype = "longdash") %>%
   add_row(treatment = "Green large isolated (s*d)", colour = "#238b45", linetype = "longdash") %>%
@@ -250,7 +250,7 @@ parameters_treatments = data.frame(treatment = NA,
   add_row(treatment = "Blue small-medium isolated (s*d)" , colour = "#bdd7e7", linetype = "longdash") %>%
   add_row(treatment = "Blue medium-large isolated (s*d)", colour = "#6baed6", linetype = "longdash") %>%
   add_row(treatment = "Blue large isolated (s*d)", colour = "#2171b5", linetype = "longdash") %>%
-  add_row(treatment = "Green small isolated (s)", colour = "#edf8fb", linetype = "longdash") %>% 
+  add_row(treatment = "Green small isolated (s)", colour = "#ccece6", linetype = "longdash") %>% 
   add_row(treatment = "Green small-medium isolated (s)", colour = "#b2e2e2", linetype = "longdash") %>%
   add_row(treatment = "Green medium-large isolated (s)", colour = "#66c2a4", linetype = "longdash") %>%
   add_row(treatment = "Green large isolated (s)", colour = "#238b45", linetype = "longdash") %>%

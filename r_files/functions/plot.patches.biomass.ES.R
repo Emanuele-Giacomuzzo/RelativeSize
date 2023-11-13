@@ -1,4 +1,5 @@
-plot.patches.biomass.ES = function(trophic_type_input,
+plot.patches.biomass.ES = function(data,
+                                   trophic_type_input,
                                    flow_input,
                                    response_variable) {
   
@@ -12,7 +13,7 @@ plot.patches.biomass.ES = function(trophic_type_input,
     colour_highest = colour_highest_heterotrophic
   }
   
-  ds_patches_effect_size %>%
+  data %>%
     filter(trophic_type == trophic_type_input,
            flow == flow_input) %>%
     filter(!is.na(day), !is.na(get(response_variable))) %>%

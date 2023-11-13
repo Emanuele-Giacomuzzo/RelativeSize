@@ -1,4 +1,5 @@
-plot.patches.boxplots = function(patch_type_i,
+plot.patches.boxplots = function(data,
+                                 patch_type_i,
                                  trophic_type_i) {
   
   if(trophic_type_input == "green"){
@@ -11,7 +12,7 @@ plot.patches.boxplots = function(patch_type_i,
     colour_highest = colour_highest_heterotrophic
   }
   
-    ds_patches %>%
+    data %>%
       filter(
         metaecosystem == metaecosystem_input,
         trophic_type == trophic_type_input,

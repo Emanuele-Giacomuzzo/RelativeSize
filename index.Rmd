@@ -93,13 +93,28 @@ patch_type_i = c("Green small isolated (s)",
                  "Green small-medium isolated (s)",
                  "Green medium-large isolated (s)",
                  "Green large isolated (s)")
-trophic_type_i = "green"
+BLUE = FALSE
 ```
 
-#### Biomass
-
-```{r child = here("r_files", "green_isolated_s_biomass.Rmd")}
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "beofre_plots.RData"))
 ```
+
+```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```
+
+### Green connected S {.tabset .tabset-pills}
+
+```{r}
+patch_type_i = c("Green small isolated (s)",
+                 "Green small connected (s)")
+BLUE = FALSE
+```
+
+```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```
+
 
 ### Blue isolated {.tabset .tabset-pills}
 
@@ -108,54 +123,11 @@ patch_type_i = c("Blue small isolated (s)",
                  "Blue small-medium isolated (s)",
                  "Blue medium-large isolated (s)",
                  "Blue large isolated (s)")
-trophic_type_i = "blue"
+BLUE = TRUE
 ```
 
-#### Biomass
-
-```{r child = here("r_files", "blue_isolated_s_biomass.Rmd")}
+```{r child = here("r_files", "plots_and_analysis.Rmd")}
 ```
-
-#### Shannon
-
-```{r child = here("r_files", "blue_isolated_s_shannon.Rmd")}
-```
-
-#### Evenness
-
-```{r child = here("r_files", "blue_isolated_s_evenness.Rmd")}
-```
-
-#### Median body size
-
-```{r child = here("r_files", "blue_isolated_s_median_body_size.Rmd")}
-```
-
-#### Dominance {.tabset .tabset-pills}
-
-##### Ble
-
-##### Cep
-
-##### Col
-
-##### Eup
-
-##### Lox
-
-##### Pau
-
-##### Pca
-
-##### Spi
-
-##### Spi te
-
-##### Tet
-
-#### Populations
-
-#### BEF
 
 ## Plots & analysis (s * d) {.tabset .tabset-dropdown}
 
@@ -165,43 +137,29 @@ trophic_type_i = "blue"
 
 ### Green isolated {.tabset .tabset-pills}
 
-#### Biomass
+```{r}
+patch_type_i = c("Green small isolated (s*d)",
+                 "Green small-medium isolated (s*d)",
+                 "Green medium-large isolated (s*d)",
+                 "Green large isolated (s*d)")
+BLUE = FALSE
+```
+
+```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```
 
 ### Blue isolated {.tabset .tabset-pills}
 
-#### Biomass
+```{r}
+patch_type_i = c("Blue small isolated (s*d)",
+                 "Blue small-medium isolated (s*d)",
+                 "Blue medium-large isolated (s*d)",
+                 "Blue large isolated (s*d)")
+BLUE = TRUE
+```
 
-#### Shannon
-
-#### Evenness
-
-#### Median body size
-
-#### Dominance {.tabset .tabset-pills}
-
-##### Ble 
-
-##### Cep 
-
-##### Col 
-
-##### Eup 
-
-##### Lox 
-
-##### Pau 
-
-##### Pca 
-
-##### Spi 
-
-##### Spi te
-
-##### Tet
-
-#### Populations
-
-#### BEF
+```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```
 
 ## Bibliography
 

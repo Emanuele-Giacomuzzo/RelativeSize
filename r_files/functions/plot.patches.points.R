@@ -1,11 +1,12 @@
-plot.patches.points = function(patch_type_i,
+plot.patches.points = function(data,
+                               patch_type_i,
                                response_variable,
                                legend_row_n_input = 2) {
   
   patch_type_i <- patch_type_i[order(match(patch_type_i, 
                                                    patch_types_ordered))]
   
-  ds_patches %>%
+  data %>%
     filter(
       patch_type %in% patch_type_i,
       !is.na(!!sym(response_variable))
