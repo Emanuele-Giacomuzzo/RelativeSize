@@ -50,6 +50,8 @@ library("Rmisc")
 library("viridis")
 library("ggpubr")
 library("tinytest")
+library("combinat")
+library("plotly")
 
 conflict_prefer("load", "base")
 conflict_prefer("here", "here")

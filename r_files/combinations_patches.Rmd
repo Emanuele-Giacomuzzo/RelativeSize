@@ -6,13 +6,91 @@ editor_options:
   chunk_output_type: console
 ---
 
-Here we want to create a dataset where each row is a meta-ecosystem. Or an isolated two-patch system, commposed of two isolated patches (e.g., one medium blue and one medium green).
+Here we want to create a dataset where each row is a meta-ecosystem. Or an isolated two-patch system, composed of two isolated patches (e.g., one medium blue and one medium green).
 
-Let's create a data frame with all the experimental meta-ecosystems and all the possible meta-ecosystems from isolated. 
+Let's create the data frame `combinations_isolated_n_metaecos` with all the experimental meta-ecosystems and all the possible meta-ecosystems from isolated.
 
 ```{r}
-ds_patches %>%
-    group_by(patch_type) %>%
-    summarise(culture_ID_values = list(unique(culture_ID)))
+
+# Create combinations_isolated - to create isolated two-patch systems, find how isolated patches can be combined to create them. Store these combinations into combinations_isolated.
+
+combinations_isolated <- list()
+i = 0
+for(isolated_two_patch_system_i in isolated_two_patch_systems$system_type){
+  
+  i = i + 1
+  
+  ID_green_patches = isolated_two_patch_systems %>%
+    filter(system_type == isolated_two_patch_system_i) %>%
+    select(green_patch_IDs) %>%
+    as.character()
+  ID_green_patches = unlist(strsplit(ID_green_patches, ", ")) %>%
+    as.double()
+  
+  ID_blue_patches = isolated_two_patch_systems %>%
+    filter(system_type == isolated_two_patch_system_i) %>%
+    select(blue_patch_IDs) %>%
+    as.character()
+  ID_blue_patches = unlist(strsplit(ID_blue_patches, ", ")) %>%
+    as.double()
+  
+  combinations_isolated[[i]] = crossing(ID_green_patches,
+                                                ID_blue_patches) %>%
+  mutate(system_type = isolated_two_patch_system_i,
+         connection = "isolated") %>% #Change this one 
+  rename(ID_green_patch = ID_green_patches,
+         ID_blue_patch = ID_blue_patches) %>%
+  mutate(patches_combined = paste0(ID_green_patch, "|", ID_blue_patch)) %>%
+  select(system_type,
+         connection,
+         patches_combined,
+         ID_green_patch,
+         ID_blue_patch)
+  
+  expect_equal(nrow(combinations_isolated),
+             length(ID_green_patches) * length(ID_blue_patches))
+}
+
+combinations_isolated = combinations_isolated %>%
+  bind_rows() %>%
+  mutate(system_nr = 1000 + row_number())
 ```
 
+```{r meta-ecosystems-create}
+
+# Create combinations_metaecos - to create meta-ecosystems, find which patches were connected to each other. Store these combinations into combinations_metaecos.
+
+combinations_metaecos = ds_patches %>%
+  filter(time_point == 0,
+         metaecosystem == "yes") %>%
+  select(system_nr,
+         metaecosystem_type,
+         culture_ID) %>%
+  group_by(system_nr,
+           metaecosystem_type) %>%
+  summarise(ID_green_patch = (mean(culture_ID) - 0.5),
+            ID_blue_patch = (mean(culture_ID) + 0.5)) %>%
+  rename(system_type = metaecosystem_type) %>%
+  mutate(connection = "connected",
+         patches_combined = paste0(ID_green_patch, "|", ID_blue_patch)) %>%
+  select(system_type,
+         connection,
+         system_nr,
+         patches_combined,
+         ID_green_patch,
+         ID_blue_patch) %>%
+  as.data.frame()
+```
+
+```{r isolated-and-metaeco-system-join}
+
+# Bind isolated two-patch systems and meta-ecosystems.
+
+combinations_isolated_n_metaecos = rbind(combinations_isolated,
+                                         combinations_metaecos)
+
+n_patches_combinations = nrow(combinations_isolated_n_metaecos)
+
+expect_equal(nrow(combinations_isolated_n_metaecos), 
+             nrow(combinations_isolated) + nrow(combinations_metaecos))
+```

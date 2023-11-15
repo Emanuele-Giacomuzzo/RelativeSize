@@ -1,4 +1,4 @@
-"","file","culture_ID","date","time_point","day","indiv_per_frame","indiv_per_volume","bioarea_per_frame","bioarea_per_volume","major_mean","major_sd","minor_mean","minor_sd","gross_speed_mean","gross_speed_sd","net_speed_mean","net_speed_sd","sd_turning_mean","Ble","Cep","Col","Eup","Lox","Pau","Pca","Spi","Spi te","Tet","Eug"
+"","file","culture_ID","date","time_point","day","indiv_per_frame","indiv_per_volume","bioarea_per_frame","bioarea_per_volume","major_mean","major_sd","minor_mean","minor_sd","gross_speed_mean","gross_speed_sd","net_speed_mean","net_speed_sd","sd_turning_mean","Ble_indiv_per_volume","Cep_indiv_per_volume","Col_indiv_per_volume","Eup_indiv_per_volume","Lox_indiv_per_volume","Pau_indiv_per_volume","Pca_indiv_per_volume","Spi_indiv_per_volume","Spi te_indiv_per_volume","Tet_indiv_per_volume","Eug_indiv_per_volume"
 "1","sample_00001",1,"13.02.2023",7,28,0,0,0,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0
 "2","sample_00002",2,"13.02.2023",7,28,0,0,0,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0
 "3","sample_00003",3,"13.02.2023",7,28,0,0,0,0,NA,NA,NA,NA,NA,NA,NA,NA,NA,0,0,0,0,0,0,0,0,0,0,0

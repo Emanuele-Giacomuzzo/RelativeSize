@@ -20,7 +20,9 @@ ds_patches = ds_patches %>%
 ```
 
 ```{r}
-#Reorder dataset
+
+# Reorder
+
 ds_patches = ds_patches %>%
   select(time_point,
          day,
@@ -43,7 +45,9 @@ ds_patches = ds_patches %>%
 ```
 
 ```{r}
-#Rename columns
+
+# Rename columns
+
 ds_patches = ds_patches %>%
     rename(patch_type = eco_metaeco_type,
            bioarea_µm2_per_μL = bioarea_per_volume) %>%
@@ -52,9 +56,7 @@ ds_patches = ds_patches %>%
         "Ble_low_threshold_analysis",
         "Cep_low_threshold_analysis",
         "Spi_low_threshold_analysis")))
-```
 
-```{r}
 ds_patches = ds_patches %>%
   rename(interaction_size_disturbance = flow)
 
@@ -63,18 +65,28 @@ ds_patches$interaction_size_disturbance[ds_patches$interaction_size_disturbance 
 ```
 
 ```{r}
-#Rename patches
+
+# Rename levels
+
 ds_patches <- ds_patches %>%
-  mutate(patch_type = patch_types_renamed$new[match(patch_type, patch_types_renamed$old)])
+  mutate(patch_type = patch_types_renamed$new[match(patch_type, patch_types_renamed$old)],
+         metaecosystem_type = metaecosystems_renamed$new[match(metaecosystem_type, metaecosystems_renamed$old)],
+         metaecosystem_type = if_else(!is.na(metaecosystem_type) & interaction_size_disturbance == "yes",
+                                      true = paste0(metaecosystem_type, " (s*d)"),
+                                      false = metaecosystem_type),
+         metaecosystem_type = if_else(!is.na(metaecosystem_type) & interaction_size_disturbance == "no",
+                                      true = paste0(metaecosystem_type, " (s)"),
+                                      false = metaecosystem_type))
+
 ```
 
 ```{r}
-#Reorder patches
+
+# Reorder levels
+
 ds_patches = ds_patches %>%
-  mutate(patch_type = factor(
-    patch_type,
-    levels = patch_types_ordered
-  ))
+  mutate(patch_type = factor(patch_type,
+                             levels = patch_types_ordered))
 ```
 
 ```{r}

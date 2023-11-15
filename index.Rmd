@@ -48,25 +48,10 @@ recompute_analyses = FALSE #Lengthy analyses have been suppressed. Set recompute
 culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
 ```
 
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("environments", "before_ds_individuals.RData"))
-```
-
 ```{r child = here("r_files", "ds_individuals.Rmd")}
 ```
 
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("environments", "before_ds_patches.RData"))
-```
-
 ```{r child = here("r_files", "ds_patches.Rmd")}
-```
-
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("environments", "before_ds_patches_effect_size.RData"))
 ```
 
 ```{r child = here("r_files", "ds_patches_effect_size.Rmd"), eval = FALSE}
@@ -74,17 +59,42 @@ save.image(file = here("environments", "before_ds_patches_effect_size.RData"))
 
 ### Ds_metaecosystems
 
-```{r child = here("r_files", "combinations_patches.Rmd"), eval = FALSE}
+```{r child = here("r_files", "combinations_patches.Rmd")}
 ```
 
-```{r child = here("r_files", "ds_metaecosystems.Rmd"), eval = FALSE}
+```{r child = here("r_files", "combinations_patches_sets.Rmd")}
+```
+
+```{r child = here("r_files", "ds_metaecosystems.Rmd")}
+```
+
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "before_metaeco_es.RData"))
+```
+
+```{r child = here("r_files", "ds_metaecosystems_effect_size.Rmd")}
 ```
 
 ## Plots & analysis (s) {.tabset .tabset-dropdown}
 
 ### Meta-ecosystems {.tabset .tabset-pills}
 
-#### Biomass
+```{r}
+metaecosystem_type_i = c(
+  "Small meta-ecosystem (s)",
+  "Small two-patch isolated (s)",
+  "Small-Medium meta-ecosystem (s)",
+  "Small-Medium two-patch isolated (s)",
+  "Medium-Large meta-ecosystem (s)",
+  "Medium-Large two-patch isolated (s)",
+  "Large meta-ecosystem (s)",
+  "Large two-patch isolated (s)"
+)
+```
+
+```{r child = here("r_files", "plots_and_analysis_metaecos.Rmd")}
+```
 
 ### Green isolated {.tabset .tabset-pills}
 
@@ -98,10 +108,10 @@ BLUE = FALSE
 
 ```{r echo=FALSE, message=FALSE}
 #Save environment
-save.image(file = here("environments", "beofre_plots.RData"))
+save.image(file = here("environments", "before_patch_analysis.RData"))
 ```
 
-```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```{r child = here("r_files", "plots_and_analysis_patches.Rmd")}
 ```
 
 ### Green connected S {.tabset .tabset-pills}
@@ -112,9 +122,8 @@ patch_type_i = c("Green small isolated (s)",
 BLUE = FALSE
 ```
 
-```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```{r child = here("r_files", "plots_and_analysis_patches.Rmd")}
 ```
-
 
 ### Blue isolated {.tabset .tabset-pills}
 
@@ -126,14 +135,28 @@ patch_type_i = c("Blue small isolated (s)",
 BLUE = TRUE
 ```
 
-```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```{r child = here("r_files", "plots_and_analysis_patches.Rmd")}
 ```
 
-## Plots & analysis (s * d) {.tabset .tabset-dropdown}
+## Plots & analysis (s \* d) {.tabset .tabset-dropdown}
 
 ### Meta-ecosystems {.tabset .tabset-pills}
 
-#### Biomass
+```{r}
+metaecosystem_type_i = c(
+  "Small meta-ecosystem (s*d)",
+  "Small two-patch isolated (s*d)",
+  "Small-Medium meta-ecosystem (s*d)",
+  "Small-Medium two-patch isolated (s*d)",
+  "Medium-Large meta-ecosystem (s*d)",
+  "Medium-Large two-patch isolated (s*d)",
+  "Large meta-ecosystem (s*d)",
+  "Large two-patch isolated (s*d)"
+)
+```
+
+```{r child = here("r_files", "plots_and_analysis_metaecos.Rmd")}
+```
 
 ### Green isolated {.tabset .tabset-pills}
 
@@ -145,7 +168,7 @@ patch_type_i = c("Green small isolated (s*d)",
 BLUE = FALSE
 ```
 
-```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```{r child = here("r_files", "plots_and_analysis_patches.Rmd")}
 ```
 
 ### Blue isolated {.tabset .tabset-pills}
@@ -158,7 +181,7 @@ patch_type_i = c("Blue small isolated (s*d)",
 BLUE = TRUE
 ```
 
-```{r child = here("r_files", "plots_and_analysis.Rmd")}
+```{r child = here("r_files", "plots_and_analysis_patches.Rmd")}
 ```
 
 ## Bibliography

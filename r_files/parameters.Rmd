@@ -201,7 +201,11 @@ patch_treatments_and_controls = data.frame(
 ```
 
 ```{r experiment}
-#Meta-ecosystem parameters
+
+# Meta-ecosystem parameters
+
+metaecosystems_to_take_off = NA
+
 system_nr_metaecosystems = culture_info %>%
   filter(metaecosystem == "yes") %>%
   pull(system_nr) %>%
@@ -209,8 +213,283 @@ system_nr_metaecosystems = culture_info %>%
 
 n_metaecosystems = length(system_nr_metaecosystems)
 
-#Define the variables I want to calculate but for meta-ecosystems
-metaecosystem_variables = c("total_metaecosystem_bioarea")
+variables_metaecos = "total_metaecosystem_bioarea_mm2"
+
+columns_metaecos = c("time_point",
+                     "day",
+                     "system_nr",
+                     "system_type",
+                     "patch_size_ml",
+                     "patches_combined")
+
+isolated_two_patch_systems = data.frame(
+  system_type = NA,
+  ##system_type = NA,
+  interaction_size_disturbance = NA,
+  green_patch_IDs = NA,
+  blue_patch_IDs = NA) %>%
+  add_row(
+    system_type = "Small two-patch isolated (s*d)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "yes",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoS_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroS_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  add_row(
+    system_type = "Small-Medium two-patch isolated (s*d)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "yes",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoSM_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroSM_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  add_row(
+    system_type = "Medium-Large two-patch isolated (s*d)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "yes",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoML_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroML_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  add_row(
+    system_type = "Large two-patch isolated (s*d)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "yes",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoL_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroL_absolute") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  # add_row(
+  #   system_type = "Small meta-ecosystem (s*d)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "yes",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoS_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroS_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  # add_row(
+  #   system_type = "Small-Medium meta-ecosystem (s*d)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "yes",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoSM_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroSM_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  # add_row(
+  #   system_type = "Medium-Large meta-ecosystem (s*d)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "yes",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoML_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroML_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  # add_row(
+  #   system_type = "Large meta-ecosystem (s*d)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "yes",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoL_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroL_absolute_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  add_row(
+    system_type = "Small two-patch isolated (s)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "no",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoS_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroS_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  add_row(
+    system_type = "Small-Medium two-patch isolated (s)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "no",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoSM_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroSM_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  add_row(
+    system_type = "Medium-Large two-patch isolated (s)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "no",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoML_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroML_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  add_row(
+    system_type = "Large two-patch isolated (s)",
+    #system_type = "Isolated two-patch system",
+    interaction_size_disturbance = "no",
+    green_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "AutoL_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", "),
+    blue_patch_IDs = culture_info %>% 
+      filter(eco_metaeco_type == "HeteroL_relative") %>% 
+      pull(culture_ID) %>%
+      paste(., collapse = ", ")
+  ) %>%
+  # add_row(
+  #   system_type = "Small meta-ecosystem (s)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "no",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoS_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroS_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  # add_row(
+  #   system_type = "Small-Medium meta-ecosystem (s)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "no",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoSM_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroSM_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  # add_row(
+  #   system_type = "Medium-Large meta-ecosystem (s)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "no",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoML_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroML_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  # add_row(
+  #   system_type = "Large meta-ecosystem (s)",
+  #   #system_type = "Meta-ecosystem",
+  #   interaction_size_disturbance = "no",
+  #   green_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "AutoL_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", "),
+  #   blue_patch_IDs = culture_info %>% 
+  #     filter(eco_metaeco_type == "HeteroL_relative_connected") %>% 
+  #     pull(culture_ID) %>%
+  #     paste(., collapse = ", ")
+  # ) %>%
+  slice(-1)
+
+metaecosystems_renamed = data.frame(
+  new = c(
+    "Small meta-ecosystem",
+    "Small-Medium meta-ecosystem",
+    "Medium-Large meta-ecosystem",
+    "Large meta-ecosystem"),
+    old = c("small",
+            "small-medium",
+            "medium-large",
+            "large"))
+
+metaecosystem_types_ordered = c(
+  "Small meta-ecosystem (s)",
+  "Small two-patch isolated (s)",
+  "Small-Medium meta-ecosystem (s)",
+  "Small-Medium two-patch isolated (s)",
+  "Medium-Large meta-ecosystem (s)",
+  "Medium-Large two-patch isolated (s)",
+  "Large meta-ecosystem (s)",
+  "Large two-patch isolated (s)",
+  "Small meta-ecosystem (s*d)",
+  "Small two-patch isolated (s*d)",
+  "Small-Medium meta-ecosystem (s*d)",
+  "Small-Medium two-patch isolated (s*d)",
+  "Medium-Large meta-ecosystem (s*d)",
+  "Medium-Large two-patch isolated (s*d)",
+  "Large meta-ecosystem (s*d)",
+  "Large two-patch isolated (s*d)"
+)
+
+treatments_and_controls_metaecos = data.frame(
+  treatment = c(
+    "Small meta-ecosystem (s)",
+    "Small-Medium meta-ecosystem (s)",
+    "Medium-Large meta-ecosystem (s)",
+    "Large meta-ecosystem (s)",
+    "Small meta-ecosystem (s*d)",
+    "Small-Medium meta-ecosystem (s*d)",
+    "Medium-Large meta-ecosystem (s*d)",
+    "Large meta-ecosystem (s*d)"
+  ),
+  control = c(
+    "Small two-patch isolated (s)",
+    "Small-Medium two-patch isolated (s)",
+    "Medium-Large two-patch isolated (s)",
+    "Large two-patch isolated (s)",
+    "Small two-patch isolated (s*d)",
+    "Small-Medium two-patch isolated (s*d)",
+    "Medium-Large two-patch isolated (s*d)",
+    "Large two-patch isolated (s*d)"
+  )
+)
 ```
 
 ```{r}
@@ -224,8 +503,8 @@ legend_position = "top"
 legend_fill_patch_size = "Patch size (ml)"
 
 parameters_treatments = data.frame(treatment = NA,
-                                colour = NA,
-                                linetype = NA) %>%
+                                   colour = NA,
+                                   linetype = NA) %>%
   add_row(treatment = "Green small connected (s*d)", colour = "#ccece6", linetype = "solid") %>% 
   add_row(treatment = "Green small-medium connected (s*d)", colour = "#b2e2e2", linetype = "solid") %>%
   add_row(treatment = "Green medium-large connected (s*d)", colour = "#66c2a4", linetype = "solid") %>%
@@ -258,6 +537,26 @@ parameters_treatments = data.frame(treatment = NA,
   add_row(treatment = "Blue small-medium isolated (s)" , colour = "#bdd7e7", linetype = "longdash") %>%
   add_row(treatment = "Blue medium-large isolated (s)", colour = "#6baed6", linetype = "longdash") %>%
   add_row(treatment = "Blue large isolated (s)", colour = "#2171b5", linetype = "longdash") %>%
+  
+  add_row(treatment = "Small meta-ecosystem (s)", colour = "#ffffb2", linetype = "solid") %>%
+  add_row(treatment = "Small-Medium meta-ecosystem (s)", colour = "#fecc5c", linetype = "solid") %>%
+  add_row(treatment = "Medium-Large meta-ecosystem (s)", colour = "#fd8d3c", linetype = "solid") %>%
+  add_row(treatment = "Large meta-ecosystem (s)", colour = "#e31a1c", linetype = "solid") %>%
+  
+  add_row(treatment = "Small two-patch isolated (s)", colour = "#ffffb2", linetype = "longdash") %>%
+  add_row(treatment = "Small-Medium two-patch isolated (s)", colour = "#fecc5c", linetype = "longdash") %>%
+  add_row(treatment = "Medium-Large two-patch isolated (s)", colour = "#fd8d3c", linetype = "longdash") %>%
+  add_row(treatment = "Large two-patch isolated (s)", colour = "#e31a1c", linetype = "longdash") %>%
+  
+  add_row(treatment = "Small meta-ecosystem (s*d)", colour = "#ffffb2", linetype = "solid") %>%
+  add_row(treatment = "Small-Medium meta-ecosystem (s*d)", colour = "#fecc5c", linetype = "solid") %>%
+  add_row(treatment = "Medium-Large meta-ecosystem (s*d)", colour = "#fd8d3c", linetype = "solid") %>%
+  add_row(treatment = "Large meta-ecosystem (s*d)", colour = "#e31a1c", linetype = "solid") %>%
+  
+  add_row(treatment = "Small two-patch isolated (s*d)", colour = "#ffffb2", linetype = "longdash") %>%
+  add_row(treatment = "Small-Medium two-patch isolated (s*d)", colour = "#fecc5c", linetype = "longdash") %>%
+  add_row(treatment = "Medium-Large two-patch isolated (s*d)", colour = "#fd8d3c", linetype = "longdash") %>%
+  add_row(treatment = "Large two-patch isolated (s*d)", colour = "#e31a1c", linetype = "longdash") %>%
   slice(-1)
 
 
@@ -371,6 +670,8 @@ treatment_lines_linewidth = 1
 treatment_points_size = 2.5
 
 legend_width_cm = 2
+
+legend_rows_patches = 4
 ```
 
 ```{r modeling_parameters}

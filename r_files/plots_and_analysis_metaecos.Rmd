@@ -9,29 +9,29 @@ editor_options:
 #### Biomass
 
 ```{r}
-response_variable = "bioarea_mm2_per_ml"
+response_variable = "total_metaecosystem_bioarea_mm2"
 ```
 
 ```{r}
-plot.patches.points(patch_type_i,
-                    response_variable,
-                    legend_row_n_input = 2)
+plot.metaecos.points(ds_metaecosystems,
+                     metaecosystem_type_i,
+                     response_variable,
+                     4)
 ```
 
 ```{r}
-filtered_data = ds_patches %>%
+filtered_data = ds_metaecosystems %>%
   filter(
-    patch_type %in% patch_type_i,
+    system_type %in% metaecosystem_type_i,
     time_point >= first_time_point_model,
     time_point <= last_time_point_model,
     !is.na(!!sym(response_variable))
   )
-```
 
-```{r}
-plot.patches.points(filtered_data,
-                    patch_type_i,
-                    response_variable)
+plot.metaecos.points(filtered_data,
+                     metaecosystem_type_i,
+                     response_variable,
+                     4)
 ```
 
 <center>[**Null model**]{.underline}</center>
@@ -40,14 +40,14 @@ plot.patches.points(filtered_data,
 null_model = lmer(
   get(response_variable) ~
     day +
-    (day | culture_ID),
+    (day | system_nr),
   data = filtered_data,
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead")
 )
 ```
 
-<center>[**Full model**]{.underline} [**(with `patch_size_ml` and `patch_size_ml : day`)**]{.underline}</center>
+<center>[**Full model**]{.underline} [**(with interaction with time)**]{.underline}</center>
 
 ```{r}
 full_model = lmer(
@@ -55,7 +55,7 @@ full_model = lmer(
     day +
     patch_size_ml +
     patch_size_ml : day +
-    (day | culture_ID),
+    (day | system_nr),
   data = filtered_data,
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead")
@@ -79,11 +79,10 @@ res_vs_fit = filtered_data %>%
             type = "scatter",
             mode = "markers",
             marker = list(size = 5, color = "#4C78A8"),
-            text = paste(" ID: ", filtered_data$culture_ID, "<br>",
+            text = paste(" ID: ", filtered_data$system_nr, "<br>",
                          "Day: ", filtered_data$day, "<br>",
-                         "Patch Type: ", filtered_data$patch_type, "<br>",
-                         "Biomass density: ", round(filtered_data$bioarea_mm2_per_ml, digits = 2), "<br>",
-                         "Species richness: ", filtered_data$species_richness, "<br>"),
+                         "System Type: ", filtered_data$system_type, "<br>",
+                         "Biomass density: ", round(filtered_data$total_metaecosystem_bioarea_mm2, digits = 2), "<br>"),
             hoverinfo = "text") %>%
     plotly::layout(
         title = "Residuals vs. Fitted Values",
@@ -135,14 +134,14 @@ model_stats_full %>%
 &nbsp;<br>
 &nbsp;<br>
 
-<center>[**Reduced model**]{.underline} [**(with `patch_size_ml`)**]{.underline}</center>
+<center>[**Reduced model**]{.underline} [**(without interaction with time `patch_size_ml`)**]{.underline}</center>
 
 ```{r}
 reduced_model = lmer(
   get(response_variable) ~
     day +
     patch_size_ml +
-    (day | culture_ID),
+    (day | system_nr),
   data = filtered_data,
   REML = FALSE,
   control = lmerControl(optimizer = "Nelder_Mead")
@@ -166,11 +165,10 @@ res_vs_fit = filtered_data %>%
             type = "scatter",
             mode = "markers",
             marker = list(size = 5, color = "#4C78A8"),
-            text = paste(" ID: ", filtered_data$culture_ID, "<br>",
+            text = paste(" ID: ", filtered_data$system_nr, "<br>",
                          "Day: ", filtered_data$day, "<br>",
-                         "Patch Type: ", filtered_data$patch_type, "<br>",
-                         "Biomass density: ", round(filtered_data$bioarea_mm2_per_ml, digits = 2), "<br>",
-                         "Species richness: ", filtered_data$species_richness, "<br>"),
+                         "System Type: ", filtered_data$system_type, "<br>",
+                         "Biomass density: ", round(filtered_data$total_metaecosystem_bioarea_mm2, digits = 2), "<br>"),
             hoverinfo = "text") %>%
     plotly::layout(
         title = "Residuals vs. Fitted Values",
@@ -221,69 +219,7 @@ model_stats_fixed %>%
 ```{r}
 results_table = fill.results.table(results_table,
                                    response_variable,
-                                   patch_type_i,
+                                   metaecosystem_type_i,
                                    model_stats_full,
                                    model_stats_fixed)
 ```
-
-#### Shannon
-
-```{r}
-response_variable = "shannon"
-```
-
-```{r}
-plot.patches.points(patch_type_i,
-                    response_variable,
-                    legend_row_n_input = 2)
-```
-
-#### Evenness
-
-```{r}
-response_variable = "evenness_pielou"
-```
-
-```{r}
-plot.patches.points(patch_type_i,
-                    response_variable,
-                    legend_row_n_input = 2)
-```
-
-#### Median body size
-
-```{r}
-response_variable = "median_body_area_µm2"
-```
-
-```{r}
-plot.patches.points(patch_type_i,
-                    response_variable,
-                    legend_row_n_input = 2)
-```
-
-#### Dominance {.tabset .tabset-pills}
-
-##### Ble
-
-##### Cep
-
-##### Col
-
-##### Eup
-
-##### Lox
-
-##### Pau
-
-##### Pca
-
-##### Spi
-
-##### Spi te
-
-##### Tet
-
-#### Populations
-
-#### BEF
