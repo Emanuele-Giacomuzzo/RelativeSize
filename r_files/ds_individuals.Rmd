@@ -6,6 +6,10 @@ editor_options:
   chunk_output_type: console
 ---
 
+### Individuals (`ds_individuals`)
+
+In this dataset (`ds_individuals`) each row represents an individual at a time point.
+
 ```{r}
 
 # Join datasets (time points and culture info)

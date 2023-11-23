@@ -1,72 +1,117 @@
 ---
-title: "Data - Patches"
+title: "Data manipulation"
+author: "Emanuele Giacomuzzo"
+date: "2022-08-04"
 output: html_document
-date: "2023-01-23"
 editor_options: 
   chunk_output_type: console
 ---
 
 ### Patches (`ds_patches`)
 
--   Every row is a patch at a certain time point.
+In this dataset (`ds_patches`) each row represents a patch at a time point. I use the data from the 40 threshold analysis for Ble, Cep, Spi and the data from the 13 threshold analysis for all the other protists (Col, Eup, Lox, Pau, Pca, Spi te, Tet).
 
 ```{r}
-ds_patches = import.protist.pop.data()
+
+#Import time points
+
+ds_patches = NULL
+
+for (time_point_i in time_points) {
+  
+  species_ID_13_threshold = read.csv(here("data", 
+                                          "species_ID_13_threshold", 
+                                          paste0("t", time_point_i, ".csv"))) %>%
+    rename(Spi_te_indiv_per_volume = Spi.te_indiv_per_volume) %>%
+    select(file,
+           all_of(species_IDD_with_13_threshold_indiv_per_volume))
+  
+  
+  species_ID_40_threshold = read.csv(here("data", 
+                                          "species_ID_40_threshold", 
+                                          paste0("t", time_point_i, ".csv"))) %>%
+    select(file,
+           all_of(species_IDD_with_40_threshold_indiv_per_volume))
+  
+  
+  ds_patches[[time_point_i+1]] = read.csv(here("data", 
+                                                      "populations", 
+                                                      paste0("t", time_point_i, ".csv"))) %>%
+    select(
+      file,
+      time_point,
+      day,
+      culture_ID,
+      bioarea_per_volume,
+      indiv_per_volume)
+  
+  
+  ds_patches[[time_point_i+1]] = ds_patches[[time_point_i+1]] %>%
+    left_join(species_ID_13_threshold,
+                by = "file") %>%
+    left_join(species_ID_40_threshold,
+                by = "file") %>%
+    select(-file)
+    
+}
+
+ds_patches = ds_patches %>%
+  bind_rows() %>%
+  left_join(culture_info,
+            by = "culture_ID") 
+
+expect_equal(nrow(ds_patches), (n_time_points * n_cultures))
 ```
 
 ```{r}
+
+# Take off problematic patches
+
 ds_patches = ds_patches %>%
   filter(! culture_ID %in% patches_to_take_off)
 ```
 
 ```{r}
 
-# Reorder
+# Add column
 
-ds_patches = ds_patches %>%
-  select(time_point,
-         day,
-         file,
-         culture_ID,
-         system_nr,
-         eco_metaeco_type,
-         trophic_type,
-         patch_size,
-         patch_size_ml,
-         metaecosystem,
-         metaecosystem_type,
-         flow,
-         flow_ml,
-         bioarea_per_volume,
-         all_of(protist_species_hetero),
-         Ble_main_analysis,
-         Cep_main_analysis,
-         Spi_main_analysis)
+ds_patches <- ds_patches %>%
+  mutate(interaction_size_disturbance = ifelse(flow == "absolute", 
+                                               "yes", 
+                                               "no")) %>%
+  select(-flow) %>%
+  select(-flow_ml)
 ```
 
 ```{r}
 
-# Rename columns
+# Reorder and rename columns
 
 ds_patches = ds_patches %>%
-    rename(patch_type = eco_metaeco_type,
-           bioarea_µm2_per_μL = bioarea_per_volume) %>%
-    rename_with( ~ paste0(., "_indiv_per_μL"), any_of(
-      c(protist_species_hetero,
-        "Ble_low_threshold_analysis",
-        "Cep_low_threshold_analysis",
-        "Spi_low_threshold_analysis")))
-
-ds_patches = ds_patches %>%
-  rename(interaction_size_disturbance = flow)
-
-ds_patches$interaction_size_disturbance[ds_patches$interaction_size_disturbance == "absolute"] = "yes"
-ds_patches$interaction_size_disturbance[ds_patches$interaction_size_disturbance == "relative"] = "no"
+  select(
+    time_point,
+    day,
+    culture_ID,
+    system_nr,
+    eco_metaeco_type,
+    patch_size,
+    patch_size_ml,
+    trophic_type,
+    interaction_size_disturbance,
+    metaecosystem,
+    metaecosystem_type,
+    bioarea_per_volume,
+    indiv_per_volume,
+    all_of(protist_species_hetero_indiv_per_volume)
+  ) %>%
+  rename(patch_type = eco_metaeco_type,
+         bioarea_µm2_per_μL = bioarea_per_volume) %>%
+  rename_all( ~ gsub("volume", "μL", .))
 ```
 
 ```{r}
 
-# Rename levels
+# Rename and reorder levels
 
 ds_patches <- ds_patches %>%
   mutate(patch_type = patch_types_renamed$new[match(patch_type, patch_types_renamed$old)],
@@ -78,19 +123,15 @@ ds_patches <- ds_patches %>%
                                       true = paste0(metaecosystem_type, " (s)"),
                                       false = metaecosystem_type))
 
-```
-
-```{r}
-
-# Reorder levels
-
 ds_patches = ds_patches %>%
   mutate(patch_type = factor(patch_type,
                              levels = patch_types_ordered))
 ```
 
 ```{r}
-#Change all the measures to ml
+
+# Change units of measurments to ml
+
 ds_patches = ds_patches %>%
   mutate(bioarea_µm2_per_ml = bioarea_µm2_per_μL * 10^3,
          bioarea_mm2_per_ml = bioarea_µm2_per_ml * 10^(-6),
@@ -107,32 +148,23 @@ ds_patches = ds_patches %>%
 ```
 
 ```{r}
-#Rearrange columns
+
+# Add connection and individuals
+
 ds_patches = ds_patches %>%
-  select(time_point,
-         day,
-         file,
-         culture_ID,
-         system_nr,
-         patch_type,
-         trophic_type,
-         patch_size,
-         patch_size_ml,
-         interaction_size_disturbance,
-         metaecosystem,
-         metaecosystem_type,
-         bioarea_mm2_per_ml,
-         all_of(protist_species_hetero_indiv_per_ml))
+  mutate(indiv_per_ml = !!rlang::parse_expr(paste(protist_species_hetero_indiv_per_ml, 
+                                                  collapse = " + ")))
+
+ds_patches = ds_patches %>%
+  mutate(connection = ifelse(str_detect(patch_type, "isolated"), 
+                             "isolated", 
+                             "connected"))
 ```
 
 ```{r}
-#Calculate individuals per ml (based on a combination of the two analyses - one with low and one with high thresholds). 
-ds_patches = ds_patches %>%
-  mutate(indiv_per_ml = !!rlang::parse_expr(paste(protist_species_hetero_indiv_per_ml, collapse = " + ")))
-```
 
-```{r}
-#Calculate total response variable for the whole patch
+# Calculate total response variable for the whole patch
+
 ds_patches = ds_patches %>%
   mutate(bioarea_tot_mm2 = bioarea_mm2_per_ml * patch_size_ml,
          indiv_tot = indiv_per_ml * patch_size_ml,
@@ -149,27 +181,34 @@ ds_patches = ds_patches %>%
 ```
 
 ```{r}
-#Calculate species dominance
+
+# Calculate species dominance
+
 ds_patches = ds_patches %>%
-  mutate(across(all_of(protist_species_hetero_indiv_per_ml), 
-                list(dominance = ~ (. / indiv_per_ml) * 100), 
+  mutate(across(.cols = all_of(protist_species_hetero_indiv_per_ml), 
+                .fns = list(dominance = ~ (. / indiv_per_ml) * 100), 
                 .names = "{col}_dominance"))
+
+expect_equal(unique(ds_patches$Ble_indiv_per_ml_dominance[ds_patches$indiv_per_ml == 0]), NaN)
+
+if (FALSE %in% unique((ds_patches$Ble_indiv_per_ml/ds_patches$indiv_per_ml) *100 == ds_patches$Ble_indiv_per_ml_dominance)) stop()
 ```
 
 ```{r}
-#Keep the number of rows before calculations
+
+# Calculate alpha diversity (Shannon, Simpson, Inverse Simpson, Evenness)
+
 n_rows_ds_patches_before_calculations = nrow(ds_patches)
-```
 
-```{r}
-#Calculate alpha diversity (Shannon, Simpson, Inverse Simpson, Evenness)
 ds_patches = calculate.alpha.diversity()
 
-ds_patches$shannon[ds_patches$species_richness == 1] = 0 #I'm not sure why this is not already done automatically in the previous step 
+expect_equal(max(ds_patches$species_richness), length(protist_species_hetero))
 ```
 
 ```{r}
-#Calculate median body size
+
+# Calculate median body size
+
 ds_median_body_size = ds_individuals %>%
   group_by(time_point,
            culture_ID,
@@ -183,6 +222,5 @@ expect_true(nrow(ds_median_body_size) <= nrow(ds_patches))
 
 ds_patches = full_join(ds_patches, ds_median_body_size)
 
-expect_equal(nrow(ds_patches),
-             n_rows_ds_patches_before_calculations)
+expect_equal(nrow(ds_patches), n_rows_ds_patches_before_calculations)
 ```

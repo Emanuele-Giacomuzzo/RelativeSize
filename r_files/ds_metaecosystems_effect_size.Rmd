@@ -7,20 +7,20 @@ editor_options:
 ---
 
 ```{r}
-#9/12/23 looks good but still needs to be checkedk
+#9/12/23 looks good but still needs to be checked. Plus, it takes forever to run.
 calculate.effect.sizes.metaecos = function() {
   
   metaeco_type_count = 0
-  for (metaeco_type_i in treatments_and_controls_metaecos$treatment) {
+  for (metaeco_type_i in "Small meta-ecosystem (s)"){ #treatments_and_controls_metaecos$treatment) {
     
     metaeco_type_count = metaeco_type_count + 1
     
-    isolated_type_name = treatments_and_controls_metaecos %>%
+    isolated_type_i = treatments_and_controls_metaecos %>%
             filter(treatment == metaeco_type_i) %>%
             pull(control)
     
     nr_of_sets = combination_sets_isolated_systems %>%
-      filter(system_type == isolated_type_name) %>%
+      filter(system_type == isolated_type_i) %>%
       pull(set) %>%
       max()
     
@@ -35,7 +35,7 @@ calculate.effect.sizes.metaecos = function() {
           columns_to_group_by = columns_metaecos[(columns_metaecos != "system_nr") & (columns_metaecos != "patches_combined")]
           
           system_nrs_of_set_i = combination_sets_isolated_systems %>%
-            filter(system_type %in% isolated_type_name,
+            filter(system_type %in% isolated_type_i,
                    set == set_i) %>%
             pull(system_nr)
           
@@ -58,7 +58,7 @@ calculate.effect.sizes.metaecos = function() {
             filter(system_type == metaeco_type_i)
           
           control_row = new_dataset %>%
-            filter(system_type == isolated_type_name)
+            filter(system_type == isolated_type_i)
           
           hedges_d = calculate.hedges_d(
             treatment_row[[paste0(variable_i, "_mean")]],

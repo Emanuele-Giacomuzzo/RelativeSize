@@ -1,0 +1,40 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-11-23"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+plot.patches.points(ds_patches,
+                    patch_type_i,
+                    response_variable)
+```
+
+<details>
+    <summary>Boxplots</summary>
+```{r}
+plot.patches.boxplots(ds_patches,
+                      patch_type_i,
+                      response_variable)
+```
+</details>
+
+<details>
+    <summary>Replicates</summary>
+```{r}
+plot.patches.replicates(ds_patches,
+                        patch_type_i,
+                        response_variable)
+```
+</details>
+
+<details>
+    <summary>Effect sizes</summary>
+```{r}
+plot.patches.points.ES(ds_patches_effect_size,
+                       patch_type_i[grep("connected", patch_type_i)],
+                       paste0(response_variable, "_d"))
+```
+</details>

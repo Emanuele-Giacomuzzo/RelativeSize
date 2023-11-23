@@ -6,10 +6,6 @@ editor_options:
   chunk_output_type: console
 ---
 
-### Meta-ecosystems (`ds_metaecosystems`)
-
--   Each row is a meta-ecosystem.
-
 ```{r}
 ds_metaecosystems <- list()
 row_i = 0

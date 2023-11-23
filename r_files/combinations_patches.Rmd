@@ -6,15 +6,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-Here we want to create a dataset where each row is a meta-ecosystem. Or an isolated two-patch system, composed of two isolated patches (e.g., one medium blue and one medium green).
-
-Let's create the data frame `combinations_isolated_n_metaecos` with all the experimental meta-ecosystems and all the possible meta-ecosystems from isolated.
-
 ```{r}
 
 # Create combinations_isolated - to create isolated two-patch systems, find how isolated patches can be combined to create them. Store these combinations into combinations_isolated.
 
-combinations_isolated <- list()
+combinations_isolated <- NULL
 i = 0
 for(isolated_two_patch_system_i in isolated_two_patch_systems$system_type){
   
@@ -35,19 +31,19 @@ for(isolated_two_patch_system_i in isolated_two_patch_systems$system_type){
     as.double()
   
   combinations_isolated[[i]] = crossing(ID_green_patches,
-                                                ID_blue_patches) %>%
-  mutate(system_type = isolated_two_patch_system_i,
-         connection = "isolated") %>% #Change this one 
-  rename(ID_green_patch = ID_green_patches,
-         ID_blue_patch = ID_blue_patches) %>%
-  mutate(patches_combined = paste0(ID_green_patch, "|", ID_blue_patch)) %>%
-  select(system_type,
-         connection,
-         patches_combined,
-         ID_green_patch,
-         ID_blue_patch)
+                                        ID_blue_patches) %>%
+    mutate(system_type = isolated_two_patch_system_i,
+           connection = "isolated") %>% #Change this one
+    rename(ID_green_patch = ID_green_patches,
+           ID_blue_patch = ID_blue_patches) %>%
+    mutate(patches_combined = paste0(ID_green_patch, "|", ID_blue_patch)) %>%
+    select(system_type,
+           connection,
+           patches_combined,
+           ID_green_patch,
+           ID_blue_patch)
   
-  expect_equal(nrow(combinations_isolated),
+  expect_equal(nrow(combinations_isolated[[i]]),
              length(ID_green_patches) * length(ID_blue_patches))
 }
 

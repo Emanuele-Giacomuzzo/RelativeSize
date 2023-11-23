@@ -6,31 +6,44 @@ editor_options:
   chunk_output_type: console
 ---
 
+```{r echo = FALSE}
+legend_row_n_input = 2
+```
+
 #### Biomass
 
 ```{r}
 response_variable = "bioarea_mm2_per_ml"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd")}
+```{r child = here("r_files", "plot_patches.Rmd")}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = FALSE}
 ```
 
 #### Shannon
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "shannon"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = blue_patches}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 #### Evenness
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "evenness_pielou"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = blue_patches}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 #### Median body size
@@ -39,104 +52,137 @@ response_variable = "evenness_pielou"
 response_variable = "median_body_area_µm2"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd")}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = blue_patches}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = FALSE}
 ```
 
 #### Dominance {.tabset .tabset-pills}
 
 ##### Ble
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Ble_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Cep
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Cep_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Col
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Col_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Eup
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Eup_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Lox
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Lox_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Pau
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Pau_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Pca
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Pca_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
 ```
 
 ##### Spi
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Spi_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Spi te
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Spi_te_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 ##### Tet
 
-```{r eval = BLUE}
+```{r eval = blue_patches}
 response_variable = "Tet_indiv_per_ml_dominance"
 ```
 
-```{r child = here("r_files", "analysis_patches.Rmd"), eval = BLUE}
+```{r child = here("r_files", "plot_patches.Rmd"), eval = FALSE}
+```
+
+```{r child = here("r_files", "analysis.Rmd"), eval = blue_patches, eval = FALSE}
 ```
 
 #### Populations
 
-```{r, eval = BLUE}
+```{r, eval = blue_patches}
+
 for(patch_type_i in patch_type_i){
   
   print(patch_type_i)

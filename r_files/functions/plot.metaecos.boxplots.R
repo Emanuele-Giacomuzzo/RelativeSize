@@ -1,50 +1,50 @@
 plot.metaecos.boxplots = function(data,
-                                  flow_input,
+                                  system_type_input,
                                   response_variable) {
-  
-  if(trophic_type_input == "autotrophic"){
-    colour_lowest = colour_lowest_autotrophic
-    colour_highest = colour_highest_autotrophic 
-  }
-  
-  if(trophic_type_input == "heterotrophic"){
-    colour_lowest = colour_lowest_heterotrophic
-    colour_highest = colour_highest_heterotrophic
-  }
   
   data %>%
     filter(
-      flow == flow_input
+      system_type %in% system_type_input
     ) %>%
     ggplot(aes(
       x = day,
       y = get(response_variable),
-      group = interaction(day, patch_size_ml),
-      fill = patch_size_ml
+      group = interaction(day, system_type),
+      fill = system_type
     )) +
-    geom_boxplot() +
+    geom_boxplot(width = boxplot_width) +
+    labs(x = axis_names$axis_name[axis_names$variable == "day"],
+         y = axis_names$axis_name[axis_names$variable == response_variable],
+         fill = "") +
+    scale_fill_manual(
+      values = c(
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[1]][1],
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[2]][1],
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[3]][1],
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[4]][1],
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[5]][1],
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[6]][1],
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[7]][1],
+        parameters_treatments$colour[parameters_treatments$treatment == system_type_input[8]][1]
+      )
+    ) +
     geom_vline(
       xintercept = resource_flow_days,
       linetype = resource_flow_line_type,
       color = resource_flow_line_colour,
       linewidth = resource_flow_line_width
     ) +
-    labs(x = axis_names$axis_name[axis_names$variable == "day"],
-         y = axis_names$axis_name[axis_names$variable == response_variable],
-         fill = axis_names$axis_name[axis_names$variable == "patch_size_ml"]) +
+    # geom_hline(
+    #   yintercept = 0,
+    #   color = zero_line_colour,
+    #   linetype = zero_line_line_type,
+    #   linewidth = zero_line_line_width
+    # ) +
     theme_bw() +
     theme(
       panel.grid.major = element_blank(),
       panel.grid.minor = element_blank(),
       legend.position = legend_position
-    ) +
-    geom_hline(
-      yintercept = 0,
-      color = zero_line_colour,
-      linetype = zero_line_line_type,
-      linewidth = zero_line_line_width
-    ) +
-    scale_fill_gradient(low = colour_lowest, 
-                        high = colour_highest)
-
+    )
+  
 }
