@@ -444,6 +444,8 @@ parameters_treatments = data.frame(treatment = NA,
   add_row(treatment = "Large two-patch isolated (s*d)", colour = "#e31a1c", linetype = "longdash") %>%
   slice(-1)
 
+figures_height_rmd_output = 7
+
 legend_position = "top"
 legend_width_cm = 2
 size_legend = 12

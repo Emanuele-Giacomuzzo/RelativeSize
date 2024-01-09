@@ -1,0 +1,46 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-11-24"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+
+# Construct combined plots
+
+response_variable = "bioarea_mm2_per_ml"
+patch_type_i = c("Blue small connected (s*d)",
+                 "Blue small-medium connected (s*d)",
+                 "Blue medium-large connected (s*d)",
+                 "Blue large connected (s*d)")
+
+p = plot.patches.points.ES(ds_patches_effect_size %>% filter(day > resource_flow_days[1]),
+                       patch_type_i[grep("connected", patch_type_i)],
+                       paste0(response_variable, "_d"))
+```
+
+```{r fig.height = figures_height_rmd_output}
+
+# Show plot
+
+p
+```
+
+```{r results=FALSE}
+
+# Save plot
+
+png(
+  file = here("results", "figures", "paper", "patches_biomass_es_blue.png"),
+  width = paper_width,
+  height = paper_height,
+  units = paper_units,
+  res = paper_res
+)
+
+p
+
+dev.off()
+```

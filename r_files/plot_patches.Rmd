@@ -33,7 +33,7 @@ plot.patches.replicates(ds_patches,
 <details>
     <summary>Effect sizes</summary>
 ```{r}
-plot.patches.points.ES(ds_patches_effect_size,
+plot.patches.points.ES(ds_patches_effect_size %>% filter(day > resource_flow_days[1]),
                        patch_type_i[grep("connected", patch_type_i)],
                        paste0(response_variable, "_d"))
 ```

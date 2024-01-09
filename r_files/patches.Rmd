@@ -52,7 +52,7 @@ response_variable = "evenness_pielou"
 response_variable = "median_body_area_µm2"
 ```
 
-```{r child = here("r_files", "plot_patches.Rmd"), eval = blue_patches}
+```{r child = here("r_files", "plot_patches.Rmd")}
 ```
 
 ```{r child = here("r_files", "analysis.Rmd"), eval = FALSE}
@@ -188,19 +188,20 @@ for(patch_type_i in patch_type_i){
   print(patch_type_i)
 
   p = ds_patches %>%
-  filter(patch_type == patch_type_i) %>%
+  filter(patch_type == patch_type_i,
+         bioarea_µm2_per_μL != 0) %>%
   group_by(day) %>%
   summarise(
-    Ble = mean(Ble_indiv_per_ml_dominance),
-    Cep = mean(Cep_indiv_per_ml_dominance),
-    Col = mean(Col_indiv_per_ml_dominance),
-    Eup = mean(Eup_indiv_per_ml_dominance),
-    Lox = mean(Lox_indiv_per_ml_dominance),
-    Pau = mean(Pau_indiv_per_ml_dominance),
-    Pca = mean(Pca_indiv_per_ml_dominance),
-    Spi = mean(Spi_indiv_per_ml_dominance),
-    Spi_te = mean(Spi_te_indiv_per_ml_dominance),
-    Tet = mean(Tet_indiv_per_ml_dominance)
+    Ble = mean(Ble_indiv_per_ml_dominance, na.rm = TRUE),
+    Cep = mean(Cep_indiv_per_ml_dominance, na.rm = TRUE),
+    Col = mean(Col_indiv_per_ml_dominance, na.rm = TRUE),
+    Eup = mean(Eup_indiv_per_ml_dominance, na.rm = TRUE),
+    Lox = mean(Lox_indiv_per_ml_dominance, na.rm = TRUE),
+    Pau = mean(Pau_indiv_per_ml_dominance, na.rm = TRUE),
+    Pca = mean(Pca_indiv_per_ml_dominance, na.rm = TRUE),
+    Spi = mean(Spi_indiv_per_ml_dominance, na.rm = TRUE),
+    Spi_te = mean(Spi_te_indiv_per_ml_dominance, na.rm = TRUE),
+    Tet = mean(Tet_indiv_per_ml_dominance, na.rm = TRUE)
   ) %>%
   pivot_longer(Ble:Tet, names_to = "species", values_to = "species_indiv_per_ml") %>%
   ggplot(aes(

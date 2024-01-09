@@ -1,7 +1,7 @@
 ---
 title: "PhD Chapter 3 - RelativeSize"
 author: "Emanuele Giacomuzzo"
-date: "`r Sys.time()`"
+date: "`r format(Sys.time(), '%Y-%m-%d %H:%M')`"
 output: 
   html_document:
     code_folding: hide
@@ -68,7 +68,7 @@ In this dataset (`ds_metaecosystems`) each row represents a meta-ecosystem or a 
 
 ### Meta-ecosystems effect sizes (`ds_metaecos_es`)
 
-```{r child = here("r_files", "ds_metaecosystems_effect_size.Rmd"), eval = FALSE}
+```{r child = here("r_files", "ds_metaecosystems_effect_size.Rmd")}
 ```
 
 ## Plots & analysis (s) {.tabset .tabset-dropdown}
@@ -189,6 +189,11 @@ patch_type_input_analysis = patch_type_i
 ```
 
 ```{r child = here("r_files", "patches.Rmd")}
+```
+
+## Results
+
+```{r child = here("r_files", "results_patches_biomass_es.Rmd")}
 ```
 
 ## Other

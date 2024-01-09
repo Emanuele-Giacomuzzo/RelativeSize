@@ -6,8 +6,8 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r}
-#9/12/23 looks good but still needs to be checked. Plus, it takes forever to run.
+```{r eval = FALSE}
+# I run this code on 2023.11.24
 calculate.effect.sizes.metaecos = function() {
   
   metaeco_type_count = 0
@@ -92,4 +92,8 @@ calculate.effect.sizes.metaecos = function() {
   return(ds_metaecos_es)
   
 }
+```
+
+```{r}
+ds_metaecos_es = read.csv(file = here("results", "calculations", "ds_metaecos_es.csv"))
 ```

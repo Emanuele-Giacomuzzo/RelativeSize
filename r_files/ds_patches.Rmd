@@ -149,11 +149,13 @@ ds_patches = ds_patches %>%
 
 ```{r}
 
-# Add connection and individuals
+# Add connection
 
 ds_patches = ds_patches %>%
-  mutate(indiv_per_ml = !!rlang::parse_expr(paste(protist_species_hetero_indiv_per_ml, 
-                                                  collapse = " + ")))
+  mutate(indiv_per_ml = !!rlang::parse_expr(paste(
+    protist_species_hetero_indiv_per_ml,
+    collapse = " + "
+  )))
 
 ds_patches = ds_patches %>%
   mutate(connection = ifelse(str_detect(patch_type, "isolated"), 

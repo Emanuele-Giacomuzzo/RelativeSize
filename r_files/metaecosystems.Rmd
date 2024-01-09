@@ -37,3 +37,12 @@ plot.metaecos.replicates(ds_metaecosystems,
                          response_variable)
 ```
 </details>
+
+<details>
+    <summary>Effect size</summary>
+```{r}
+plot.metaecos.points.ES(ds_metaecos_es %>% filter(day > resource_flow_days[1]),
+                         metaecosystem_type_i[grep("meta-ecosystem", metaecosystem_type_i)],
+                         paste0(response_variable, "_d"))
+```
+</details>
