@@ -23,19 +23,20 @@ editor_options:
 library("here")
 ```
 
-```{r child = here("r_files", "packages.Rmd"), echo=FALSE}
+```{r child = here("r_files", "set_packages.Rmd"), echo=FALSE}
 ```
 
-```{r child = here("r_files", "functions.Rmd"), echo=FALSE}
+```{r child = here("r_files", "set_functions.Rmd"), echo=FALSE}
 ```
 
 ## Design
 
-![](images/Design.png)
+```{r child = here("r_files", "design.Rmd"), echo=FALSE}
+```
 
 ## Parameters {.tabset .tabset-dropdown}
 
-```{r child = here("r_files", "parameters.Rmd"), class.source = 'fold-show'}
+```{r child = here("r_files", "set_parameters.Rmd"), class.source = 'fold-show'}
 ```
 
 ## Data {.tabset .tabset-dropdown}
@@ -43,6 +44,8 @@ library("here")
 ```{r echo = FALSE}
 culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
 ```
+
+Here I need to do it as I do with AHSIze but the problem is that I don't have the master files so I can't do it.
 
 ```{r child = here("r_files", "ds_individuals.Rmd")}
 ```
@@ -78,16 +81,15 @@ In this dataset (`ds_metaecosystems`) each row represents a meta-ecosystem or a 
 ```{r}
 metaecosystem_analysis = TRUE; patch_analysis = TRUE
 blue_patches = FALSE
-metaecosystem_type_i = c(
-  "Small meta-ecosystem (s)",
-  "Small two-patch isolated (s)",
-  "Small-Medium meta-ecosystem (s)",
-  "Small-Medium two-patch isolated (s)",
-  "Medium-Large meta-ecosystem (s)",
-  "Medium-Large two-patch isolated (s)",
-  "Large meta-ecosystem (s)",
-  "Large two-patch isolated (s)"
-)
+metaecosystem_type_i = c("Small meta-ecosystem (s)",
+                         "Small two-patch isolated (s)",
+                         "Small-Medium meta-ecosystem (s)",
+                         "Small-Medium two-patch isolated (s)",
+                         "Medium-Large meta-ecosystem (s)",
+                         "Medium-Large two-patch isolated (s)",
+                         "Large meta-ecosystem (s)",
+                         "Large two-patch isolated (s)")
+
 metaecosystem_type_input_analysis = metaecosystem_type_i
 ```
 
@@ -193,22 +195,15 @@ patch_type_input_analysis = patch_type_i
 
 ## Results
 
-```{r child = here("r_files", "results_patches_biomass_es.Rmd")}
+```{r child = here("r_files", "results_patches_biomass_es_blue.Rmd")}
+```
+
+```{r child = here("r_files", "results_patches_biomass_es_green.Rmd")}
 ```
 
 ## Other
 
-Save files to calculate the effect size of meta-ecosystems. 
-
-```{r}
-write.csv(combination_sets_isolated_systems,
-          file = here("files_for_ds_metaecos_es", "combination_sets_isolated_systems.csv"))
-
-write.csv(ds_metaecosystems,
-          file = here("files_for_ds_metaecos_es", "ds_metaecosystems.csv"))
-
-write.csv(ds_metaecosystems,
-          file = here("files_for_ds_metaecos_es", "ds_metaecosystems.csv"))
+```{r child = here("r_files", "other.Rmd")}
 ```
 
 ## Bibliography

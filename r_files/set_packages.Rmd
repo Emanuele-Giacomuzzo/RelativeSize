@@ -14,19 +14,26 @@ library("testthat")
 library("renv")
 
 #Data manipulation
+library("data.table")
 library("plyr")
 library("tidyverse")
 
 #Data visualisation
 library("ggpubr") #ggarrange
 library("plotly")
+library("rempsyc")
+library("broom")
+library("officer")
 
 #Data analysis
-library("lme4")
+library("lmerTest") #To use mixed effects models that get you p-values and F statistics
 library("vegan")
 library("betapart")
 library("Rmisc") #For summarySE
 library("combinat")
+library("emmeans") #For contrasts in a lmer object. An alternative is multcomp.
+library("bemovi")
+library("e1071") #For support vector machines
 
 #Conflicts
 library("conflicted")
@@ -38,4 +45,7 @@ conflict_prefer("rename", "dplyr")
 conflict_prefer("arrange", "dplyr")
 conflict_prefer("here", "here")
 conflict_prefer("combn", "combinat")
+conflict_prefer("anova", "lmerTest")
+conflicts_prefer(lmerTest::lmer)
+conflicts_prefer(dplyr::select)
 ```

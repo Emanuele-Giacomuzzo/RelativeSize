@@ -61,3 +61,12 @@ ds_metaecosystems = ds_metaecosystems %>%
                              levels = metaecosystem_types_ordered))
 ```
 
+```{r}
+ds_metaecosystems = ds_metaecosystems %>%
+  mutate(interaction_disturbance_size = ifelse(grepl("(s*d)", system_type),
+                                               "yes",
+                                               "no"),
+         connection = ifelse(grepl("meta-ecosystem", system_type),
+                                               "connected",
+                                               "unconnected"))
+```

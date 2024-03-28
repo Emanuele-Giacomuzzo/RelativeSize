@@ -8,8 +8,64 @@ editor_options:
 
 #### Biomass
 
+We want to know whether the size of the meta-ecosystem influenced the effects of the spatial feedback between heterotrophic and autotrophic ecosystems. We first start from plotting how meta-ecosystem biomass changed in connected/unconnected meta-ecosystems of different size throughout the experiment through its mean ± 95 confidence interval:
+
 ```{r}
 response_variable = "total_metaecosystem_bioarea_mm2"
+```
+
+```{r}
+ds_metaecosystems %>%
+    filter(interaction_disturbance_size == "yes",
+           !is.na((total_metaecosystem_bioarea_mm2))) %>%
+    summarySE(measurevar = "total_metaecosystem_bioarea_mm2",
+              groupvars = c("day", "patch_size_ml", "connection", "system_type")) %>%
+    ggplot(aes(x = day,
+               y = total_metaecosystem_bioarea_mm2,
+               group = interaction(day, patch_size_ml, connection),
+               color = patch_size_ml,
+               linetype = connection)) +
+    geom_point(stat = "summary",
+               fun = "mean",
+               position = position_dodge(dodging),
+               size = treatment_points_size) +
+    geom_line(stat = "summary",
+              fun = "mean",
+              aes(group = interaction(patch_size_ml, connection)),
+              position = position_dodge(dodging),
+              linewidth = treatment_lines_linewidth) +
+    geom_errorbar(aes(ymax = get(response_variable) + ci,
+                      ymin = get(response_variable) - ci),
+                  width = width_errorbar,
+                  position = position_dodge(dodging)) +
+    labs(x = axis_names$axis_name[axis_names$variable == "day"],
+         y = axis_names$axis_name[axis_names$variable == response_variable],
+         color = "") +
+    geom_vline(xintercept = resource_flow_days,
+               linetype = resource_flow_line_type,
+               color = resource_flow_line_colour,
+               linewidth = resource_flow_line_width) +
+    theme_bw() +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = legend_position,
+          legend.key.width = unit(legend_width_cm, "cm")) +
+    guides(color = guide_legend(title = NULL,
+                                nrow = 2),
+           linetype = guide_legend(title = NULL,
+                                   nrow = 2)) +
+    theme(plot.margin = unit(c(ggarrange_margin_left,
+                               ggarrange_margin_right,
+                               ggarrange_margin_bottom,
+                               ggarrange_margin_left),
+                             "cm")) +
+    geom_rect(xmin = grey_background_xmin, 
+              xmax = grey_background_xmax,
+              ymin = grey_background_ymin, 
+              ymax = grey_background_ymax, 
+              fill = grey_background_fill, 
+              alpha = grey_background_alpha,
+              color = grey_background_color)
 ```
 
 
@@ -21,16 +77,7 @@ plot.metaecos.points(ds_metaecosystems,
 ```
 
 <details>
-    <summary>Boxplots</summary>
-```{r}
-plot.metaecos.boxplots(ds_metaecosystems,
-                       metaecosystem_type_i,
-                       response_variable)
-```
-</details>
-
-<details>
-    <summary>Replicates</summary>
+    <summary>Click here to view the same data represented through the single replicates</summary>
 ```{r}
 plot.metaecos.replicates(ds_metaecosystems,
                          metaecosystem_type_i,
@@ -39,7 +86,7 @@ plot.metaecos.replicates(ds_metaecosystems,
 </details>
 
 <details>
-    <summary>Effect size</summary>
+    <summary>Click here to view the same data represented through effect sizes</summary>
 ```{r}
 plot.metaecos.points.ES(ds_metaecos_es %>% filter(day > resource_flow_days[1]),
                          metaecosystem_type_i[grep("meta-ecosystem", metaecosystem_type_i)],

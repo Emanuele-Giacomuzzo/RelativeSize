@@ -6,47 +6,93 @@ editor_options:
   chunk_output_type: console
 ---
 
+Parameters for R markdown and the general running of the code.
+
 ```{r}
-
-# R markdown
-
 knitr::opts_chunk$set(message = FALSE, 
                       cache = FALSE,
                       autodep = FALSE)
-recompute_analyses = FALSE #Lengthy analyses have been suppressed. Set recompute_analyses = TRUE to redo them. 
+start_time = Sys.time()
+recompute_analyses = FALSE 
 ```
 
+Parameters necessary to use the package BEMOVI (includes sampling parameters).
 
 ```{r}
+fps = 25 #Frames per second 
+seconds_per_video = 5
+total_frames = fps * seconds_per_video
+measured_volume = 34.4 #volume measured for each video in µL
+volume_recorded_μl = measured_volume
+volume_recorded_ml = volume_recorded_μl * 10^-3
+pixel_to_scale = 4.05
+filter_min_net_disp = 25
+filter_min_duration = 1 
+filter_detection_freq = 0.1
+filter_median_step_length = 3
 
-# Resource flow
+time_points = 0:7
+time_point_names = c("t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7") #Get rid of after new data assembly
+sampling_days = c(0, 4, 8, 12, 16, 20, 24, 28)
+# time_points_for_ES = 1:4
+first_time_point = 0 #Get rid of after new data assembly
+last_time_point = length(sampling_days) - 1 #Get rid of after new data assembly
+n_time_points = last_time_point + 1 #Get rid of after new data assembly
+time_point_day = data.frame(time_point = first_time_point:last_time_point,
+                            day = sampling_days) #Get rid of after new data assembly
 
+threshold_levels = c(13, 40) #These are the two lower threshold for pixel intensity for imageJ to distinguish between background and foreground. We analysed the videos using 13 as the minimum threshold, then did the same with 40. 
+
+video.description.folder = "0_video_description/"
+video.description.file = "video_description.txt"
+merged_data_folder = "5_merged_data/"
+
+columns_for_species_ID = c("mean_grey",
+                           "sd_grey",
+                           "mean_area",
+                           "sd_area",
+                           "mean_perimeter",
+                           "mean_turning",
+                           "sd_turning",
+                           "sd_perimeter",
+                           "mean_major",
+                           "sd_major",
+                           "mean_minor",
+                           "sd_minor",
+                           "mean_ar",
+                           "sd_ar",
+                           "duration",
+                           "max_net",
+                           "net_disp",
+                           "net_speed",
+                           "gross_disp",
+                           "max_step",
+                           "min_step",
+                           "sd_step",
+                           "sd_gross_speed",
+                           "max_gross_speed",
+                           "min_gross_speed")
+```
+
+Parameters related to resource flows.
+
+```{r}
 resource_flow_days = c(5, 9, 13, 17, 21, 25)
 ```
 
-```{r}
-
-# Sampling
-
-total_frames = 125
-volume_recorded_μl = 34.4
-time_points = 0:7
-time_point_names = c("t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7")
-sampling_days = c(0, 4, 8, 12, 16, 20, 24, 28)
-first_time_point = 0
-last_time_point = length(sampling_days) - 1
-n_time_points = last_time_point + 1
-
-time_point_day = data.frame(
-  time_point = first_time_point:last_time_point,
-  day = sampling_days
-)
-```
+Parameters related to protists.
 
 ```{r}
+#New
+protist_species = c("Ble", "Cep", "Col", "Eug", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
+protist_species_indiv_per_ml = paste0(protist_species, "_indiv_per_ml")
+protist_species_bioarea_mm2_per_ml = paste0(protist_species, "_bioarea_mm2_per_ml")
+protist_species_dominance = paste0(protist_species_bioarea_mm2_per_ml, "_dominance")
 
-# Protists
+species_IDD_with_13_threshold = c("Col", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
+species_IDD_with_40_threshold = c("Ble", "Cep", "Spi")
 
+#Old
 protist_species_hetero = c("Ble", "Cep", "Col", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
 protist_species_hetero_indiv_per_ml = paste0(protist_species_hetero, "_indiv_per_ml")
 protist_species_hetero_indiv_per_volume = paste0(protist_species_hetero, "_indiv_per_volume")
@@ -58,6 +104,8 @@ species_IDD_with_13_threshold_indiv_per_volume = paste0(species_IDD_with_13_thre
 species_IDD_with_40_threshold = c("Ble", "Cep", "Spi")
 species_IDD_with_40_threshold_indiv_per_volume = paste0(species_IDD_with_40_threshold, "_indiv_per_volume")
 ```
+
+Parameters related to ecosystems.
 
 ```{r}
 
@@ -199,10 +247,9 @@ patch_treatments_and_controls = data.frame(
 )
 ```
 
+Parameters related to meta-ecosystems.
+
 ```{r experiment}
-
-# Meta-ecosystems
-
 metaecosystems_to_take_off = NA
 
 system_nr_metaecosystems = culture_info %>%
@@ -309,10 +356,9 @@ for(row_i in 1:nrow(names)) {
 }
 ```
 
+Name of the axes per response variable.
+
 ```{r}
-
-# Plotting
-
 axis_names = data.frame(variable = NA,
                         axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Time (day)") %>%
@@ -443,7 +489,11 @@ parameters_treatments = data.frame(treatment = NA,
   add_row(treatment = "Medium-Large two-patch isolated (s*d)", colour = "#fd8d3c", linetype = "longdash") %>%
   add_row(treatment = "Large two-patch isolated (s*d)", colour = "#e31a1c", linetype = "longdash") %>%
   slice(-1)
+```
 
+Parameters for plotting.
+
+```{r}
 figures_height_rmd_output = 7
 
 legend_position = "top"
@@ -490,12 +540,19 @@ presentation_treatment_points_size = 5
 presentation_treatment_linewidth = 2
 presentation_figure_units = "cm"
 presentation_figure_res = 600
+
+grey_background_xmin = -Inf
+grey_background_xmax = 11.5
+grey_background_ymin = -Inf
+grey_background_ymax = Inf
+grey_background_fill = "#f0f0f0"
+grey_background_alpha = 0.03
+grey_background_color = "transparent"
 ```
 
-```{r modeling_parameters}
+Parameters for modelling.
 
-# Modeling parameters
-
+```{r}
 first_time_point_model = 2 #Time point 2 is the first after disturbance
 last_time_point_model = last_time_point
 iterated_results_table = NULL

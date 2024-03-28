@@ -1,0 +1,149 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-02-29"
+editor_options: 
+  chunk_output_type: console
+---
+
+**Aggregate ecosystem-level information.**
+
+Finally, now that we have a dataset with all the identified individuals, let's proceed to create the dataset with ecosystem-level information (`ds_ecosystems`). There are three important information on how we proceed to create such a dataset:
+
+1)  Individuals per volume of a species are computed as the average number of individuals present in a frame (total species frames / measured frames / measured volume). For example, let's say we want to measure the individuals of Ble. We detect individual A for 10 frames, individual B for 20 frames, and individual C for 30 frames. The individuals per volume of Ble will be:\
+    \
+    Ble individuals =\
+    total species frames / measured frames / measured volume =\
+    (10+20+30) frames / 125 frames / 0.0344 ml =\
+    13.95 individuals / ml.
+
+2)  Biomass per volume of a species is computed as the average biomass present in a frame (total species biomass / total species frames / measured frames / measured volume). For example, let's say we want to measure the biomass of Ble. We detect individual A with a biomass of 0.5 mm2/ml in 10 frames, individual B with a biomass of 1.0 mm2/ml in 20 frames, and individual C with a biomass of 1.5 mm2/ml in 30 frames. The biomass per volume of Ble will be:\
+    \
+    Ble biomass =\
+    total species biomass / total species frames / measured frames / measured volume =\
+    (0.5 + 1.0 + 1.5) mm2 / 125 frames / 0.0344 ml =\
+    0.70 mm2 / ml.
+
+3)  The information of different videos at time point 0 is averaged across videos for each ecosystems. For example, if the disconnected autotrophic ecosystem with ID = 1 at time point 0 had biomass of video 1 = 1 mm2 / ml, video 2 = 2 mm2/ml, video 3 = 1 mm2/ml, video 4 = 2 mm2/ml, video 5 = 1 mm2/ml, and video 6 = 1 mm2/ml, then biomass will be averaged across videos and will be 1.5 mm2/ml.
+
+```{r}
+ds_ecosystems[[threshold]] = ds_individuals %>%
+  
+  # To afterwards calculate the biomass and individuals of an ecosystem, summarise the bioarea and individuals of each species.
+
+  group_by_at(vars(time_point:connection,
+                   species)) %>%
+  summarise(bioarea_mm2_per_ml = sum(bioarea_mm2_per_frame_per_ml),
+            indiv_per_ml = sum(N_frames) / total_frames) %>%
+  
+  # To make it easier to plot and analyse the dataset, go from a long format (each row is a species of an ecosystem at a time point) to a wide format (each row is an ecosystem at a time point).
+
+  pivot_wider(names_from = species,
+              values_from = c(bioarea_mm2_per_ml, 
+                              indiv_per_ml)) %>%
+  rename(Ble_indiv_per_ml = indiv_per_ml_Ble,
+         Cep_indiv_per_ml = indiv_per_ml_Cep,
+         Col_indiv_per_ml = indiv_per_ml_Col,
+         Eug_indiv_per_ml = indiv_per_ml_Eug,
+         Eup_indiv_per_ml = indiv_per_ml_Eup,
+         Lox_indiv_per_ml = indiv_per_ml_Lox,
+         Pau_indiv_per_ml = indiv_per_ml_Pau,
+         Pca_indiv_per_ml = indiv_per_ml_Pca,
+         Spi_indiv_per_ml = indiv_per_ml_Spi,
+         Spi_te_indiv_per_ml = indiv_per_ml_Spi_te,
+         Ble_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Ble,
+         Cep_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Cep,
+         Col_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Col,
+         Eug_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Eug,
+         Eup_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Eup,
+         Lox_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Lox,
+         Pau_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Pau,
+         Pca_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Pca,
+         Spi_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Spi,
+         Spi_te_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Spi_te)
+
+# To avoid issues with column renaming, only rename the Tet columns where the threshold is set to 13. This is necessary because at a threshold of 40, Tet is no detected, resulting in no Tet columns being generated.
+
+if(threshold == 13){
+  
+  ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
+  rename(Tet_indiv_per_ml = indiv_per_ml_Tet,
+         Tet_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Tet)
+}
+
+# To have a single value at time point 0, average the values of all the videos. 
+
+ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
+  group_by_at(vars(time_point:connection)) %>%
+  summarise(across(contains("bioarea_mm2_per_ml"), 
+                   sum, 
+                   na.rm = TRUE),
+            across(contains("indiv_per_ml"), 
+                    sum, 
+                   na.rm = TRUE)) %>%
+  
+  mutate(
+    
+         # Calculate biomass and individuals of single ecosystems.  
+    
+         indiv_per_ml = sum(across(contains("indiv_per_ml"))),
+         bioarea_mm2_per_ml = sum(across(contains("bioarea_mm2_per_ml"))),
+         
+         # To then sum bioarea between ecosystems of the same meta-ecosystem, get total bioarea. 
+         
+         bioarea_tot_mm2 = bioarea_mm2_per_ml * ecosystem_size_ml,
+         
+         # To study how the connection influenced biodiversity, calculate species richness, Shannon index, and evenness. 
+
+         species_richness = specnumber(across(ends_with("_indiv_per_ml"))),
+         shannon = diversity(across(ends_with("_indiv_per_ml")),
+                             index = "shannon"),
+         shannon = ifelse(species_richness == 0,
+                          yes = NA,
+                          no = shannon),
+         evenness_pielou = shannon / log(species_richness)) %>%
+  
+  # To have a single value for each ecosystem at a time point, average video replicates.
+  
+  group_by(across(all_of(c("time_point", 
+                           "day",
+                           "system_nr",
+                           "ecosystem_ID",
+                           "metaecosystem",
+                           "metaecosystem_type",
+                           "ecosystem_type",
+                           "ecosystem_size",
+                           "ecosystem_size_ml",
+                           "trophic_type",
+                           "ecosystem_size_and_trophy",
+                           "connection")))) %>%
+  summarise(across(contains("_per_ml"), mean),
+            across(contains("tot"), mean),
+            species_richness = mean(species_richness),
+            shannon = mean(shannon),
+            evenness_pielou = mean(evenness_pielou)) %>%
+  ungroup() %>%
+
+  # To tidy up, select useful columns.  
+
+  select(time_point, 
+         day, 
+         system_nr, 
+         ecosystem_ID, 
+         metaecosystem, 
+         metaecosystem_type, 
+         ecosystem_type, 
+         ecosystem_size, 
+         ecosystem_size_ml,
+         trophic_type, 
+         connection,
+         ecosystem_size_and_trophy,
+         bioarea_mm2_per_ml,
+         bioarea_tot_mm2,
+         indiv_per_ml,
+         species_richness,
+         shannon,
+         evenness_pielou,
+         any_of(paste0(protist_species, "_bioarea_mm2_per_ml")),
+         any_of(paste0(protist_species, "_indiv_per_ml")))
+```
