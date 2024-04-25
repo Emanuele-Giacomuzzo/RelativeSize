@@ -32,14 +32,13 @@ filter_detection_freq = 0.1
 filter_median_step_length = 3
 
 time_points = 0:7
-time_point_names = c("t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7") #Get rid of after new data assembly
+#time_point_names = c("t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7") #Get rid of after new data assembly
 sampling_days = c(0, 4, 8, 12, 16, 20, 24, 28)
-# time_points_for_ES = 1:4
-first_time_point = 0 #Get rid of after new data assembly
-last_time_point = length(sampling_days) - 1 #Get rid of after new data assembly
-n_time_points = last_time_point + 1 #Get rid of after new data assembly
-time_point_day = data.frame(time_point = first_time_point:last_time_point,
-                            day = sampling_days) #Get rid of after new data assembly
+#first_time_point = 0 #Get rid of after new data assembly
+#last_time_point = length(sampling_days) - 1 #Get rid of after new data assembly
+#n_time_points = last_time_point + 1 #Get rid of after new data assembly
+#time_point_day = data.frame(time_point = first_time_point:last_time_point,
+#                            day = sampling_days) #Get rid of after new data assembly
 
 threshold_levels = c(13, 40) #These are the two lower threshold for pixel intensity for imageJ to distinguish between background and foreground. We analysed the videos using 13 as the minimum threshold, then did the same with 40. 
 
@@ -78,12 +77,12 @@ Parameters related to resource flows.
 
 ```{r}
 resource_flow_days = c(5, 9, 13, 17, 21, 25)
+size_effect_types = c("s", "s*d")
 ```
 
 Parameters related to protists.
 
 ```{r}
-#New
 protist_species = c("Ble", "Cep", "Col", "Eug", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
 protist_species_indiv_per_ml = paste0(protist_species, "_indiv_per_ml")
 protist_species_bioarea_mm2_per_ml = paste0(protist_species, "_bioarea_mm2_per_ml")
@@ -93,158 +92,164 @@ species_IDD_with_13_threshold = c("Col", "Eup", "Lox", "Pau", "Pca", "Spi_te", "
 species_IDD_with_40_threshold = c("Ble", "Cep", "Spi")
 
 #Old
-protist_species_hetero = c("Ble", "Cep", "Col", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
-protist_species_hetero_indiv_per_ml = paste0(protist_species_hetero, "_indiv_per_ml")
-protist_species_hetero_indiv_per_volume = paste0(protist_species_hetero, "_indiv_per_volume")
-protist_species_hetero_dominance = paste0(protist_species_hetero_indiv_per_ml, "_dominance")
-protist_species_hetero_total = paste0(protist_species_hetero, "_tot_indiv")
-n_protist_species_hetero = length(protist_species_hetero)
-species_IDD_with_13_threshold = c("Col", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
-species_IDD_with_13_threshold_indiv_per_volume = paste0(species_IDD_with_13_threshold, "_indiv_per_volume")
-species_IDD_with_40_threshold = c("Ble", "Cep", "Spi")
-species_IDD_with_40_threshold_indiv_per_volume = paste0(species_IDD_with_40_threshold, "_indiv_per_volume")
+# protist_species_hetero = c("Ble", "Cep", "Col", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
+# protist_species_hetero_indiv_per_ml = paste0(protist_species_hetero, "_indiv_per_ml")
+# protist_species_hetero_indiv_per_volume = paste0(protist_species_hetero, "_indiv_per_volume")
+# protist_species_hetero_dominance = paste0(protist_species_hetero_indiv_per_ml, "_dominance")
+# protist_species_hetero_total = paste0(protist_species_hetero, "_tot_indiv")
+# n_protist_species_hetero = length(protist_species_hetero)
+# species_IDD_with_13_threshold = c("Col", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
+# species_IDD_with_13_threshold_indiv_per_volume = paste0(species_IDD_with_13_threshold, "_indiv_per_volume")
+# species_IDD_with_40_threshold = c("Ble", "Cep", "Spi")
+# species_IDD_with_40_threshold_indiv_per_volume = paste0(species_IDD_with_40_threshold, "_indiv_per_volume")
 ```
 
 Parameters related to ecosystems.
 
 ```{r}
+ds_ecosystems = NULL
+ds_ecosystems_effect_size = NULL
 
-# Patches
+ecosystems_to_take_off = NA
 
-patches_to_take_off = NA
-culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
-n_cultures = max(culture_info$culture_ID)
-n_replicates = 6
+ecosystem_info = read.csv(here("data", "ecosystems_info.csv"), header = TRUE) %>%
+  rename(ecosystem_ID = culture_ID)
 
-columns_to_group_by = c("time_point",
-                        "day",
-                        "culture_ID",
-                        "system_nr",
-                        "patch_type",
-                        "patch_size",
-                        "patch_size_ml",
-                        "metaecosystem",
-                        "metaecosystem_type")
+n_ecosystems = max(ecosystem_info$ecosystem_ID)
 
-patch_variables = c("bioarea_mm2_per_ml",
-                    "indiv_per_ml",
-                    "species_richness",
-                    "shannon",
-                    "evenness_pielou",
-                    "median_body_area_µm2",
-                    protist_species_hetero_indiv_per_ml,
-                    protist_species_hetero_dominance)
+# n_cultures = max(ecosystem_info$ecosystem_ID)
+# n_replicates = 6
 
-patch_types_renamed = data.frame(
-  new = c(
-    "Green small isolated (s*d)",
-    "Green small-medium isolated (s*d)",
-    "Green medium-large isolated (s*d)",
-    "Green large isolated (s*d)",
-    "Blue small isolated (s*d)",
-    "Blue small-medium isolated (s*d)",
-    "Blue medium-large isolated (s*d)",
-    "Blue large isolated (s*d)",
-    "Green small isolated (s)",
-    "Green small-medium isolated (s)",
-    "Green medium-large isolated (s)",
-    "Green large isolated (s)",
-    "Blue small isolated (s)",
-    "Blue small-medium isolated (s)",
-    "Blue medium-large isolated (s)",
-    "Blue large isolated (s)",
-    "Green small connected (s*d)",
-    "Green small-medium connected (s*d)",
-    "Green medium-large connected (s*d)",
-    "Green large connected (s*d)",
-    "Blue small connected (s*d)",
-    "Blue small-medium connected (s*d)",
-    "Blue medium-large connected (s*d)",
-    "Blue large connected (s*d)",
-    "Green small connected (s)",
-    "Green small-medium connected (s)",
-    "Green medium-large connected (s)",
-    "Green large connected (s)",
-    "Blue small connected (s)",
-    "Blue small-medium connected (s)",
-    "Blue medium-large connected (s)",
-    "Blue large connected (s)"
-  ),
-  old = c(
-    "AutoS_absolute",
-    "AutoSM_absolute",
-    "AutoML_absolute",
-    "AutoL_absolute",
-    "HeteroS_absolute",
-    "HeteroSM_absolute",
-    "HeteroML_absolute",
-    "HeteroL_absolute",
-    "AutoS_relative",
-    "AutoSM_relative",
-    "AutoML_relative",
-    "AutoL_relative",
-    "HeteroS_relative",
-    "HeteroSM_relative",
-    "HeteroML_relative",
-    "HeteroL_relative",
-    "AutoS_absolute_connected",
-    "AutoSM_absolute_connected",
-    "AutoML_absolute_connected",
-    "AutoL_absolute_connected",
-    "HeteroS_absolute_connected",
-    "HeteroSM_absolute_connected",
-    "HeteroML_absolute_connected",
-    "HeteroL_absolute_connected",
-    "AutoS_relative_connected",
-    "AutoSM_relative_connected",
-    "AutoML_relative_connected",
-    "AutoL_relative_connected",
-    "HeteroS_relative_connected",
-    "HeteroSM_relative_connected",
-    "HeteroML_relative_connected",
-    "HeteroL_relative_connected"
-  )
-)
-patch_types_ordered = patch_types_renamed$new
+# columns_to_group_by = c("time_point",
+#                         "day",
+#                         "ecosystem_ID",
+#                         "system_nr",
+#                         "ecosystem_type",
+#                         "ecosystem_size",
+#                         "ecosystem_size_ml",
+#                         "metaecosystem",
+#                         "metaecosystem_type")
 
-patch_treatments_and_controls = data.frame(
-  treatment = c(
-    "Green small connected (s*d)",
-    "Green small-medium connected (s*d)",
-    "Green medium-large connected (s*d)",
-    "Green large connected (s*d)",
-    "Blue small connected (s*d)",
-    "Blue small-medium connected (s*d)",
-    "Blue medium-large connected (s*d)",
-    "Blue large connected (s*d)",
-    "Green small connected (s)",
-    "Green small-medium connected (s)",
-    "Green medium-large connected (s)",
-    "Green large connected (s)",
-    "Blue small connected (s)",
-    "Blue small-medium connected (s)",
-    "Blue medium-large connected (s)",
-    "Blue large connected (s)"
-  ),
-  control = c(
-    "Green small isolated (s*d)",
-    "Green small-medium isolated (s*d)",
-    "Green medium-large isolated (s*d)",
-    "Green large isolated (s*d)",
-    "Blue small isolated (s*d)",
-    "Blue small-medium isolated (s*d)",
-    "Blue medium-large isolated (s*d)",
-    "Blue large isolated (s*d)",
-    "Green small isolated (s)",
-    "Green small-medium isolated (s)",
-    "Green medium-large isolated (s)",
-    "Green large isolated (s)",
-    "Blue small isolated (s)",
-    "Blue small-medium isolated (s)",
-    "Blue medium-large isolated (s)",
-    "Blue large isolated (s)"
-  )
-)
+variables_ecosystems = c("bioarea_mm2_per_ml",
+                        "indiv_per_ml",
+                        "species_richness",
+                        "shannon",
+                        "evenness_pielou",
+                        protist_species_indiv_per_ml,
+                        protist_species_dominance)
+
+ecosystem_types_renamed = data.frame(new = c("S-A unconnected (s*d)",
+                                             "SM-A unconnected (s*d)",
+                                             "ML-A unconnected (s*d)",
+                                             "L-A unconnected (s*d)",
+                                             "S-H unconnected (s*d)",
+                                             "SM-H unconnected (s*d)",
+                                             "ML-H unconnected (s*d)",
+                                             "L-H unconnected (s*d)",
+                                             "S-A unconnected (s)",
+                                             "SM-A unconnected (s)",
+                                             "ML-A unconnected (s)",
+                                             "L-A unconnected (s)",
+                                             "S-H unconnected (s)",
+                                             "SM-H unconnected (s)",
+                                             "ML-H unconnected (s)",
+                                             "L-H unconnected (s)",
+                                             "S-A connected (s*d)",
+                                             "SM-A connected (s*d)",
+                                             "ML-A connected (s*d)",
+                                             "L-A connected (s*d)",
+                                             "S-H connected (s*d)",
+                                             "SM-H connected (s*d)",
+                                             "ML-H connected (s*d)",
+                                             "L-H connected (s*d)",
+                                             "S-A connected (s)",
+                                             "SM-A connected (s)",
+                                             "ML-A connected (s)",
+                                             "L-A connected (s)",
+                                             "S-H connected (s)",
+                                             "SM-H connected (s)",
+                                             "ML-H connected (s)",
+                                             "L-H connected (s)"),
+                                     old = c("AutoS_absolute",
+                                             "AutoSM_absolute",
+                                             "AutoML_absolute",
+                                             "AutoL_absolute",
+                                             "HeteroS_absolute",
+                                             "HeteroSM_absolute",
+                                             "HeteroML_absolute",
+                                             "HeteroL_absolute",
+                                             "AutoS_relative",
+                                             "AutoSM_relative",
+                                             "AutoML_relative",
+                                             "AutoL_relative",
+                                             "HeteroS_relative",
+                                             "HeteroSM_relative",
+                                             "HeteroML_relative",
+                                             "HeteroL_relative",
+                                             "AutoS_absolute_connected",
+                                             "AutoSM_absolute_connected",
+                                             "AutoML_absolute_connected",
+                                             "AutoL_absolute_connected",
+                                             "HeteroS_absolute_connected",
+                                             "HeteroSM_absolute_connected",
+                                             "HeteroML_absolute_connected",
+                                             "HeteroL_absolute_connected",
+                                             "AutoS_relative_connected",
+                                             "AutoSM_relative_connected",
+                                             "AutoML_relative_connected",
+                                             "AutoL_relative_connected",
+                                             "HeteroS_relative_connected",
+                                             "HeteroSM_relative_connected",
+                                             "HeteroML_relative_connected",
+                                             "HeteroL_relative_connected"))
+
+ecosystem_types_ordered = ecosystem_types_renamed$new
+
+ecosystem_treatments_and_controls = data.frame(treatment = c("S-A connected (s*d)",
+                                                             "SM-A connected (s*d)",
+                                                             "ML-A connected (s*d)",
+                                                             "L-A connected (s*d)",
+                                                             "S-H connected (s*d)",
+                                                             "SM-H connected (s*d)",
+                                                             "ML-H connected (s*d)",
+                                                             "L-H connected (s*d)",
+                                                             "S-A connected (s)",
+                                                             "SM-A connected (s)",
+                                                             "ML-A connected (s)",
+                                                             "L-A connected (s)",
+                                                             "S-H connected (s)",
+                                                             "SM-H connected (s)",
+                                                             "ML-H connected (s)",
+                                                             "L-H connected (s)"), 
+                                               control = c("S-A unconnected (s*d)",
+                                                           "SM-A unconnected (s*d)",
+                                                           "ML-A unconnected (s*d)",
+                                                           "L-A unconnected (s*d)",
+                                                           "S-H unconnected (s*d)",
+                                                           "SM-H unconnected (s*d)",
+                                                           "ML-H unconnected (s*d)",
+                                                           "L-H unconnected (s*d)",
+                                                           "S-A unconnected (s)",
+                                                           "SM-A unconnected (s)",
+                                                           "ML-A unconnected (s)",
+                                                           "L-A unconnected (s)",
+                                                           "S-H unconnected (s)",
+                                                           "SM-H unconnected (s)",
+                                                           "ML-H unconnected (s)",
+                                                           "L-H unconnected (s)"))
+
+n_treatments = length(unique(ecosystem_treatments_and_controls$treatment))
+n_controls = length(unique(ecosystem_treatments_and_controls$control))
+
+connection_ordered = c("unconnected", "connected")
+
+
+# ecosystem_size_and_trophy_ordered = c("S autotrophic",
+#                                       "medium autotrophic",
+#                                       "L autotrophic",
+#                                       "S heterotrophic",
+#                                       "medium heterotrophic",
+#                                       "L heterotrophic")
 ```
 
 Parameters related to meta-ecosystems.
@@ -252,108 +257,166 @@ Parameters related to meta-ecosystems.
 ```{r experiment}
 metaecosystems_to_take_off = NA
 
-system_nr_metaecosystems = culture_info %>%
+ds_metaecosystems = NULL
+
+system_nr_metaecosystems = ecosystem_info %>%
   filter(metaecosystem == "yes") %>%
   pull(system_nr) %>%
   unique
 
 n_metaecosystems = length(system_nr_metaecosystems)
 
-columns_metaecos = c("time_point",
-                     "day",
-                     "system_nr",
-                     "system_type",
-                     "patch_size_ml",
-                     "patches_combined")
+variables_metaecos = c("total_metaecosystem_bioarea_mm2")
 
-variables_metaecos = "total_metaecosystem_bioarea_mm2"
+metaecosystem_types_ordered = c("S connected (s)",
+                                "S unconnected (s)",
+                                "SM connected (s)",
+                                "SM unconnected (s)",
+                                "ML connected (s)",
+                                "ML unconnected (s)",
+                                "L connected (s)",
+                                "L unconnected (s)",
+                                "S connected (s*d)",
+                                "S unconnected (s*d)",
+                                "SM connected (s*d)",
+                                "SM unconnected (s*d)",
+                                "ML connected (s*d)",
+                                "ML unconnected (s*d)",
+                                "L connected (s*d)",
+                                "L unconnected (s*d)")
 
-metaecosystem_types_ordered = c(
-  "Small meta-ecosystem (s)",
-  "Small two-patch isolated (s)",
-  "Small-Medium meta-ecosystem (s)",
-  "Small-Medium two-patch isolated (s)",
-  "Medium-Large meta-ecosystem (s)",
-  "Medium-Large two-patch isolated (s)",
-  "Large meta-ecosystem (s)",
-  "Large two-patch isolated (s)",
-  "Small meta-ecosystem (s*d)",
-  "Small two-patch isolated (s*d)",
-  "Small-Medium meta-ecosystem (s*d)",
-  "Small-Medium two-patch isolated (s*d)",
-  "Medium-Large meta-ecosystem (s*d)",
-  "Medium-Large two-patch isolated (s*d)",
-  "Large meta-ecosystem (s*d)",
-  "Large two-patch isolated (s*d)"
-)
+treatments_and_controls_metaecos = data.frame(treatment = c("S connected (s)",
+                                                            "SM connected (s)",
+                                                            "ML connected (s)",
+                                                            "L connected (s)",
+                                                            "S connected (s*d)",
+                                                            "SM connected (s*d)",
+                                                            "ML connected (s*d)",
+                                                            "L connected (s*d)"),
+                                              control = c("S unconnected (s)",
+                                                          "SM unconnected (s)",
+                                                          "ML unconnected (s)",
+                                                          "L unconnected (s)",
+                                                          "S unconnected (s*d)",
+                                                          "SM unconnected (s*d)",
+                                                          "ML unconnected (s*d)",
+                                                          "L unconnected (s*d)"))
 
-treatments_and_controls_metaecos = data.frame(
-  treatment = c(
-    "Small meta-ecosystem (s)",
-    "Small-Medium meta-ecosystem (s)",
-    "Medium-Large meta-ecosystem (s)",
-    "Large meta-ecosystem (s)",
-    "Small meta-ecosystem (s*d)",
-    "Small-Medium meta-ecosystem (s*d)",
-    "Medium-Large meta-ecosystem (s*d)",
-    "Large meta-ecosystem (s*d)"
-  ),
-  control = c(
-    "Small two-patch isolated (s)",
-    "Small-Medium two-patch isolated (s)",
-    "Medium-Large two-patch isolated (s)",
-    "Large two-patch isolated (s)",
-    "Small two-patch isolated (s*d)",
-    "Small-Medium two-patch isolated (s*d)",
-    "Medium-Large two-patch isolated (s*d)",
-    "Large two-patch isolated (s*d)"
-  )
-)
+# columns_metaecos = c("time_point",
+#                      "day",
+#                      "system_nr",
+#                      "system_type",
+#                      "ecosystem_size_ml",
+#                      "ecosystems_combined")
 
-metaecosystems_renamed = data.frame(
-  new = c("Small meta-ecosystem",
-          "Small-Medium meta-ecosystem",
-          "Medium-Large meta-ecosystem",
-          "Large meta-ecosystem"
-  ),
-  old = c("small",
-          "small-medium",
-          "medium-large",
-          "large")
-)
+metaecosystems_renamed = data.frame(new = c("S connected",
+                                            "SM connected",
+                                            "ML connected",
+                                            "L connected"),
+                                    old = c("S",
+                                            "S-medium",
+                                            "ML",
+                                            "L"))
 
-names = data.frame(
-  system_type = "Small two-patch isolated (s*d)", green_patch = "AutoS_absolute", blue_patch = "HeteroS_absolute") %>%
-  add_row(system_type = "Small-Medium two-patch isolated (s*d)", green_patch = "AutoSM_absolute", blue_patch = "HeteroSM_absolute") %>%
-  add_row(system_type = "Medium-Large two-patch isolated (s*d)", green_patch = "AutoML_absolute", blue_patch = "HeteroML_absolute") %>%
-  add_row(system_type = "Large two-patch isolated (s*d)", green_patch = "AutoL_absolute", blue_patch = "HeteroL_absolute") %>%
-  add_row(system_type = "Small two-patch isolated (s)", green_patch = "AutoS_relative", blue_patch = "HeteroS_relative") %>%
-  add_row(system_type = "Small-Medium two-patch isolated (s)", green_patch = "AutoSM_relative", blue_patch = "HeteroSM_relative") %>%
-  add_row(system_type = "Medium-Large two-patch isolated (s)", green_patch = "AutoML_relative", blue_patch = "HeteroML_relative") %>%
-  add_row(system_type = "Large two-patch isolated (s)", green_patch = "AutoL_relative", blue_patch = "HeteroL_relative")
+names = data.frame(system_type = "S unconnected (s*d)", 
+                   autotrophic_ecosystem = "AutoS_absolute", 
+                   heterotrophic_ecosystem = "HeteroS_absolute") %>%
+  add_row(system_type = "SM unconnected (s*d)", 
+          autotrophic_ecosystem = "AutoSM_absolute", 
+          heterotrophic_ecosystem = "HeteroSM_absolute") %>%
+  add_row(system_type = "ML unconnected (s*d)", 
+          autotrophic_ecosystem = "AutoML_absolute", 
+          heterotrophic_ecosystem = "HeteroML_absolute") %>%
+  add_row(system_type = "L unconnected (s*d)", 
+          autotrophic_ecosystem = "AutoL_absolute", 
+          heterotrophic_ecosystem = "HeteroL_absolute") %>%
+  add_row(system_type = "S unconnected (s)", 
+          autotrophic_ecosystem = "AutoS_relative", 
+          heterotrophic_ecosystem = "HeteroS_relative") %>%
+  add_row(system_type = "SM unconnected (s)", 
+          autotrophic_ecosystem = "AutoSM_relative", 
+          heterotrophic_ecosystem = "HeteroSM_relative") %>%
+  add_row(system_type = "ML unconnected (s)", 
+          autotrophic_ecosystem = "AutoML_relative", 
+          heterotrophic_ecosystem = "HeteroML_relative") %>%
+  add_row(system_type = "L unconnected (s)", 
+          autotrophic_ecosystem = "AutoL_relative", 
+          heterotrophic_ecosystem = "HeteroL_relative")
 
-isolated_two_patch_systems = data.frame(
-  system_type = as.character(NA),
-  green_patch_IDs = as.character(NA),
-  blue_patch_IDs = as.character(NA)
-) %>%
+unconnected_metaecosystems = data.frame(system_type = as.character(NA),
+                                        autotrophic_ecosystem_IDs = as.character(NA),
+                                        heterotrophic_ecosystem_IDs = as.character(NA)) %>%
   slice(-1)
 
-for(row_i in 1:nrow(names)) {
+for(row in 1:nrow(names)) {
   
-  isolated_two_patch_systems = isolated_two_patch_systems %>%
-    add_row(
-      system_type = names$system_type[row_i],
-      green_patch_IDs = culture_info %>%
-        filter(eco_metaeco_type == names$green_patch[row_i]) %>%
-        pull(culture_ID) %>%
-        paste(., collapse = ", "),
-      blue_patch_IDs = culture_info %>%
-        filter(eco_metaeco_type == names$blue_patch[row_i]) %>%
-        pull(culture_ID) %>%
-        paste(., collapse = ", ")
-    )
+  unconnected_metaecosystems = unconnected_metaecosystems %>%
+    add_row(system_type = names$system_type[row],
+            autotrophic_ecosystem_IDs = ecosystem_info %>%
+              filter(eco_metaeco_type == names$autotrophic_ecosystem[row]) %>%
+              pull(ecosystem_ID) %>%
+              paste(., collapse = ", "),
+            heterotrophic_ecosystem_IDs = ecosystem_info %>%
+              filter(eco_metaeco_type == names$heterotrophic_ecosystem[row]) %>%
+              pull(ecosystem_ID) %>%
+              paste(., collapse = ", "))
 }
+
+unconnected_metaecosystems_selected = c("1|7",
+                                        "2|8",
+                                        "3|9",
+                                        "4|10",
+                                        "5|11",
+                                        "6|12",
+                                        
+                                        "13|19",
+                                        "14|20",
+                                        "15|21",
+                                        "16|22",
+                                        "17|23",
+                                        "18|24",
+                                        
+                                        "25|31",
+                                        "26|32",
+                                        "27|33",
+                                        "28|34",
+                                        "29|35",
+                                        "30|36",
+                                        
+                                        "37|43",
+                                        "38|44",
+                                        "39|45",
+                                        "40|46",
+                                        "41|47",
+                                        "42|48",
+                                        
+                                        "97|103",
+                                        "98|104",
+                                        "99|105",
+                                        "100|106",
+                                        "101|107",
+                                        "102|108",
+                                        
+                                        "109|115",
+                                        "110|116",
+                                        "111|117",
+                                        "112|118",
+                                        "113|119",
+                                        "114|120",
+                                        
+                                        "121|127",
+                                        "122|128",
+                                        "123|129",
+                                        "124|130",
+                                        "125|131",
+                                        "126|132",
+                                        
+                                        "133|139",
+                                        "134|140",
+                                        "135|141",
+                                        "136|142",
+                                        "137|143",
+                                        "138|144")
 ```
 
 Name of the axes per response variable.
@@ -362,7 +425,7 @@ Name of the axes per response variable.
 axis_names = data.frame(variable = NA,
                         axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Time (day)") %>%
-  add_row(variable = "patch_size_ml", axis_name = "Patch size (ml)") %>%
+  add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem size (ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml", axis_name = "Bioarea Density (mm²/ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Bioarea Density ES") %>%
   add_row(variable = "bioarea_tot", axis_name = "Tot Bioarea (mm²)") %>%
@@ -425,7 +488,7 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "class_indiv_per_µl", axis_name = "Density (ind/ml)") %>%
   add_row(variable = "median_body_area_µm2", axis_name = "Median body size (µm²)") %>%
   add_row(variable = "median_body_area_µm2_d", axis_name = "Median Body Size ES") %>%
-  add_row(variable = "beta_diversity_from_isolated", axis_name = "Divergence from isolated") %>%
+  add_row(variable = "beta_diversity_from_unconnected", axis_name = "Divergence from unconnected") %>%
   add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Tot Bioarea (mm²)") %>%
   add_row(variable = "mean_richness", axis_name = "α Diversity") %>%
   add_row(variable = "mean_shannon", axis_name = "α Diversity") %>%
@@ -436,60 +499,123 @@ axis_names = data.frame(variable = NA,
 parameters_treatments = data.frame(treatment = NA,
                                    colour = NA,
                                    linetype = NA) %>%
-  add_row(treatment = "Green small connected (s*d)", colour = "#ccece6", linetype = "solid") %>% 
-  add_row(treatment = "Green small-medium connected (s*d)", colour = "#b2e2e2", linetype = "solid") %>%
-  add_row(treatment = "Green medium-large connected (s*d)", colour = "#66c2a4", linetype = "solid") %>%
-  add_row(treatment = "Green large connected (s*d)", colour = "#238b45", linetype = "solid") %>%
-  add_row(treatment = "Blue small connected (s*d)", colour = "#eff3ff", linetype = "solid") %>%
-  add_row(treatment = "Blue small-medium connected (s*d)" , colour = "#bdd7e7", linetype = "solid") %>%
-  add_row(treatment = "Blue medium-large connected (s*d)", colour = "#6baed6", linetype = "solid") %>%
-  add_row(treatment = "Blue large connected (s*d)", colour = "#2171b5", linetype = "solid") %>%
-  add_row(treatment = "Green small connected (s)", colour = "#ccece6", linetype = "solid") %>% 
-  add_row(treatment = "Green small-medium connected (s)", colour = "#b2e2e2", linetype = "solid") %>%
-  add_row(treatment = "Green medium-large connected (s)", colour = "#66c2a4", linetype = "solid") %>%
-  add_row(treatment = "Green large connected (s)", colour = "#238b45", linetype = "solid") %>%
-  add_row(treatment = "Blue small connected (s)", colour = "#eff3ff", linetype = "solid") %>%
-  add_row(treatment = "Blue small-medium connected (s)" , colour = "#bdd7e7", linetype = "solid") %>%
-  add_row(treatment = "Blue medium-large connected (s)", colour = "#6baed6", linetype = "solid") %>%
-  add_row(treatment = "Blue large connected (s)", colour = "#2171b5", linetype = "solid") %>%
-  add_row(treatment = "Green small isolated (s*d)", colour = "#ccece6", linetype = "longdash") %>% 
-  add_row(treatment = "Green small-medium isolated (s*d)", colour = "#b2e2e2", linetype = "longdash") %>%
-  add_row(treatment = "Green medium-large isolated (s*d)", colour = "#66c2a4", linetype = "longdash") %>%
-  add_row(treatment = "Green large isolated (s*d)", colour = "#238b45", linetype = "longdash") %>%
-  add_row(treatment = "Blue small isolated (s*d)", colour = "#eff3ff", linetype = "longdash") %>%
-  add_row(treatment = "Blue small-medium isolated (s*d)" , colour = "#bdd7e7", linetype = "longdash") %>%
-  add_row(treatment = "Blue medium-large isolated (s*d)", colour = "#6baed6", linetype = "longdash") %>%
-  add_row(treatment = "Blue large isolated (s*d)", colour = "#2171b5", linetype = "longdash") %>%
-  add_row(treatment = "Green small isolated (s)", colour = "#ccece6", linetype = "longdash") %>% 
-  add_row(treatment = "Green small-medium isolated (s)", colour = "#b2e2e2", linetype = "longdash") %>%
-  add_row(treatment = "Green medium-large isolated (s)", colour = "#66c2a4", linetype = "longdash") %>%
-  add_row(treatment = "Green large isolated (s)", colour = "#238b45", linetype = "longdash") %>%
-  add_row(treatment = "Blue small isolated (s)", colour = "#eff3ff", linetype = "longdash") %>%
-  add_row(treatment = "Blue small-medium isolated (s)" , colour = "#bdd7e7", linetype = "longdash") %>%
-  add_row(treatment = "Blue medium-large isolated (s)", colour = "#6baed6", linetype = "longdash") %>%
-  add_row(treatment = "Blue large isolated (s)", colour = "#2171b5", linetype = "longdash") %>%
+  add_row(treatment = "S-A connected (s*d)", colour = "#ccece6", linetype = "solid") %>% 
+  add_row(treatment = "SM-A connected (s*d)", colour = "#b2e2e2", linetype = "solid") %>%
+  add_row(treatment = "ML-A connected (s*d)", colour = "#66c2a4", linetype = "solid") %>%
+  add_row(treatment = "L-A connected (s*d)", colour = "#238b45", linetype = "solid") %>%
+  add_row(treatment = "S-H connected (s*d)", colour = "#eff3ff", linetype = "solid") %>%
+  add_row(treatment = "SM-H connected (s*d)" , colour = "#bdd7e7", linetype = "solid") %>%
+  add_row(treatment = "ML-H connected (s*d)", colour = "#6baed6", linetype = "solid") %>%
+  add_row(treatment = "L-H connected (s*d)", colour = "#2171b5", linetype = "solid") %>%
+  add_row(treatment = "S-A connected (s)", colour = "#ccece6", linetype = "solid") %>% 
+  add_row(treatment = "SM-A connected (s)", colour = "#b2e2e2", linetype = "solid") %>%
+  add_row(treatment = "ML-A connected (s)", colour = "#66c2a4", linetype = "solid") %>%
+  add_row(treatment = "L-A connected (s)", colour = "#238b45", linetype = "solid") %>%
+  add_row(treatment = "S-H connected (s)", colour = "#eff3ff", linetype = "solid") %>%
+  add_row(treatment = "SM-H connected (s)" , colour = "#bdd7e7", linetype = "solid") %>%
+  add_row(treatment = "ML-H connected (s)", colour = "#6baed6", linetype = "solid") %>%
+  add_row(treatment = "L-H connected (s)", colour = "#2171b5", linetype = "solid") %>%
+  add_row(treatment = "S-A unconnected (s*d)", colour = "#ccece6", linetype = "longdash") %>% 
+  add_row(treatment = "SM-A unconnected (s*d)", colour = "#b2e2e2", linetype = "longdash") %>%
+  add_row(treatment = "ML-A unconnected (s*d)", colour = "#66c2a4", linetype = "longdash") %>%
+  add_row(treatment = "L-A unconnected (s*d)", colour = "#238b45", linetype = "longdash") %>%
+  add_row(treatment = "S-H unconnected (s*d)", colour = "#eff3ff", linetype = "longdash") %>%
+  add_row(treatment = "SM-H unconnected (s*d)" , colour = "#bdd7e7", linetype = "longdash") %>%
+  add_row(treatment = "ML-H unconnected (s*d)", colour = "#6baed6", linetype = "longdash") %>%
+  add_row(treatment = "L-H unconnected (s*d)", colour = "#2171b5", linetype = "longdash") %>%
+  add_row(treatment = "S-A unconnected (s)", colour = "#ccece6", linetype = "longdash") %>% 
+  add_row(treatment = "SM-A unconnected (s)", colour = "#b2e2e2", linetype = "longdash") %>%
+  add_row(treatment = "ML-A unconnected (s)", colour = "#66c2a4", linetype = "longdash") %>%
+  add_row(treatment = "L-A unconnected (s)", colour = "#238b45", linetype = "longdash") %>%
+  add_row(treatment = "S-H unconnected (s)", colour = "#eff3ff", linetype = "longdash") %>%
+  add_row(treatment = "SM-H unconnected (s)" , colour = "#bdd7e7", linetype = "longdash") %>%
+  add_row(treatment = "ML-H unconnected (s)", colour = "#6baed6", linetype = "longdash") %>%
+  add_row(treatment = "L-H unconnected (s)", colour = "#2171b5", linetype = "longdash") %>%
   
-  add_row(treatment = "Small meta-ecosystem (s)", colour = "#ffffb2", linetype = "solid") %>%
-  add_row(treatment = "Small-Medium meta-ecosystem (s)", colour = "#fecc5c", linetype = "solid") %>%
-  add_row(treatment = "Medium-Large meta-ecosystem (s)", colour = "#fd8d3c", linetype = "solid") %>%
-  add_row(treatment = "Large meta-ecosystem (s)", colour = "#e31a1c", linetype = "solid") %>%
+  add_row(treatment = "S connected (s)", colour = "#ffffb2", linetype = "solid") %>%
+  add_row(treatment = "SM connected (s)", colour = "#fecc5c", linetype = "solid") %>%
+  add_row(treatment = "ML connected (s)", colour = "#fd8d3c", linetype = "solid") %>%
+  add_row(treatment = "L connected (s)", colour = "#e31a1c", linetype = "solid") %>%
   
-  add_row(treatment = "Small two-patch isolated (s)", colour = "#ffffb2", linetype = "longdash") %>%
-  add_row(treatment = "Small-Medium two-patch isolated (s)", colour = "#fecc5c", linetype = "longdash") %>%
-  add_row(treatment = "Medium-Large two-patch isolated (s)", colour = "#fd8d3c", linetype = "longdash") %>%
-  add_row(treatment = "Large two-patch isolated (s)", colour = "#e31a1c", linetype = "longdash") %>%
+  add_row(treatment = "S unconnected (s)", colour = "#ffffb2", linetype = "longdash") %>%
+  add_row(treatment = "SM unconnected (s)", colour = "#fecc5c", linetype = "longdash") %>%
+  add_row(treatment = "ML unconnected (s)", colour = "#fd8d3c", linetype = "longdash") %>%
+  add_row(treatment = "L unconnected (s)", colour = "#e31a1c", linetype = "longdash") %>%
   
-  add_row(treatment = "Small meta-ecosystem (s*d)", colour = "#ffffb2", linetype = "solid") %>%
-  add_row(treatment = "Small-Medium meta-ecosystem (s*d)", colour = "#fecc5c", linetype = "solid") %>%
-  add_row(treatment = "Medium-Large meta-ecosystem (s*d)", colour = "#fd8d3c", linetype = "solid") %>%
-  add_row(treatment = "Large meta-ecosystem (s*d)", colour = "#e31a1c", linetype = "solid") %>%
+  add_row(treatment = "S connected (s*d)", colour = "#ffffb2", linetype = "solid") %>%
+  add_row(treatment = "SM connected (s*d)", colour = "#fecc5c", linetype = "solid") %>%
+  add_row(treatment = "ML connected (s*d)", colour = "#fd8d3c", linetype = "solid") %>%
+  add_row(treatment = "L connected (s*d)", colour = "#e31a1c", linetype = "solid") %>%
   
-  add_row(treatment = "Small two-patch isolated (s*d)", colour = "#ffffb2", linetype = "longdash") %>%
-  add_row(treatment = "Small-Medium two-patch isolated (s*d)", colour = "#fecc5c", linetype = "longdash") %>%
-  add_row(treatment = "Medium-Large two-patch isolated (s*d)", colour = "#fd8d3c", linetype = "longdash") %>%
-  add_row(treatment = "Large two-patch isolated (s*d)", colour = "#e31a1c", linetype = "longdash") %>%
+  add_row(treatment = "S unconnected (s*d)", colour = "#ffffb2", linetype = "longdash") %>%
+  add_row(treatment = "SM unconnected (s*d)", colour = "#fecc5c", linetype = "longdash") %>%
+  add_row(treatment = "ML unconnected (s*d)", colour = "#fd8d3c", linetype = "longdash") %>%
+  add_row(treatment = "L unconnected (s*d)", colour = "#e31a1c", linetype = "longdash") %>%
   slice(-1)
 ```
+
+```{r}
+colours = c("S" = "#ffffb2", 
+           "S-medium" = "#fecc5c", 
+           "ML" = "#fd8d3c", 
+           "L" = "#e31a1c",
+           "S-A connected (s*d)" = "#ccece6",
+           "SM-A connected (s*d)" = "#b2e2e2",
+           "ML-A connected (s*d)" = "#66c2a4",
+           "L-A connected (s*d)" = "#238b45",
+           "S-H connected (s*d)" = "#eff3ff",
+           "SM-H connected (s*d)"  = "#bdd7e7",
+           "ML-H connected (s*d)" = "#6baed6",
+           "L-H connected (s*d)" = "#2171b5",
+           "S-A connected (s)" = "#ccece6",
+           "SM-A connected (s)" = "#b2e2e2",
+           "ML-A connected (s)" = "#66c2a4",
+           "L-A connected (s)" = "#238b45",
+           "S-H connected (s)" = "#eff3ff",
+           "SM-H connected (s)"  = "#bdd7e7",
+           "ML-H connected (s)" = "#6baed6",
+           "L-H connected (s)" = "#2171b5",
+           "S-A unconnected (s*d)" = "#ccece6",
+           "SM-A unconnected (s*d)" = "#b2e2e2",
+           "ML-A unconnected (s*d)" = "#66c2a4",
+           "L-A unconnected (s*d)" = "#238b45",
+           "S-H unconnected (s*d)" = "#eff3ff",
+           "SM-H unconnected (s*d)"  = "#bdd7e7",
+           "ML-H unconnected (s*d)" = "#6baed6",
+           "L-H unconnected (s*d)" = "#2171b5",
+           "S-A unconnected (s)" = "#ccece6",
+           "SM-A unconnected (s)" = "#b2e2e2",
+           "ML-A unconnected (s)" = "#66c2a4",
+           "L-A unconnected (s)" = "#238b45",
+           "S-H unconnected (s)" = "#eff3ff",
+           "SM-H unconnected (s)"  = "#bdd7e7",
+           "ML-H unconnected (s)" = "#6baed6",
+           "L-H unconnected (s)" = "#2171b5",
+           
+           "S connected (s)" = "#ffffb2",
+           "SM connected (s)" = "#fecc5c",
+           "ML connected (s)" = "#fd8d3c",
+           "L connected (s)" = "#e31a1c",
+           
+           "S unconnected (s)" = "#ffffb2",
+           "SM unconnected (s)" = "#fecc5c",
+           "ML unconnected (s)" = "#fd8d3c",
+           "L unconnected (s)" = "#e31a1c",
+           
+           "S connected (s*d)" = "#ffffb2",
+           "SM connected (s*d)" = "#fecc5c",
+           "ML connected (s*d)" = "#fd8d3c",
+           "L connected (s*d)" = "#e31a1c",
+           
+           "S unconnected (s*d)" = "#ffffb2",
+           "SM unconnected (s*d)" = "#fecc5c",
+           "ML unconnected (s*d)" = "#fd8d3c",
+           "L unconnected (s*d)" = "#e31a1c")
+
+scale_linetype = c("connected" = "solid",
+                   "unconnected" = "longdash")
+```
+
 
 Parameters for plotting.
 
@@ -554,34 +680,30 @@ Parameters for modelling.
 
 ```{r}
 first_time_point_model = 2 #Time point 2 is the first after disturbance
-last_time_point_model = last_time_point
+last_time_point_model = time_points[length(time_points)]
 iterated_results_table = NULL
 
 optimizer_input = 'Nelder_Mead'
 method_input = ''
 
-results_table = data.frame(
-  Response = as.character(NA),
-  Levels = as.character(NA),
-  ΔAIC_full = NA,
-  p_full = NA,
-  ΔR2_full = NA,
-  ΔAIC_fix = NA,
-  p_fix = NA,
-  ΔR2_fix = NA
-) %>%
+results_table = data.frame(Response = as.character(NA),
+                           Levels = as.character(NA),
+                           ΔAIC_full = NA,
+                           p_full = NA,
+                           ΔR2_full = NA,
+                           ΔAIC_fix = NA,
+                           p_fix = NA,
+                           ΔR2_fix = NA) %>%
   slice(-1)
 
-iterated_results_table = data.frame(
-  Response = as.character(NA),
-  Levels = as.character(NA),
-  ΔAIC_full = NA,
-  p_full = NA,
-  ΔR2_full = NA,
-  ΔAIC_fix = NA,
-  p_fix = NA,
-  ΔR2_fix = NA,
-  combination_set = NA
-) %>%
+iterated_results_table = data.frame(Response = as.character(NA),
+                                    Levels = as.character(NA),
+                                    ΔAIC_full = NA,
+                                    p_full = NA,
+                                    ΔR2_full = NA,
+                                    ΔAIC_fix = NA,
+                                    p_fix = NA,
+                                    ΔR2_fix = NA,
+                                    combination_set = NA) %>%
   slice(-1)
 ```

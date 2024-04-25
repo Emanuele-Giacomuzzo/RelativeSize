@@ -6,14 +6,13 @@ editor_options:
   chunk_output_type: console
 ---
 
+Here I want to get the effect size of the meta-ecosystem biomass. I run this code on 2023.11.24. I should redo it as I would like in this case to use the log response ratio, as there is no zero in the total biomass (the lowest biomass in the experiment was `r min(ds_metaecosystems$total_metaecosystem_bioarea_mm2)`.
+
 ```{r eval = FALSE}
 # I run this code on 2023.11.24
 calculate.effect.sizes.metaecos = function() {
   
-  metaeco_type_count = 0
-  for (metaeco_type_i in "Small meta-ecosystem (s)"){ #treatments_and_controls_metaecos$treatment) {
-    
-    metaeco_type_count = metaeco_type_count + 1
+  for (metaeco_type in 1:length(treatments_and_controls_metaecos$treatment) {
     
     isolated_type_i = treatments_and_controls_metaecos %>%
             filter(treatment == metaeco_type_i) %>%

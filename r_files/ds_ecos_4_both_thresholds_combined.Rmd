@@ -1,0 +1,59 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-03-11"
+editor_options: 
+  chunk_output_type: console
+---
+
+Now that we have ecosystem-level information for threshold 13 (ds_ecosystems[[13]]) and 40 (ds_ecosystems[[40]]), let’s combine them through the following steps. (1) Select useful information derived from threshold 13. Select the species information about Col, Eup, Lox, Pau, Pca, Spi_te, Tet and bioarea_mm2_per_ml. We keep the bioarea of this threshold because it gives us a better idea of the whole community, as it doesn’t cut out the small protists to identify big protist species. (2) Select useful information derived from threshold 40. Select the species information about Ble, Cep, Spi. (3) Bind threshold data and finish up. Merge the data of threshold 13 and 40, then derive the dominance of species based on either their number of individuals or biomass, then transform data.
+
+```{r}
+
+## - (1) Select useful information derived from threshold 13. - ##
+
+ds_ecosystems_13 = ds_ecosystems[[13]] %>%
+  select(-all_of(c(paste0(species_IDD_with_40_threshold, "_bioarea_mm2_per_ml"))),
+         -all_of(c(paste0(species_IDD_with_40_threshold, "_indiv_per_ml"))))
+```
+
+```{r}
+
+## - (2) Select useful information derived from threshold 40. - ##
+
+ds_ecosystems_40 = ds_ecosystems[[40]] %>%
+  select(time_point,
+         ecosystem_ID,
+         all_of(c(paste0(species_IDD_with_40_threshold, "_bioarea_mm2_per_ml"))),
+         all_of(c(paste0(species_IDD_with_40_threshold, "_indiv_per_ml"))))
+```
+
+```{r}
+
+## - (3) Bind threshold data and finish up. - ##
+
+ds_ecosystems = ds_ecosystems_13 %>%
+  left_join(ds_ecosystems_40) %>%
+  select(time_point:size_effects,
+         -ecosystem_size_ml,
+         bioarea_mm2_per_ml,
+         bioarea_tot_mm2,
+         indiv_per_ml,
+         species_richness,
+         shannon,
+         evenness_pielou,
+         all_of(protist_species_indiv_per_ml),
+         all_of(protist_species_bioarea_mm2_per_ml)) %>%
+  mutate(total_indiv_per_ml_combined_thresholds = rowSums(select(., 
+                                                                 all_of(protist_species_indiv_per_ml))),
+         bioarea_mm2_per_ml_combined_thresholds = rowSums(select(., 
+                                                                 all_of(protist_species_bioarea_mm2_per_ml))),
+         across(all_of(protist_species_indiv_per_ml), 
+                ~ (.x / total_indiv_per_ml_combined_thresholds) * 100, .names = "{.col}_dominance"),
+         across(all_of(protist_species_bioarea_mm2_per_ml), 
+                ~ (.x / bioarea_mm2_per_ml_combined_thresholds) * 100, .names = "{.col}_dominance")) %>%
+  mutate(log10_bioarea_mm2_per_ml = log10(bioarea_mm2_per_ml),
+         ln_bioarea_mm2_per_ml = log(bioarea_mm2_per_ml),
+         sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
+         cbrt_bioarea_mm2_per_ml = bioarea_mm2_per_ml^(1/3))
+```

@@ -1,0 +1,537 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-11-28"
+editor_options: 
+  chunk_output_type: console
+---
+
+In our experiment, we manipulated meta-ecosystems consisting of autotrophic and heterotrophic patches, varying the relative size of these patches (referred to as meta-ecosystem types AD, ED, and HD) and their connectivity (unconnected versus connected). Now, we want to know whether, at the local ecosystem level, the connectivity of the ecosystem interacted with ecosystem size to affect this specific response variable. Essentially, we are interested in understanding if ecosystem size modulated the impact of spatial feedback locally. To begin, we plot how this response variable varied across different treatments throughout the experiment, represented by mean values with a 95% confidence interval.
+
+```{r}
+plot.ecosystems.points(ds_ecosystems,
+                       ecosystem_size_and_trophy_selected,
+                       connections_selected,
+                       response_variable,
+                       legend_row_n_input = 3)
+```
+
+<details>
+
+<summary>Click here to view the same data represented through the single replicates</summary>
+
+```{r}
+plot.ecosystems.replicates.one.by.one(ds_ecosystems,
+                                      ecosystem_size_and_trophy_selected,
+                                      response_variable)
+```
+
+</details>
+
+<details>
+
+<summary>Click here to view the same data represented through effect sizes</summary>
+
+```{r}
+plot.ecosystems.points.ES(ds_ecosystems_effect_size %>% filter(day > resource_flow_days[1]),
+                          ecosystem_type_i[grep("connected", ecosystem_type_i)],
+                          paste0(response_variable, "_d"))
+```
+
+</details>
+
+ <br>
+
+Following this initial inspection, we proceed to analyse differences among ecosystems. Our first step involves filtering the data to isolate the relevant data for analysis. Specifically, we exclude data points where the response variable couldn't be computed, as well as time points preceding the initial disturbance and resource flow. Then we plot the data to make sure that what filtered the data in the right way.
+
+```{r}
+filtered_data = ds_ecosystems %>%
+  filter(ecosystem_size_and_trophy %in% ecosystem_size_and_trophy_selected,
+         time_point >= first_time_point_model,
+         time_point <= last_time_point_model,!is.na(!!sym(response_variable))) %>%
+  mutate(ecosystem_ID = as.character(ecosystem_ID),
+         size = NA,
+         size = case_when(ecosystem_size == "Small" ~ "S",
+                          ecosystem_size == "Medium" ~ "M",
+                          ecosystem_size == "Large" ~ "L",
+                          TRUE ~ size),
+         size = factor(size, levels = c("S", "M", "L")))
+```
+
+```{r}
+plot.ecosystems.points(filtered_data,
+                       ecosystem_size_and_trophy_selected,
+                       connections_selected,
+                       response_variable,
+                       legend_row_n_input = 3)
+```
+
+<details>
+
+<summary>Click here to view the same data represented through the single replicates</summary>
+
+```{r}
+plot.ecosystems.replicates.one.by.one(filtered_data,
+                                      ecosystem_size_and_trophy_selected,
+                                      response_variable)
+```
+
+</details>
+
+<details>
+
+<summary>Click here to view the same data represented without changing the level names (to make sure that lines and points are labeled correctly)</summary>
+
+```{r}
+plot.ecosystems.points.raw(filtered_data,
+                        ecosystem_type_i,
+                        response_variable,
+                        1)
+```
+
+</details>
+
+ <br>
+
+Then, we develop a mixed effect model (`model`) with lmerTest (Kuznetsova et al., 2017) to examine how the interaction between ecosystem size and connectivity influences the response variable, treating ecosystem ID and time as random effects (**Response variable \~ size \* connection + (1 \| ecosystem_ID) + (1 \| day)**, see [this link](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf) for how to code). In this model we don't use a Restricted Maximum Likelihood (REML) because, while REML is robust to missing data, it may not perform well with very small sample sizes, especially when the number of random effects is large relative to the number of observations (ChatGPT). After having created the model, we show its summary and plot its residuals. The summary of the model allows us to look at the random effects, as well as differences among levels calculated using a t-test that employs Satterthwaite's method to estimate the degrees of freedom for the two groups. This method is conservative in order to prevent false positives (Li & Redden, 2015). An alternative method that could be used is the Kenward-Roger's method, however, it is expected to perform similarly. Because the model utilises Satterthwaite's method, it should entail a Welch t-test (according to information gleaned from [this Wikipedia page](https://en.wikipedia.org/wiki/Welch%E2%80%93Satterthwaite_equation)), which does not assume equal variance in the two groups. There is no option in this package to alter the type of t-test. These p-values are calculated by examining whether the slope of the response variable against the predictor variable differs significantly from zero.
+
+```{r}
+
+## - Create mixed effect model - ##
+
+# In the ouput lmerModLmerTest which means that it's a Linear Mixed Model from the lmerTest package
+
+model = lmer(
+   get(response_variable) ~
+     size * connection +
+     (1 | ecosystem_ID) +
+     (1 | day),
+   data = filtered_data,
+   REML = FALSE,
+   control = lmerControl(optimizer = "Nelder_Mead"))
+```
+
+```{r}
+
+## - Show summary of the model -- ##
+
+print(summary(model), digits = 3)
+```
+
+```{r child = here("r_files", "check_random_effects.Rmd"), eval = (trophy_selected == "autotrophic")}
+```
+
+```{r}
+
+## - Plot residuals of the model -- ##
+
+qqnorm(resid(model))
+
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+```
+
+ <br>
+
+<details>
+
+<summary>Click to view comments on the residuals</summary>
+
+```{r}
+
+# Autotrophic
+
+if (response_variable == "bioarea_mm2_per_ml" && trophy_selected == "autotrophic") {
+  print("It seems like the spread of the residuals increases with fitted value. This is why I transformed the data.")
+}
+
+if (response_variable == "sqrt_bioarea_mm2_per_ml" && trophy_selected == "autotrophic") {
+  print("It seems like the spread of the residuals is better than when untransformed. When untransformed, residuals spread increased with fitted value. After doing a square root transformation, the trend disappears. Here, it seems like the residuals have a bit of a pattern but not that strong. I think it's okay that there is no random effect of ecosystem ID as the replicates that started higher didn't stay higher throughout time.")
+}
+
+if (response_variable == "cbrt_bioarea_mm2_per_ml" &&  trophy_selected == "autotrophic") {
+  print("It seems like the spread of the residuals is better than when untransformed. When untransformed, residuals spread increased with fitted value. After doing a square root transformation, the trend disappears. Here, it seems like the residuals have a bit of a pattern but not that strong. I'm not sure if it's better than the square transformed data, as the variance is more even, but there is more a pattern going up and down.")
+}
+
+# Heterotrophic
+
+if (response_variable == "shannon" &&  trophy_selected == "heterotrophic") {
+  print("The overal trend of the residuals is okay. To me it's also okay that there is no random effect of ecosystem ID or time (each ecosystem type is fitted to the same value) as it didn't seem like Shannon was different across time points or didn't have a particular difference among ecosystems (the ecosystems that started at higher diversity didn't maintain higher diversity across the experiment).")
+}
+
+if (response_variable == "shannon" &&  trophy_selected == "heterotrophic") {
+  print("The overal trend of the residuals is okay. I think it's okay that there is no random effect of ecosystem ID as the replicates that started higher didn't stay higher throughout time.")
+}
+
+if (response_variable == "shannon" &&  trophy_selected == "heterotrophic") {
+  print("It seems like the spread of the residuals increases with fitted value. This is why I transformed the data.")
+}
+
+if (response_variable == "shannon" &&  trophy_selected == "heterotrophic") {
+  print("It seems like the spread of the residuals is better than when untransformed. When untransformed, residuals spread increased with fitted value. After doing a square root transformation, the trend disappears.")
+}
+```
+
+</details>
+
+ <br>
+
+However, this model's output complicates understanding the fixed effects. To enhance clarity in demonstrating the statistical significance of fixed effects, we employ a type III ANOVA on the full model. This method accommodates unbalanced designs and yields the same results to type I ANOVA in balanced designs ([Uni Goettingen](https://md.psych.bio.uni-goettingen.de/mv/unit/lm_cat/lm_cat_unbal_ss_explained.html)). We utilise Satterthwaite's method to estimate the degrees of freedom for the two groups. But just knowing whether or not there is an effect is not enough. If there is an effect, we want to know which levels were different. Therefore, we proceed to analyse the contrasts among levels, ensuring that the P values go through a Tukey adjustment to account for the multiple comparisons (see [this link for contrast coding](https://aosmith.rbind.io/2019/04/15/custom-contrasts-emmeans/)).
+
+```{r}
+
+## - Perform Type III ANOVA on the model - ##
+
+anova_output = anova(model)
+anova_output
+```
+
+<details>
+
+<summary>Click to view how the contrasts were coded</summary>
+
+```{r}
+
+## - Analyse the contrasts among levels -- ##
+
+emmeans_output = emmeans(model,
+                         specs = pairwise ~ size:connection,
+                         adjust = "tukey",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite")
+emmeans_output
+
+S_unconnected = c(1, 0, 0, 0, 0, 0)
+M_unconnected = c(0, 1, 0, 0, 0, 0)
+L_unconnected = c(0, 0, 1, 0, 0, 0)
+S_connected = c(0, 0, 0, 1, 0, 0)
+M_connected = c(0, 0, 0, 0, 1, 0)
+L_connected = c(0, 0, 0, 0, 0, 1)
+```
+
+</details>
+
+```{r}
+n_of_digits = 3
+contrasts = contrast(emmeans_output, 
+         method = list("Small connection effect" = S_connected - S_unconnected,
+                       "Medium connection effect" = M_connected - M_unconnected,
+                       "Large connection effect" = L_connected - L_unconnected,
+                       "Size effect (L vs S)" = L_unconnected - S_unconnected,
+                       "Size effect (M vs S)" = M_unconnected - S_unconnected)) %>%
+  as.data.frame() %>%
+  mutate(p.value = round(p.value, digits = n_of_digits),
+         estimate = round(estimate, digits = n_of_digits),
+         SE = round(SE, digits = n_of_digits),
+         df = round(df, digits = n_of_digits),
+         t.ratio = round(t.ratio, digits = n_of_digits),
+         e = "",
+         e = ifelse(p.value > 0.1, 
+                           "",
+                           e),
+         e = ifelse(p.value < 0.05, 
+                           "*",
+                           e),
+         e = ifelse(p.value < 0.01, 
+                           "**",
+                           e),
+         e = ifelse(p.value < 0.001, 
+                           "***",
+                           e)) %>%
+  rename(" " = e)
+
+contrasts
+```
+
+ <br>
+
+```{r}
+S_connection_contrast = contrasts %>% filter(contrast == "Small connection effect")
+S_connection_estimate = S_connection_contrast$estimate %>% round(., digits = digits_estimate) %>% as.character()
+S_connection_SE = S_connection_contrast$SE %>% round(., digits = digits_SE) %>% as.character()
+S_connection_df = S_connection_contrast$df %>% as.character()
+S_connection_t = S_connection_contrast$t.ratio %>% as.character()
+S_connection_p = S_connection_contrast$p.value
+if (S_connection_p < 0.001){S_connection_p = "< 0.001"} else {S_connection_p = paste("=", S_connection_p)}
+
+M_connection_contrast = contrasts %>% filter(contrast == "Medium connection effect")
+M_connection_estimate = M_connection_contrast$estimate %>% round(., digits = digits_estimate) %>% as.character()
+M_connection_SE = M_connection_contrast$SE %>% round(., digits = digits_SE) %>% as.character()
+M_connection_df = M_connection_contrast$df %>% as.character()
+M_connection_t = M_connection_contrast$t.ratio %>% as.character()
+M_connection_p = M_connection_contrast$p.value
+if (M_connection_p < 0.001){M_connection_p = "< 0.001"} else {M_connection_p = paste("=", M_connection_p)}
+
+L_connection_contrast = contrasts %>% filter(contrast == "Large connection effect")
+L_connection_estimate = L_connection_contrast$estimate %>% round(., digits = digits_estimate) %>% as.character()
+L_connection_SE = L_connection_contrast$SE %>% round(., digits = digits_SE) %>% as.character()
+L_connection_df = L_connection_contrast$df %>% as.character()
+L_connection_t = L_connection_contrast$t.ratio %>% as.character()
+L_connection_p = L_connection_contrast$p.value
+if (L_connection_p < 0.001){L_connection_p = "< 0.001"} else {L_connection_p = paste("=", L_connection_p)}
+
+L_vs_S_unc_contrast = contrasts %>% filter(contrast == "Size effect (L vs S)")
+L_vs_S_unc_estimate = L_vs_S_unc_contrast$estimate %>% round(., digits = digits_estimate) %>% as.character()
+L_vs_S_unc_SE = L_vs_S_unc_contrast$SE %>% round(., digits = digits_SE) %>% as.character()
+L_vs_S_unc_df = L_vs_S_unc_contrast$df %>% as.character()
+L_vs_S_unc_t = L_vs_S_unc_contrast$t.ratio %>% as.character()
+L_vs_S_unc_p = L_vs_S_unc_contrast$p.value
+if (L_vs_S_unc_p < 0.001){L_vs_S_unc_p = "< 0.001"} else {L_vs_S_unc_p = paste("=", L_vs_S_unc_p)}
+
+M_vs_S_unc_contrast = contrasts %>% filter(contrast == "Size effect (M vs S)")
+M_vs_S_unc_estimate = M_vs_S_unc_contrast$estimate %>% round(., digits = digits_estimate) %>% as.character()
+M_vs_S_unc_SE = M_vs_S_unc_contrast$SE %>% round(., digits = digits_SE) %>% as.character()
+M_vs_S_unc_df = M_vs_S_unc_contrast$df %>% as.character()
+M_vs_S_unc_t = M_vs_S_unc_contrast$t.ratio %>% as.character()
+M_vs_S_unc_p = M_vs_S_unc_contrast$p.value
+if (M_vs_S_unc_p < 0.001){M_vs_S_unc_p = "< 0.001"} else {M_vs_S_unc_p = paste("=", M_vs_S_unc_p)}
+
+anova_output_interaction = anova_output %>% 
+  as.data.frame() %>%
+  mutate(variable = rownames(.)) %>%
+  filter(variable == "size:connection")
+
+anova_interact_sum_sq = anova_output_interaction$`Sum Sq` %>% round(., digits = digits_sum_sq) %>% as.character()
+anova_interact_mean_sq = anova_output_interaction$`Mean Sq` %>% round(., digits = digits_mean_sq) %>% as.character()
+anova_interact_NumDF = anova_output_interaction$NumDF %>% round(., digits = digits_NumDF) %>% as.character()
+anova_interact_DenDF = anova_output_interaction$DenDF %>% round(., digits = digits_DenDF) %>% as.character()
+anova_interact_F = anova_output_interaction$`F value` %>% round(., digits = digits_F) %>% as.character()
+anova_interact_p = anova_output_interaction$`Pr(>F)` %>% round(., digits = digits_p)
+if (anova_interact_p < 0.001){anova_interact_p = "< 0.001"} else {anova_interact_p = paste("=", anova_interact_p)}
+
+results_table_ecos = results_table_ecos %>%
+  add_row(
+  response_variable = response_variable,
+  trophy = trophy_selected,
+  anova_interact_sum_sq = anova_interact_sum_sq,
+  anova_interact_mean_sq = anova_interact_NumDF,
+  anova_interact_NumDF = anova_interact_NumDF,
+  anova_interact_DenDF = anova_interact_DenDF,
+  anova_interact_F = anova_interact_F,
+  anova_interact_p = anova_interact_p,
+  S_connection_estimate = S_connection_estimate,
+  S_connection_SE = S_connection_SE,
+  S_connection_df = S_connection_df,
+  S_connection_t = S_connection_t,
+  S_connection_p = S_connection_p,
+  M_connection_estimate = M_connection_estimate,
+  M_connection_SE = M_connection_SE,
+  M_connection_df = M_connection_df,
+  M_connection_t = M_connection_t,
+  M_connection_p = M_connection_p,
+  L_connection_estimate = L_connection_estimate,
+  L_connection_SE = L_connection_SE,
+  L_connection_df = L_connection_df,
+  L_connection_t = L_connection_t,
+  L_connection_p = L_connection_p,
+  L_vs_S_unc_estimate = L_vs_S_unc_estimate,
+  L_vs_S_unc_SE = L_vs_S_unc_SE,
+  L_vs_S_unc_df = L_vs_S_unc_df,
+  L_vs_S_unc_t = L_vs_S_unc_t,
+  L_vs_S_unc_p = L_vs_S_unc_p,
+  M_vs_S_unc_estimate = M_vs_S_unc_estimate,
+  M_vs_S_unc_SE = M_vs_S_unc_SE,
+  M_vs_S_unc_df = M_vs_S_unc_df,
+  M_vs_S_unc_t = M_vs_S_unc_t,
+  M_vs_S_unc_p = M_vs_S_unc_p)
+
+res = results_table_ecos%>%filter(response_variable== response_variable,
+                                  trophy == trophy_selected)
+```
+
+<details>
+
+<summary>[**WORK IN PROGRESS:**]{.underline} Click to view how I'm working on biomass model</summary>
+
+```{r eval = (response_variable == "bioarea_mm2_per_ml"), warning=FALSE}
+
+"I want to model biomass changes in ecosystems with a mixed effect model. However, when I do so, I see that close to the fitted zeros the residuals of the model have low variance, which creates heteroscedasticity. I spoke with Florian and he suggested to use a quasipossion distribution. Here I try to see if this improves the model. This doesn't solve the problem. If you see warnings is that it tells you that all the values were non integer; this should be no problem as quasi-possion is mostly used for count data but it's okay also with our data. Also, it doesn't compute AIC, BIC, LogLik because the package doesn't normally do. Another thing I could do is using a gamma distribution. This also doesn't improve it. I'm not going to run a tweedie distribution because I don't have a spike at zero."
+
+"Quasi-poisson"
+
+model <- MASS::glmmPQL(bioarea_mm2_per_ml ~ 
+                         size * connection,
+                       data = filtered_data,
+                       random = list(ecosystem_ID = ~ 1, day = ~ 1),
+                       family = poisson(link = "log"))
+
+print(summary(model), digits = 3)
+qqnorm(resid(model))
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+emmeans_output = emmeans(model,
+                         specs = pairwise ~ size:connection,
+                         adjust = "tukey",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite")
+emmeans_output
+contrasts = contrast(emmeans_output, 
+         method = list("Small connection effect" = S_connected - S_unconnected,
+                       "Medium connection effect" = M_connected - M_unconnected,
+                       "Large connection effect" = L_connected - L_unconnected,
+                       "Size effect (L vs S)" = L_unconnected - S_unconnected,
+                       "Size effect (M vs S)" = M_unconnected - S_unconnected)) %>%
+  as.data.frame() %>%
+  mutate(p.value = round(p.value, digits = n_of_digits),
+         estimate = round(estimate, digits = n_of_digits),
+         SE = round(SE, digits = n_of_digits),
+         df = round(df, digits = n_of_digits),
+         t.ratio = round(t.ratio, digits = n_of_digits),
+         e = "",
+         e = ifelse(p.value > 0.1, 
+                           "",
+                           e),
+         e = ifelse(p.value < 0.05, 
+                           "*",
+                           e),
+         e = ifelse(p.value < 0.01, 
+                           "**",
+                           e),
+         e = ifelse(p.value < 0.001, 
+                           "***",
+                           e)) %>%
+  rename(" " = e)
+contrasts
+
+"Gamma distribution"
+
+model = glmer(get(response_variable) ~
+                size * connection +
+                (1 | ecosystem_ID) +
+                (1 | day),
+              data = filtered_data,
+              family = Gamma(link = "log"))
+
+print(summary(model), digits = 3)
+qqnorm(resid(model))
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+emmeans_output = emmeans(model,
+                         specs = pairwise ~ size:connection,
+                         adjust = "tukey",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite")
+emmeans_output
+contrasts = contrast(emmeans_output, 
+         method = list("Small connection effect" = S_connected - S_unconnected,
+                       "Medium connection effect" = M_connected - M_unconnected,
+                       "Large connection effect" = L_connected - L_unconnected,
+                       "Size effect (L vs S)" = L_unconnected - S_unconnected,
+                       "Size effect (M vs S)" = M_unconnected - S_unconnected)) %>%
+  as.data.frame() %>%
+  print()
+
+"Without the random effect of ecosystem ID"
+
+model = glmer(get(response_variable) ~
+                size * connection +
+                (1 | day),
+              data = filtered_data,
+              family = Gamma(link = "log"))
+
+print(summary(model), digits = 3)
+qqnorm(resid(model))
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+emmeans_output = emmeans(model,
+                         specs = pairwise ~ size:connection,
+                         adjust = "tukey",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite")
+emmeans_output
+contrasts = contrast(emmeans_output, 
+         method = list("Small connection effect" = S_connected - S_unconnected,
+                       "Medium connection effect" = M_connected - M_unconnected,
+                       "Large connection effect" = L_connected - L_unconnected,
+                       "Size effect (L vs S)" = L_unconnected - S_unconnected,
+                       "Size effect (M vs S)" = M_unconnected - S_unconnected)) %>%
+  as.data.frame() %>%
+  print()
+
+"Without random effects"
+
+model = glm(get(response_variable) ~
+                size * connection,
+              data = filtered_data,
+              family = Gamma(link = "log"))
+
+print(summary(model), digits = 3)
+qqnorm(resid(model))
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+emmeans_output = emmeans(model,
+                         specs = pairwise ~ size:connection,
+                         adjust = "tukey",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite")
+emmeans_output
+contrasts = contrast(emmeans_output, 
+         method = list("Small connection effect" = S_connected - S_unconnected,
+                       "Medium connection effect" = M_connected - M_unconnected,
+                       "Large connection effect" = L_connected - L_unconnected,
+                       "Size effect (L vs S)" = L_unconnected - S_unconnected,
+                       "Size effect (M vs S)" = M_unconnected - S_unconnected)) %>%
+  as.data.frame() %>%
+  print()
+
+
+"Quasi likelihood"
+
+model <- glmmTMB::glmmTMB(get(response_variable) ~
+                            size * connection +
+                            (1 | ecosystem_ID) +
+                            (1 | day),
+                          data = filtered_data)
+
+print(summary(model), digits = 3)
+qqnorm(resid(model))
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+
+"Robust regression"
+# MASS::rlm(get(response_variable) ~
+#        ecosystem_size * connection +
+#        (1 | day) +
+#        (1 | as.double(ecosystem_ID)),
+#     data = filtered_data %>% select(time_point:bioarea_mm2_per_ml))
+#
+#It seems like I can't run the model because of singularity issues.
+#Error: Error in rlm.default(x, y, weights, method = method, wt.method = wt.method,  : 
+#'x' is singular: singular fits are not implemented in 'rlm'
+
+
+"Tweedie distribution"
+model = glmmTMB(get(response_variable) ~ 
+                  size * connection + 
+                  (1 | ecosystem_ID) +
+                  (1 | day), 
+                family=tweedie(link="log"), 
+                data=filtered_data)
+
+print(summary(model), digits = 3)
+qqnorm(resid(model))
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+```
+
+Let's plot the data of combinations of size and connection to see how their distributions are.
+
+```{r}
+hist(filtered_data %>% filter(size == "S", connection == "connected") %>% pull(bioarea_mm2_per_ml))
+
+hist(filtered_data %>% filter(size == "S", connection == "unconnected") %>% pull(bioarea_mm2_per_ml))
+
+hist(filtered_data %>% filter(size == "M", connection == "connected") %>% pull(bioarea_mm2_per_ml))
+
+hist(filtered_data %>% filter(size == "M", connection == "unconnected") %>% pull(bioarea_mm2_per_ml))
+
+hist(filtered_data %>% filter(size == "L", connection == "connected") %>% pull(bioarea_mm2_per_ml))
+
+hist(filtered_data %>% filter(size == "L", connection == "unconnected") %>% pull(bioarea_mm2_per_ml))
+
+"These distributions seem right skewed for both autotrophic and heterotrophic."
+```
+
+</details>
+
+ <br>

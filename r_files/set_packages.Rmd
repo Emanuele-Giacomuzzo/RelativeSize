@@ -34,6 +34,7 @@ library("combinat")
 library("emmeans") #For contrasts in a lmer object. An alternative is multcomp.
 library("bemovi")
 library("e1071") #For support vector machines
+library("SingleCaseES") #For the log response ratio
 
 #Conflicts
 library("conflicted")

@@ -1,0 +1,72 @@
+---
+title: "Data Regional Biomass"
+output: html_document
+date: "2022-11-22"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+ds_metaecosystems <- list()
+row_i = 0
+system_nrs = unique(combinations_isolated_n_metaecos$system_nr)
+
+for (system_i in system_nrs) {
+  for (time_point_i in time_points) {
+    row_i = row_i + 1
+    
+    culture_IDs_of_system_i = c(
+      combinations_isolated_n_metaecos %>% filter(system_nr == system_i) %>% pull(ID_green_patch),
+      combinations_isolated_n_metaecos %>% filter(system_nr == system_i) %>% pull(ID_blue_patch)
+    )
+    
+    ds_metaecosystems[[row_i]] = ds_patches %>%
+      filter(culture_ID %in% culture_IDs_of_system_i,
+             time_point == time_point_i) %>%
+      summarise(total_metaecosystem_bioarea_mm2 = sum(bioarea_tot_mm2),
+                patch_size_ml = mean(patch_size_ml)) %>%
+      mutate(
+        system_nr = system_i,
+        patches_combined = combinations_isolated_n_metaecos %>% filter(system_nr == system_i) %>% pull(patches_combined),
+        system_type = combinations_isolated_n_metaecos %>% filter(system_nr == system_i) %>% pull(system_type),
+        time_point = time_point_i,
+        day = sampling_days[time_point_i + 1]
+      ) %>%
+      ungroup()
+    
+  }
+}
+
+ds_metaecosystems = ds_metaecosystems %>%
+  bind_rows() %>%
+  as.data.frame() %>%
+  select(
+    time_point,
+    day,
+    system_nr,
+    system_type,
+    patch_size_ml,
+    patches_combined,
+    total_metaecosystem_bioarea_mm2
+  ) %>%
+  filter(!system_nr %in% metaecosystems_to_take_off)
+```
+
+```{r}
+
+# Reorder levels
+
+ds_metaecosystems = ds_metaecosystems %>%
+  mutate(system_type = factor(system_type,
+                             levels = metaecosystem_types_ordered))
+```
+
+```{r}
+ds_metaecosystems = ds_metaecosystems %>%
+  mutate(interaction_disturbance_size = ifelse(grepl("(s*d)", system_type),
+                                               "yes",
+                                               "no"),
+         connection = ifelse(grepl("meta-ecosystem", system_type),
+                                               "connected",
+                                               "unconnected"))
+```

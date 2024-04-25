@@ -6,7 +6,7 @@ date: "2024-03-27"
 
 ### Running time
 
-```{r running-time, echo = FALSE, eval = TRUE}
+```{r running-time}
 end_time = Sys.time()
 round(end_time - start_time, digits = 1)
 ```
@@ -33,7 +33,7 @@ dput()
 
 Save files to calculate the effect size of meta-ecosystems. 
 
-```{r}
+```{r eval = FALSE}
 write.csv(combination_sets_isolated_systems,
           file = here("files_for_ds_metaecos_es", "combination_sets_isolated_systems.csv"))
 

@@ -1,27 +1,12 @@
 plot.metaecos.points.ES = function(data,
-                                  metaecosystem_type_i,
-                                  response_variable) {
+                                   response_variable) {
   
-  metaecosystem_type_i <- metaecosystem_type_i[order(match(metaecosystem_type_i, 
-                                                           metaecosystem_types_ordered))]
-  
-  data_filtered = data %>%
-    filter(!time_point == 0,
-           system_type %in% metaecosystem_type_i)
-  
-  data_filtered$system_type <- factor(data_filtered$system_type, 
-                                     levels = metaecosystem_type_i)
-  
-  data_filtered %>%
-    filter(!time_point == 0,
-           system_type %in% metaecosystem_type_i) %>%
-    ggplot(aes(
-      x = day,
-      y = get(response_variable),
-      color = system_type,
-      group = interaction(day, system_type),
-      linetype = system_type
-    )) +
+  data %>%
+    ggplot(aes(x = day,
+               y = get(response_variable),
+               color = size,
+               group = interaction(day, size, connection),
+               linetype = connection)) +
     geom_point(stat = "summary",
                fun = "mean",
                position = position_dodge(dodging)) +

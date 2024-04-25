@@ -8,88 +8,164 @@ editor_options:
 
 #### Biomass
 
-We want to know whether the size of the meta-ecosystem influenced the effects of the spatial feedback between heterotrophic and autotrophic ecosystems. We first start from plotting how meta-ecosystem biomass changed in connected/unconnected meta-ecosystems of different size throughout the experiment through its mean ± 95 confidence interval:
+In the experiment we studied two-patch meta-ecosystems in which we manipulated the size of their patches and their connection (unconnected vs connected). Now, we want to know whether meta-ecosystem size influenced the effects of connection on this response variable. Therefore, we start by looking at how this response variable changed across time for all meta-ecosystems through its mean ± 95 confidence interval:
 
 ```{r}
-response_variable = "total_metaecosystem_bioarea_mm2"
-```
+print("Size effects")
+plot.metaecos.points(ds_metaecosystems %>% filter(size_effects == "s"),
+                      response_variable) 
 
-```{r}
-ds_metaecosystems %>%
-    filter(interaction_disturbance_size == "yes",
-           !is.na((total_metaecosystem_bioarea_mm2))) %>%
-    summarySE(measurevar = "total_metaecosystem_bioarea_mm2",
-              groupvars = c("day", "patch_size_ml", "connection", "system_type")) %>%
-    ggplot(aes(x = day,
-               y = total_metaecosystem_bioarea_mm2,
-               group = interaction(day, patch_size_ml, connection),
-               color = patch_size_ml,
-               linetype = connection)) +
-    geom_point(stat = "summary",
-               fun = "mean",
-               position = position_dodge(dodging),
-               size = treatment_points_size) +
-    geom_line(stat = "summary",
-              fun = "mean",
-              aes(group = interaction(patch_size_ml, connection)),
-              position = position_dodge(dodging),
-              linewidth = treatment_lines_linewidth) +
-    geom_errorbar(aes(ymax = get(response_variable) + ci,
-                      ymin = get(response_variable) - ci),
-                  width = width_errorbar,
-                  position = position_dodge(dodging)) +
-    labs(x = axis_names$axis_name[axis_names$variable == "day"],
-         y = axis_names$axis_name[axis_names$variable == response_variable],
-         color = "") +
-    geom_vline(xintercept = resource_flow_days,
-               linetype = resource_flow_line_type,
-               color = resource_flow_line_colour,
-               linewidth = resource_flow_line_width) +
-    theme_bw() +
-    theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          legend.position = legend_position,
-          legend.key.width = unit(legend_width_cm, "cm")) +
-    guides(color = guide_legend(title = NULL,
-                                nrow = 2),
-           linetype = guide_legend(title = NULL,
-                                   nrow = 2)) +
-    theme(plot.margin = unit(c(ggarrange_margin_left,
-                               ggarrange_margin_right,
-                               ggarrange_margin_bottom,
-                               ggarrange_margin_left),
-                             "cm")) +
-    geom_rect(xmin = grey_background_xmin, 
-              xmax = grey_background_xmax,
-              ymin = grey_background_ymin, 
-              ymax = grey_background_ymax, 
-              fill = grey_background_fill, 
-              alpha = grey_background_alpha,
-              color = grey_background_color)
-```
-
-
-```{r}
-plot.metaecos.points(ds_metaecosystems,
-                     metaecosystem_type_i,
-                     response_variable,
-                     3)
+print("Size * Disturbance effects")
+plot.metaecos.points(ds_metaecosystems %>% filter(size_effects == "s*d"),
+                      response_variable) 
 ```
 
 <details>
-    <summary>Click here to view the same data represented through the single replicates</summary>
+
+<summary>Click here to view the same data represented through the single replicates</summary>
+
 ```{r}
-plot.metaecos.replicates(ds_metaecosystems,
-                         metaecosystem_type_i,
+print("Size effects")
+plot.metaecos.replicates(ds_metaecosystems %>% filter(size_effects == "s"),
+                         response_variable)
+
+print("Size * Disturbance effects")
+plot.metaecos.replicates(ds_metaecosystems %>% filter(size_effects == "s*d"),
                          response_variable)
 ```
+
 </details>
 
 <details>
-    <summary>Click here to view the same data represented through effect sizes</summary>
-```{r}
-plot.metaecos.points.ES(ds_metaecos_es %>% filter(day > resource_flow_days[1]),
+
+<summary>Click here to view the same data represented through effect sizes</summary>
+
+[**WORK IN PROGRESS**]{.underline}
+
+Here I need to rerun this complicated code with the right ds_metaecosystems format.
+
+```{r eval = FALSE}
+plot.metaecos.points.ES(ds_metaecos_es %>% filter(size_effects == size_effects_i),
                          metaecosystem_type_i[grep("meta-ecosystem", metaecosystem_type_i)],
                          paste0(response_variable, "_d"))
 ```
+
 </details>
+
+<br>
+
+Following the initial inspection, we proceed to analyse statistical differences among meta-ecosystems. Our first step involves filtering the data to isolate the relevant data for analysis. Specifically, we exclude data points where the response variable couldn’t be computed, as well as time points preceding the initial disturbance and resource flow. Then we plot the data to make sure that data was filtered in the right way.
+
+```{r}
+filtered_data = ds_metaecosystems %>%
+  filter(time_point >= first_time_point_model,
+         time_point <= last_time_point_model,
+         !is.na(!!sym(response_variable)),
+         connection == "connected" | 
+          ecosystems_combined %in% unconnected_metaecosystems_selected)
+```
+
+```{r}
+print("Size effects")
+plot.metaecos.points(filtered_data %>% filter(size_effects == "s"),
+                     response_variable)
+
+print("Size * Disturbance effects")
+plot.metaecos.points(filtered_data %>% filter(size_effects == "s*d"),
+                     response_variable)
+```
+
+Then, to examine how the interaction between meta-ecosystem type size connectivity influenced the response variable, we develop a mixed effect model (`full_model`) with lmerTest (Kuznetsova et al., 2017), treating system nr and time as random effects\
+(**Response variable \~ type \* connection + (1 \| system_nr) + (1 \| day)**, see [this link](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf) for how to code). In this model we don’t use a Restricted Maximum Likelihood (REML) because, while REML is robust to missing data, it may not perform well with very small sample sizes, especially when the number of random effects is large relative to the number of observations (ChatGPT). After having created the model, we show (i) the significance of the predictor variables through the summary of the model and (ii) the model residuals.
+
+Significance is tested by comparing their slope against zero using a t-test which employs the Satterthwaite’s method to estimate the degrees of freedom for the two groups (fixed variable slope and zero). This method is conservative in order to prevent false positives (Li & Redden, 2015). An alternative method that could be used is the Kenward-Roger’s method, however, it is expected to perform similarly. Because the model utilises Satterthwaite’s method, it should entail a Welch t-test (according to information gleaned from [this Wikipedia page](https://en.wikipedia.org/wiki/Welch%E2%80%93Satterthwaite_equation)), which does not assume equal variance in the two groups. There is no option in this package to alter the type of t-test.
+
+In this model, disconnected meta-ecosystems are made of paired unconnected ecosystems, which are paired randomly. However, how to pair unconnected ecosystems can be done in multiple ways, as unconnected ecosystems did not interact and therefore any combination between ecosystems would be arbitrary. To make sure that the random combination we selected did not bias our results, we run 10 possible combinations of ecosystems constituting unconnected meta-ecosystems and compute their p-values, creating a p-value distribution and keeping as the final p-value the mean of such distributions. Because explaining the reshuffling of ecosystems into different unconnected meta-ecosystems in the paper would be complex, we opted to present results for a single combination of unconnected ecosystems. Here, we provide a summary of the mixed effect model to illustrate the random effects.
+
+```{r}
+## - Create mixed effect model - ##
+
+# In the ouput lmerModLmerTest which means that it's a Linear Mixed Model from the lmerTest package
+
+model = lmer(
+   get(response_variable) ~
+     size * connection * size_effects +
+     (1 | system_nr) +
+     (1 | day),
+   data = filtered_data,
+   REML = FALSE,
+   control = lmerControl(optimizer = "Nelder_Mead"))
+```
+
+```{r}
+## - Show summary of the model -- ##
+
+print(summary(model), digits = 3)
+```
+
+```{r}
+## - Plot residuals of the model -- ##
+
+qqnorm(resid(model))
+create.res.vs.fit.metaecos(model,
+                           filtered_data)
+```
+
+However, this model's output complicates understanding the fixed effects. To enhance clarity in demonstrating the statistical significance of fixed effects, we employ a type III ANOVA on the full model. This method accommodates unbalanced designs and yields the same results to type I ANOVA in balanced designs ([Uni Goettingen](https://md.psych.bio.uni-goettingen.de/mv/unit/lm_cat/lm_cat_unbal_ss_explained.html)). We utilise Satterthwaite's method to estimate the degrees of freedom for the two groups. But just knowing whether or not there is an effect is not enough. If there is an effect, we want to know which levels were different. Therefore, we proceed to analyse the contrasts among levels, ensuring that the P values go through a Tukey adjustment to account for the multiple comparisons (see [this link for contrast coding](https://aosmith.rbind.io/2019/04/15/custom-contrasts-emmeans/)).
+
+```{r}
+## - Perform Type III ANOVA on the model - ##
+
+anova_output = anova(model)
+anova_output
+```
+
+```{r}
+## - Analyse the contrasts among levels -- ##
+
+emmeans_output = emmeans(model,
+                         specs = pairwise ~ size:connection:size_effects,
+                         adjust = "tukey",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite")
+emmeans_output
+
+#S_unconnected =   c(1, 0, 0, 0, 0, 0, 0, 0)
+#SM_unconnected =  c(0, 1, 0, 0, 0, 0, 0, 0)
+#ML_unconnected =  c(0, 0, 1, 0, 0, 0, 0, 0)
+#L_unconnected =   c(0, 0, 0, 1, 0, 0, 0, 0)
+#S_connected =     c(0, 0, 0, 0, 1, 0, 0, 0)
+#SM_connected =    c(0, 0, 0, 0, 0, 1, 0, 0)
+#ML_connected =    c(0, 0, 0, 0, 0, 0, 1, 0)
+#L_connected =     c(0, 0, 0, 0, 0, 0, 0, 1)
+
+# n_of_digits = 3
+# contrasts = contrast(emmeans_output, 
+#          method = list("Small connection effect" = S_connected - S_unconnected,
+#                        "Medium connection effect" = M_connected - M_unconnected,
+#                        "Large connection effect" = L_connected - L_unconnected,
+#                        "Size effect (L vs S)" = L_unconnected - S_unconnected,
+#                        "Size effect (M vs S)" = M_unconnected - S_unconnected)) %>%
+#   as.data.frame() %>%
+#   mutate(p.value = round(p.value, digits = n_of_digits),
+#          estimate = round(estimate, digits = n_of_digits),
+#          SE = round(SE, digits = n_of_digits),
+#          df = round(df, digits = n_of_digits),
+#          t.ratio = round(t.ratio, digits = n_of_digits),
+#          e = "",
+#          e = ifelse(p.value > 0.1, 
+#                            "",
+#                            e),
+#          e = ifelse(p.value < 0.05, 
+#                            "*",
+#                            e),
+#          e = ifelse(p.value < 0.01, 
+#                            "**",
+#                            e),
+#          e = ifelse(p.value < 0.001, 
+#                            "***",
+#                            e)) %>%
+#   rename(" " = e)
+# 
+# contrasts
+```

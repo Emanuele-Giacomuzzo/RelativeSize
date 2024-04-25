@@ -41,164 +41,108 @@ library("here")
 
 ## Data {.tabset .tabset-dropdown}
 
-```{r echo = FALSE}
-culture_info = read.csv(here("data", "RelativeSize_culture_info.csv"), header = TRUE)
+### Ecosystems (`ds_ecosystems`) {.tabset .tabset-pills}
+
+To analyse the biomass, biodiversity, and population densities within ecosystems in our experiment, we require a dataset where each row represents an ecosystem at a specific time point (ds_ecosystems). However, species data needs to be integrated, as it is derived from the results of two analyses conducted on the same videos using two imageJ lower thresholds (referred to as threshold hereafter) to distinguish between foreground and background intensity (the lower this threshold, the more it tracks smaller particles.) Initially, we analysed the videos with BEMOVI setting a threshold of 13. Then, because this threshold didn’t cut out Chi in the monocultures of Ble, we analysed the videos again with a threshold of 40 (with threshold 40 Cep and Spi had lower identification error, hence we kept this threshold for their identification too). Therefore, we need to integrate the results of threshold 13 and 40 into the ultimate dataset (ds_ecosystems). We combine the following information from the two analyses. Total biomass and species data of Col, Eug, Eup, Lox, Pau, Pca, Spi te, and Tet from the analysis with threshold 13 and species data of Ble, Cep, Spi from the analysis with threshold 40. For each of the threshold levels we produce an ecosystem dataset (ds_ecosystems[[13]] or ds_ecosystems[[40]]) by compiling for that threshold level information on every individual organism detected (ds_individuals), identify these individuals, and aggregate their data to derive ecosystem-level information. Individuals data already has been filtered out from particles that are too slow (filter_min_net_disp), don't move for enough time (filter_min_duration), are not detected for an enough number of frames (filter_detection_freq), or ... (filter_median_step_length) to be protists. 
+
+<br>
+
+#### Threshold 13
+
+```{r}
+threshold = 13
 ```
 
-Here I need to do it as I do with AHSIze but the problem is that I don't have the master files so I can't do it.
-
-```{r child = here("r_files", "ds_individuals.Rmd")}
+```{r child = here("r_files", "ds_ecos_1_single_threshold_individuals.Rmd"), class.source = 'fold-show'}
 ```
 
-```{r child = here("r_files", "ds_patches.Rmd")}
+```{r child = here("r_files", "ds_ecos_2_single_threshold_species_ID.Rmd"), class.source = 'fold-show'}
 ```
 
-```{r child = here("r_files", "ds_patches_effect_size.Rmd")}
+```{r child = here("r_files", "ds_ecos_3_single_threshold_ecosystems.Rmd"), class.source = 'fold-show'}
+```
+
+<br>
+
+#### Threshold 40
+
+```{r}
+threshold = 40
+```
+
+```{r child = here("r_files", "ds_ecos_1_single_threshold_individuals.Rmd"), class.source = 'fold-show'}
+```
+
+```{r child = here("r_files", "ds_ecos_2_single_threshold_species_ID.Rmd"), class.source = 'fold-show'}
+```
+
+```{r child = here("r_files", "ds_ecos_3_single_threshold_ecosystems.Rmd"), class.source = 'fold-show'}
+```
+
+#### Combine thresholds
+
+```{r child = here("r_files", "ds_ecos_4_both_thresholds_combined.Rmd"), class.source = 'fold-show'}
+```
+
+### Ecosystems effect sizes (`ds_ecosystems_effect_size`)
+
+
+```{r child = here("r_files", "ds_ecos_effect_size.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Meta-ecosystems (`ds_metaecosystems`)
 
-In this dataset (`ds_metaecosystems`) each row represents a meta-ecosystem or a two-patch isolated system at a time point.
-
-```{r child = here("r_files", "combinations_patches.Rmd")}
-```
-
-```{r child = here("r_files", "combinations_patches_sets.Rmd")}
-```
-
-```{r child = here("r_files", "ds_metaecosystems.Rmd")}
+```{r child = here("r_files", "ds_metaecosystems.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Meta-ecosystems effect sizes (`ds_metaecos_es`)
 
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "before.RData"))
+```
+
 ```{r child = here("r_files", "ds_metaecosystems_effect_size.Rmd")}
 ```
 
-## Plots & analysis (s) {.tabset .tabset-dropdown}
+## Plots & analysis {.tabset .tabset-dropdown}
 
 ### Meta-ecosystems {.tabset .tabset-pills}
 
 ```{r}
-metaecosystem_analysis = TRUE; patch_analysis = TRUE
-blue_patches = FALSE
-metaecosystem_type_i = c("Small meta-ecosystem (s)",
-                         "Small two-patch isolated (s)",
-                         "Small-Medium meta-ecosystem (s)",
-                         "Small-Medium two-patch isolated (s)",
-                         "Medium-Large meta-ecosystem (s)",
-                         "Medium-Large two-patch isolated (s)",
-                         "Large meta-ecosystem (s)",
-                         "Large two-patch isolated (s)")
-
-metaecosystem_type_input_analysis = metaecosystem_type_i
+response_variable = "total_metaecosystem_bioarea_mm2"
 ```
 
 ```{r child = here("r_files", "metaecosystems.Rmd")}
 ```
 
-### Blue patches {.tabset .tabset-pills}
+### Ecosystems {.tabset .tabset-pills}
+
+#### Biomass
 
 ```{r}
-patch_analysis = FALSE; metaecosystem_analysis = TRUE
-blue_patches = TRUE
-patch_type_i = c("Blue small isolated (s)",
-                 "Blue small-medium isolated (s)",
-                 "Blue medium-large isolated (s)",
-                 "Blue large isolated (s)",
-                 "Blue small connected (s)",
-                 "Blue small-medium connected (s)",
-                 "Blue medium-large connected (s)",
-                 "Blue large connected (s)")
-patch_type_input_analysis = patch_type_i
+response_variable = "bioarea_mm2_per_ml"
 ```
 
-```{r child = here("r_files", "patches.Rmd")}
-```
-
-### Green patches {.tabset .tabset-pills}
+#### Shannon
 
 ```{r}
-blue_patches = FALSE
-patch_type_i = c("Green small isolated (s)",
-                 "Green small-medium isolated (s)",
-                 "Green medium-large isolated (s)",
-                 "Green large isolated (s)",
-                 "Green small connected (s)",
-                 "Green small-medium connected (s)",
-                 "Green medium-large connected (s)",
-                 "Green large connected (s)")
-patch_type_input_analysis = patch_type_i
+response_variable = "shannon"
 ```
 
-```{r child = here("r_files", "patches.Rmd")}
-```
-
-## Plots & analysis (s \* d) {.tabset .tabset-dropdown}
-
-### Meta-ecosystems {.tabset .tabset-pills}
+#### Evenness
 
 ```{r}
-metaecosystem_analysis = TRUE; patch_analysis = TRUE
-blue_patches = FALSE
-metaecosystem_type_i = c(
-  "Small meta-ecosystem (s*d)",
-  "Small two-patch isolated (s*d)",
-  "Small-Medium meta-ecosystem (s*d)",
-  "Small-Medium two-patch isolated (s*d)",
-  "Medium-Large meta-ecosystem (s*d)",
-  "Medium-Large two-patch isolated (s*d)",
-  "Large meta-ecosystem (s*d)",
-  "Large two-patch isolated (s*d)"
-)
-metaecosystem_type_input_analysis = metaecosystem_type_i
+response_variable = "evenness_pielou"
 ```
 
-```{r child = here("r_files", "metaecosystems.Rmd")}
-```
+#### Dominance
 
-### Blue patches {.tabset .tabset-pills}
+#### BEF
 
-```{r}
-patch_analysis = FALSE; metaecosystem_analysis = TRUE
-blue_patches = TRUE
-patch_type_i = c("Blue small isolated (s*d)",
-                 "Blue small-medium isolated (s*d)",
-                 "Blue medium-large isolated (s*d)",
-                 "Blue large isolated (s*d)",
-                 "Blue small connected (s*d)",
-                 "Blue small-medium connected (s*d)",
-                 "Blue medium-large connected (s*d)",
-                 "Blue large connected (s*d)")
-patch_type_input_analysis = patch_type_i
-```
+## Paper
 
-```{r child = here("r_files", "patches.Rmd")}
-```
-
-### Green patches {.tabset .tabset-pills}
-
-```{r}
-blue_patches = FALSE
-patch_type_i = c("Green small isolated (s*d)",
-                 "Green small-medium isolated (s*d)",
-                 "Green medium-large isolated (s*d)",
-                 "Green large isolated (s*d)",
-                 "Green small connected (s*d)",
-                 "Green small-medium connected (s*d)",
-                 "Green medium-large connected (s*d)",
-                 "Green large connected (s*d)")
-patch_type_input_analysis = patch_type_i
-```
-
-```{r child = here("r_files", "patches.Rmd")}
-```
-
-## Results
-
-```{r child = here("r_files", "results_patches_biomass_es_blue.Rmd")}
-```
-
-```{r child = here("r_files", "results_patches_biomass_es_green.Rmd")}
+```{r child = here("r_files", "paper.Rmd")}
 ```
 
 ## Other

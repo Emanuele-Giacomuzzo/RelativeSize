@@ -1,0 +1,113 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-12-18"
+editor_options: 
+  chunk_output_type: console
+---
+
+In the previous section of code, we identified combinations of ecosystems that form unconnected meta-ecosystems. However, directly comparing all unconnected meta-ecosystems to connected ones would inflate our degrees of freedom due to autocorrelation among unconnected meta-ecosystems sharing the same ecosystem. To address this, we will compare five connected meta-ecosystems to five unconnected meta-ecosystems in the analysis, each comparison comprising different combinations of unconnected meta-ecosystems. In each comparison, we create a "combination set" of unconnected meta-ecosystems. For each combination set (e.g., ED unconnected), we assign numerical order to the first ecosystem type (e.g., medium heterotrophic) and permute the order of the second type's ecosystems (e.g., medium autotrophic). For example, let's sat we are trying to create combination sets of ED unconnected where the first ecosystem type is medium heterotrophic (1,2,3,4,5), and the second type is medium autotrophic (6,7,8,9,10). Combinations of the first ecosystem type in numerical order (1,2,3,4,5; 1,2,3,4,5; etc.) and permutations of the second ecosystem type  (e.g., 6,7,8,9,10; 6,7,8,10,9; etc.) would give us the following: 1\|6, 1\|7, 1\|8, 1\|9, 1\|10; 1\|6, 1\|7, 1\|8, 1\|10, 1\|9; etc. To create an object which combines HD, ED, and AD unconnected meta-ecosystem sets (`sets_of_sets`) we need to go through the following steps. (1) Create a function to combine unconnected meta-ecosystems into sets where each ecosystem appears only once. (2) Find the combination sets for HD, ED, and AD unconnected meta-ecosystems. (3) Find the sets of sets in which you combine all three HD, ED, and AD unconnected meta-ecosystems (`sets_of_sets`).
+
+```{r}
+
+## - (1) Create a function to combine unconnected meta-ecosystems into sets where each ecosystem appears only once. - ##
+
+create.unconnected.sets = function(metaecosystem_type_i,
+                                   ecosystem_type_1,
+                                   ecosystem_type_2) {
+  
+  # To combine them into sets of sets, find the ID of the two ecosystems. 
+  
+  ID_ecosystem_type_1 = ds_ecosystems %>%
+    filter(ecosystem_type == ecosystem_type_1) %>%
+    pull(ecosystem_ID) %>%
+    unique()
+  
+  ID_ecosystem_type_2 = ds_ecosystems %>%
+    filter(ecosystem_type == ecosystem_type_2) %>%
+    pull(ecosystem_ID) %>%
+    unique()
+  
+  # Create dataset with sets of unconnected meta-ecosystems and their information.
+  
+  two_ecosystem_unconnected_sets <- data.frame(
+    metaecosystem_type = metaecosystem_type_i,
+    connection = "unconnected",
+    
+    # To create combinations of ecosystem 1 and 2, repeat the IDs of the ecosystem type 1 for as many times as the permutations of ecosystem type 2
+    
+    ID_first_ecosystem = rep(ID_ecosystem_type_1, 
+                             times = length(permn(ID_ecosystem_type_2))),
+    
+    # To create combinations of ecosystem 1 and 2, permute the IDs of the ecosystem type 2
+    
+    ID_second_ecosystem = unlist(flatten(permn(ID_ecosystem_type_2))),
+    
+    # To have each set of unconnected meta-ecosystems to have a number, repeat the IDs of the ecosystem type ... for the number of ecosystem IDs of the ecosystem type ... (WARNING: this might be done differently in other datasets according to whether you are taking off some ecosystems).
+    
+    set = rep(1 : length(permn(ID_ecosystem_type_2)), 
+              each = length(ID_ecosystem_type_1))) %>%
+    
+    # To don't have problematic ecosystems, take them off (in our ecosystems we don't have to take them off though). 
+    
+    filter(!ID_first_ecosystem %in% ecosystems_to_take_off,
+           !ID_second_ecosystem %in% ecosystems_to_take_off) %>%
+    
+    # To include other information for each unconnected metaecosystem, join with ecosystem_combinations.
+    
+    full_join(ecosystem_combinations %>%
+              filter(metaecosystem_type == metaecosystem_type_i))
+  
+  return(two_ecosystem_unconnected_sets)
+  
+}
+```
+
+```{r}
+
+## - (2) Find the combination sets for HD, ED, and AD unconnected meta-ecosystems. - ##
+
+unconnected_combinations_sets = rbind(
+  create.unconnected.sets(metaecosystem_type_i = "small unconnected (s)",
+                           ecosystem_type_1 = "small heterotrophic unconnected (s)",
+                           ecosystem_type_2 = "small autotrophic unconnected (s)"),
+  create.unconnected.sets(metaecosystem_type_i = "small-medium unconnected (s)",
+                           ecosystem_type_1 = "small-medium heterotrophic unconnected (s)",
+                           ecosystem_type_2 = "small-medium autotrophic unconnected (s)"),
+  create.unconnected.sets(metaecosystem_type_i = "medium-large unconnected (s)",
+                           ecosystem_type_1 = "medium-large heterotrophic unconnected (s)",
+                           ecosystem_type_2 = "medium-large autotrophic unconnected (s)"),
+  create.unconnected.sets(metaecosystem_type_i = "large unconnected (s)",
+                           ecosystem_type_1 = "large heterotrophic unconnected (s)",
+                           ecosystem_type_2 = "large autotrophic unconnected (s)"),
+  create.unconnected.sets(metaecosystem_type_i = "small unconnected (s*d)",
+                           ecosystem_type_1 = "small heterotrophic unconnected (s*d)",
+                           ecosystem_type_2 = "small autotrophic unconnected (s*d)"),
+  create.unconnected.sets(metaecosystem_type_i = "small-medium unconnected (s*d)",
+                           ecosystem_type_1 = "small-medium heterotrophic unconnected (s*d)",
+                           ecosystem_type_2 = "small-medium autotrophic unconnected (s*d)"),
+  create.unconnected.sets(metaecosystem_type_i = "medium-large unconnected (s*d)",
+                           ecosystem_type_1 = "medium-large heterotrophic unconnected (s*d)",
+                           ecosystem_type_2 = "medium-large autotrophic unconnected (s*d)"),
+  create.unconnected.sets(metaecosystem_type_i = "large unconnected (s*d)",
+                           ecosystem_type_1 = "large heterotrophic unconnected (s*d)",
+                           ecosystem_type_2 = "large autotrophic unconnected (s*d)"))
+```
+
+```{r eval = FALSE}
+
+## - (3) Find the sets of sets in which you combine all three HD, ED, and AD unconnected meta-ecosystems (sets_of_sets). - ##
+
+# sets_of_sets = expand.grid(autotrophic_dominated_set_n = unconnected_combinations_sets %>%
+#                              filter(metaecosystem_type == "AD unconnected") %>%
+#                              pull(set) %>%
+#                              unique(),
+#                            heterotrophic_dominated_set_n = unconnected_combinations_sets %>%
+#                              filter(metaecosystem_type == "HD unconnected") %>%
+#                              pull(set) %>%
+#                              unique(),
+#                            equally_dominated_set_n = unconnected_combinations_sets %>%
+#                              filter(metaecosystem_type == "ED unconnected") %>%
+#                              pull(set) %>%
+#                              unique())
+```
