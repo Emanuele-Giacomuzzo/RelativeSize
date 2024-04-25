@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-In our experiment, we manipulated meta-ecosystems consisting of autotrophic and heterotrophic patches, varying the relative size of these patches (referred to as meta-ecosystem types AD, ED, and HD) and their connectivity (unconnected versus connected). Now, we want to know whether, at the local ecosystem level, the connectivity of the ecosystem interacted with ecosystem size to affect this specific response variable. Essentially, we are interested in understanding if ecosystem size modulated the impact of spatial feedback locally. To begin, we plot how this response variable varied across different treatments throughout the experiment, represented by mean values with a 95% confidence interval.
+In our experiment, we manipulated meta-ecosystems consisting of autotrophic and heterotrophic patches, varying meta-ecosystem size and their connectivity (unconnected versus connected). Now, we want to know whether, at the local ecosystem level, the connectivity of the ecosystem interacted with ecosystem size to affect this specific response variable. Essentially, we are interested in understanding if ecosystem size modulated the impact of spatial feedback locally. To begin, we plot how this response variable varied across different treatments throughout the experiment, represented by mean values with a 95% confidence interval.
 
 ```{r}
 plot.ecosystems.points(ds_ecosystems,

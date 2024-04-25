@@ -124,6 +124,9 @@ response_variable = "total_metaecosystem_bioarea_mm2"
 response_variable = "bioarea_mm2_per_ml"
 ```
 
+```{r child = here("r_files", "ecosystems.Rmd")}
+```
+
 #### Shannon
 
 ```{r}
