@@ -25,11 +25,20 @@ cd /Users/ema/Documents/GitHub/RelativeSize/r_files/functions
 sed -i '' 's/old_string/new_string/g' *.R
 ```
 
-you want to share a dataset and get a reproducible object, use the following R code:
+If you want to share a dataset and get a reproducible object, use the following R code:
 
 ```{r eval = FALSE}
 dput()
 ```
+
+If you want to create a hidden section:
+
+```{r eval = FALSE}
+<details>
+<summary>Click here to .../summary>
+</details>
+```
+
 
 Save files to calculate the effect size of meta-ecosystems. 
 

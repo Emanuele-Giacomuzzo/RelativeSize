@@ -2,9 +2,6 @@ plot.metaecos.points = function(data,
                                 response_variable,
                                 legend_rows = 4) {
   
-  metaecosystem_type_i = unique(ds_metaecosystems$metaecosystem_type)
-  metaecosystem_type_i = metaecosystem_type_i[order(match(metaecosystem_type_i,
-                                                          metaecosystem_types_ordered))]
   data %>%
     filter(!is.na(!!sym(response_variable))) %>%
     summarySE(measurevar = response_variable,
@@ -29,8 +26,8 @@ plot.metaecos.points = function(data,
     labs(x = axis_names$axis_name[axis_names$variable == "day"],
          y = axis_names$axis_name[axis_names$variable == response_variable],
          color = "") +
-    scale_linetype_manual(values = scale_linetype) +
-    scale_color_manual(values = colours) +
+    scale_linetype_manual(values = treatment_linetypes) +
+    scale_color_manual(values = treatment_colours) +
     geom_vline(xintercept = resource_flow_days,
                linetype = resource_flow_line_type,
                color = resource_flow_line_colour,
@@ -43,6 +40,13 @@ plot.metaecos.points = function(data,
     guides(color = guide_legend(title = NULL,
                                 nrow = legend_rows),
            linetype = guide_legend(title = NULL,
-                                   nrow = legend_rows))
+                                   nrow = legend_rows)) +
+    geom_rect(xmin = grey_background_xmin, 
+              xmax = grey_background_xmax,
+              ymin = grey_background_ymin, 
+              ymax = grey_background_ymax, 
+              fill = grey_background_fill, 
+              alpha = grey_background_alpha,
+              color = grey_background_color)
   
 }

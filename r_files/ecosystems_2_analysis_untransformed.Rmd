@@ -1,0 +1,103 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-04-29"
+---
+
+##### Untransformed data 
+
+ <br>
+
+Following this initial inspection, we proceed to analyse differences among ecosystems. Our first step involves filtering the data to isolate the relevant data for analysis. Specifically, we exclude data points where the response variable couldn't be computed, as well as time points preceding the initial disturbance and resource flow. Then we plot the data to make sure that what filtered the data in the right way.
+
+```{r}
+filtered_data = ds_ecosystems %>%
+  filter(trophic_type == trophy_selected,
+         time_point >= first_time_point_model,
+         time_point <= last_time_point_model,!is.na(!!sym(response_variable))) %>%
+  mutate(ecosystem_ID = as.character(ecosystem_ID))
+```
+
+```{r fig.height = figures_height_rmd_output}
+ggarrange(plot.ecosystems.points(filtered_data %>% filter(size_effects == "s"),
+                                 trophy_selected,
+                                 response_variable,
+                                 legend_row_n_input = 4) +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank()) +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis),
+          NULL,
+          plot.ecosystems.points(filtered_data %>% filter(size_effects == "s*d"),
+                                 trophy_selected,
+                                 response_variable,
+                                 legend_row_n_input = 4) +
+            font("legend.text", size = size_legend) +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none"),
+          heights = c(1, 0.1, 0.8),
+          nrow = 3,
+          align = "v",
+          labels = c("Size effects", "", "Size * disturbance effects"),
+          label.x = c(0, 0, -0.083),
+          label.y = c(0.785, 0, 1.06))
+```
+
+<details>
+
+<summary>Click here to view the same data represented through the single replicates</summary>
+
+```{r fig.height = figures_height_rmd_output}
+"Size effects"
+plot.ecosystems.replicates.one.by.one(filtered_data %>% filter(size_effects == "s"),
+                                      response_variable)
+
+"Size * Disturbance effects"
+plot.ecosystems.replicates.one.by.one(filtered_data %>% filter(size_effects == "s*d"),
+                                      response_variable)
+```
+
+</details>
+
+ <br>
+
+Then, we develop a mixed effect model (`model`) with lmerTest (Kuznetsova et al., 2017) to examine how the interaction between ecosystem size and connectivity influences the response variable, treating ecosystem ID and time as random effects (**Response variable \~ size \* connection + (1 \| ecosystem_ID) + (1 \| day)**, see [this link](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf) for how to code). In this model we don't use a Restricted Maximum Likelihood (REML) because, while REML is robust to missing data, it may not perform well with very small sample sizes, especially when the number of random effects is large relative to the number of observations (ChatGPT). After having created the model, we show its summary and plot its residuals. The summary of the model allows us to look at the random effects, as well as differences among levels calculated using a t-test that employs Satterthwaite's method to estimate the degrees of freedom for the two groups. This method is conservative in order to prevent false positives (Li & Redden, 2015). An alternative method that could be used is the Kenward-Roger's method, however, it is expected to perform similarly. Because the model utilises Satterthwaite's method, it should entail a Welch t-test (according to information gleaned from [this Wikipedia page](https://en.wikipedia.org/wiki/Welch%E2%80%93Satterthwaite_equation)), which does not assume equal variance in the two groups. There is no option in this package to alter the type of t-test. These p-values are calculated by examining whether the slope of the response variable against the predictor variable differs significantly from zero.
+
+```{r}
+
+## - Create mixed effect model - ##
+
+# In the ouput lmerModLmerTest which means that it's a Linear Mixed Model from the lmerTest package
+
+model = lmer(
+   get(response_variable) ~
+     size * conn * size_effects +
+     (1 | ecosystem_ID) +
+     (1 | day),
+   data = filtered_data %>% mutate(conn = factor(x = ifelse(connection == "connected", 
+                                                                  "con", 
+                                                                  "unconnected"),
+                                                       levels = c("unconnected", "con"))),
+   REML = FALSE,
+   control = lmerControl(optimizer = "Nelder_Mead"))
+```
+
+```{r}
+
+## - Plot residuals of the model -- ##
+
+qqnorm(resid(model))
+
+create.res.vs.fit.ecosystems(model,
+                             filtered_data)
+```
+
+```{r}
+
+## - Show summary of the model -- ##
+
+print(summary(model), digits = 3)
+```

@@ -1,0 +1,101 @@
+---
+title: "Isolated Autotrophic Relative - Biomass"
+output: html_document
+date: "2023-02-07"
+editor_options: 
+  chunk_output_type: console
+---
+
+#### Biomass {.tabset .tabset-dropdown}
+
+In the experiment we studied two-patch meta-ecosystems in which we manipulated the size of their patches and their connection (unconnected vs connected). Now, we want to know whether meta-ecosystem size influenced the effects of connection on this response variable. Therefore, we start by looking at how this response variable changed across time for all meta-ecosystems through its mean ± 95 confidence interval:
+
+```{r fig.height = figures_height_rmd_output}
+ggarrange(plot.metaecos.points(ds_metaecosystems %>% filter(size_effects == "s"),
+                               response_variable)  +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank()) +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis),
+          NULL,
+          plot.metaecos.points(ds_metaecosystems %>% filter(size_effects == "s*d"),
+                               response_variable)  +
+            font("legend.text", size = size_legend) +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none"),
+          heights = c(1, 0.1, 0.8),
+          nrow = 3,
+          align = "v",
+          labels = c("Size effects", "", "Size * disturbance effects"),
+          label.x = c(0.03, 0, -0.055),
+          label.y = c(0.745, 0, 1.06))
+```
+
+<details>
+
+<summary>Click here to view the same data represented through the single replicates</summary>
+
+```{r fig.height = figures_height_rmd_output}
+ggarrange(plot.metaecos.replicates(ds_metaecosystems %>% filter(size_effects == "s"),
+                                   response_variable)  +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank()) +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis),
+          NULL,
+          plot.metaecos.replicates(ds_metaecosystems %>% filter(size_effects == "s*d"),
+                                   response_variable) + 
+            font("legend.text", size = size_legend) +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none"),
+          heights = c(0.9, 0.1, 0.9),
+          nrow = 3,
+          align = "v",
+          labels = c("Size effects", "", "Size * disturbance effects"),
+          label.x = c(0.03, 0, -0.055),
+          label.y = c(0.915, 0, 1.06))
+```
+
+</details>
+
+<details>
+
+<summary>Click here to view the same data represented through effect sizes</summary>
+
+```{r fig.height = figures_height_rmd_output}
+ggarrange(plot.metaecos.points.ES(ds_metaecos_es %>% filter(str_detect(system_type, "\\(s\\)")),
+                                  paste0(response_variable, "_d")) +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank()) +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis),
+          NULL,
+          plot.metaecos.points.ES(ds_metaecos_es %>% filter(str_detect(system_type, "\\(s\\*d\\)")),
+                                  paste0(response_variable, "_d")) +
+            font("legend.text", size = size_legend) +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none"),
+          heights = c(1, 0.1, 0.8),
+          nrow = 3,
+          align = "v",
+          labels = c("Size effects", "", "Size * disturbance effects"),
+          label.x = c(0.01, 0, -0.085),
+          label.y = c(0.915, 0, 1.06))
+```
+
+</details>
+
+<br>
+
+
+
+

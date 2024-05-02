@@ -51,9 +51,10 @@ ds_ecosystems = ds_ecosystems_13 %>%
          across(all_of(protist_species_indiv_per_ml), 
                 ~ (.x / total_indiv_per_ml_combined_thresholds) * 100, .names = "{.col}_dominance"),
          across(all_of(protist_species_bioarea_mm2_per_ml), 
-                ~ (.x / bioarea_mm2_per_ml_combined_thresholds) * 100, .names = "{.col}_dominance")) %>%
-  mutate(log10_bioarea_mm2_per_ml = log10(bioarea_mm2_per_ml),
+                ~ (.x / bioarea_mm2_per_ml_combined_thresholds) * 100, .names = "{.col}_dominance"),
+         log10_bioarea_mm2_per_ml = log10(bioarea_mm2_per_ml),
          ln_bioarea_mm2_per_ml = log(bioarea_mm2_per_ml),
          sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
-         cbrt_bioarea_mm2_per_ml = bioarea_mm2_per_ml^(1/3))
+         cbrt_bioarea_mm2_per_ml = bioarea_mm2_per_ml^(1/3)) %>%
+  rename(size = ecosystem_size)
 ```

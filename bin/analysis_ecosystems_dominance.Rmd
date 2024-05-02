@@ -1,0 +1,117 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-04-26"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+
+# To be able to plot dominance for multiple species, get their mean, upper boundary, and lower boundary in a long format. 
+
+dominances_mean = ds_ecosystems %>%
+  group_by(day, time_point, ecosystem_type) %>%
+  reframe(Ble = mean(Ble_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Cep = mean(Cep_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Col = mean(Col_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Eug = mean(Eug_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Eup = mean(Eup_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Lox = mean(Lox_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Pau = mean(Pau_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Pca = mean(Pca_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Spi = mean(Spi_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Spi_te = mean(Spi_te_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
+          Tet = mean(Tet_bioarea_mm2_per_ml_dominance, na.rm = TRUE)) %>%
+  pivot_longer(cols = -c("day", "time_point", "ecosystem_type"), 
+               names_to = "species", 
+               values_to = "mean_dominance")
+
+dominances_lower = ds_ecosystems %>%
+  group_by(day, time_point, ecosystem_type) %>%
+  reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Eug = quantile(Eug_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Eup = quantile(Eup_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Lox = quantile(Lox_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Pau = quantile(Pau_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Pca = quantile(Pca_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Spi = quantile(Spi_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Spi_te = quantile(Spi_te_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
+          Tet = quantile(Tet_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE)) %>%
+  pivot_longer(cols = -c("day", "time_point", "ecosystem_type"), 
+               names_to = "species", 
+               values_to = "lower_95_CI")
+
+dominances_upper = ds_ecosystems %>%
+  group_by(day, time_point, ecosystem_type) %>%
+  reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Eug = quantile(Eug_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Eup = quantile(Eup_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Lox = quantile(Lox_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Pau = quantile(Pau_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Pca = quantile(Pca_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Spi = quantile(Spi_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Spi_te = quantile(Spi_te_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
+          Tet = quantile(Tet_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE)) %>%
+  pivot_longer(cols = -c("day", "time_point", "ecosystem_type"), 
+               names_to = "species", 
+               values_to = "upper_95_CI")
+
+dominances_with_CI = reduce(list(dominances_mean, 
+                                 dominances_lower,
+                                 dominances_upper),
+                            full_join,
+                            by = NULL)
+```
+
+```{r}
+
+# To be able to plot dominance for multiple species, get the effect sizes, their upper boundary, and their lower boundary in a long format. 
+
+filtered_data = ds_ecosystems_effect_size %>%
+  ungroup() %>%
+  filter(connection == "connected",
+         trophic_type == "heterotrophic") %>%
+  filter(time_point > 1) %>%
+
+# To have a cleaner dataset that is easier to look at, select only the columns of the time point, ecosystem type, and protist species dominance (w/ CI). 
+
+  select(time_point, 
+         ecosystem_type, 
+         paste0(protist_species_dominance, "_d"),
+         paste0(protist_species_dominance, "_d_upper"),
+         paste0(protist_species_dominance, "_d_lower")) 
+
+effect_sizes = filtered_data %>%
+  pivot_longer(cols = ends_with("dominance_d"), 
+               names_to = "species", 
+               values_to = "effect_size") %>%
+  select(time_point,
+         ecosystem_type,
+         species,
+         effect_size)
+
+effect_sizes_upper = filtered_data %>%
+  pivot_longer(cols = ends_with("dominance_d_upper"), 
+               names_to = "species", 
+               values_to = "upper_95_CI") %>%
+  select(upper_95_CI)
+
+effect_sizes_lower = filtered_data %>%
+  pivot_longer(cols = ends_with("dominance_d_lower"), 
+               names_to = "species", 
+               values_to = "lower_95_CI") %>%
+  select(lower_95_CI)
+
+ds_species_effect_sizes_d = cbind(effect_sizes, effect_sizes_upper, effect_sizes_lower) %>%
+  mutate(species = str_remove(species, "_bioarea_mm2_per_ml_dominance_d")) %>%
+
+# To understand if there is an effect on size distribution, plot the effects of connection on dominance by disposing species smallest to largest. 
+
+  mutate(species = factor(x = species, 
+                          levels = c("Tet", "Col", "Eup", "Pau", "Cep", "Lox", "Pca", "Spi_te", "Ble", "Spi")))
+```

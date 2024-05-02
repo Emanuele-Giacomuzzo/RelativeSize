@@ -1,0 +1,124 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-11-28"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+for(time_point_i in 2:4){
+    
+    print(paste("Time point ", time_point_i))
+    
+    p = ds_species_effect_sizes_d %>%
+      filter(ecosystem_type == "S-H connected (s)",
+             time_point == time_point_i,
+             species != "Eug") %>%
+      ggplot(aes(x = species,
+                 y = effect_size)) + 
+      geom_pointrange(aes(ymin = lower_95_CI, ymax = upper_95_CI)) + 
+      geom_hline(yintercept = 0, linetype = "dotted") +
+      theme_bw() +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = legend_position,
+            legend.key.width = unit(legend_width_cm, "cm"))
+    
+    print(p)
+    
+  }
+```
+
+###### SM ecosystems
+
+```{r class.source = 'fold-show'}
+print_dominance_LRR("SM-H connected (s)")
+print_dominance_LRR("SM-H unconnected (s)")
+```
+
+```{r}
+for(time_point_i in 2:4){
+    
+    print(paste("Time point ", time_point_i))
+    
+    p = ds_species_effect_sizes_d %>%
+      filter(ecosystem_type == "SM-H connected (s)",
+             time_point == time_point_i,
+             species != "Eug") %>%
+      ggplot(aes(x = species,
+                 y = effect_size)) + 
+      geom_pointrange(aes(ymin = lower_95_CI, ymax = upper_95_CI)) + 
+      geom_hline(yintercept = 0, linetype = "dotted") +
+      theme_bw() +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = legend_position,
+            legend.key.width = unit(legend_width_cm, "cm"))
+    
+    print(p)
+    
+  }
+```
+
+###### ML ecosystems
+
+```{r class.source = 'fold-show'}
+print_dominance_LRR("ML-H connected (s)")
+print_dominance_LRR("ML-H unconnected (s)")
+```
+
+```{r}
+for(time_point_i in 2:4){
+    
+    print(paste("Time point ", time_point_i))
+    
+    p = ds_species_effect_sizes_d %>%
+      filter(ecosystem_type == "ML-H connected (s)",
+             time_point == time_point_i,
+             species != "Eug") %>%
+      ggplot(aes(x = species,
+                 y = effect_size)) + 
+      geom_pointrange(aes(ymin = lower_95_CI, ymax = upper_95_CI)) + 
+      geom_hline(yintercept = 0, linetype = "dotted") +
+      theme_bw() +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = legend_position,
+            legend.key.width = unit(legend_width_cm, "cm"))
+    
+    print(p)
+    
+  }
+```
+
+###### L ecosystems
+
+```{r class.source = 'fold-show'}
+print_dominance_LRR("L-H connected (s)")
+print_dominance_LRR("L-H unconnected (s)")
+```
+
+```{r}
+for(time_point_i in 2:4){
+    
+    print(paste("Time point ", time_point_i))
+    
+    p = ds_species_effect_sizes_d %>%
+      filter(ecosystem_type == "L-H connected (s)",
+             time_point == time_point_i,
+             species != "Eug") %>%
+      ggplot(aes(x = species,
+                 y = effect_size)) + 
+      geom_pointrange(aes(ymin = lower_95_CI, ymax = upper_95_CI)) + 
+      geom_hline(yintercept = 0, linetype = "dotted") +
+      theme_bw() +
+      theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            legend.position = legend_position,
+            legend.key.width = unit(legend_width_cm, "cm"))
+    
+    print(p)
+    
+  }
+```

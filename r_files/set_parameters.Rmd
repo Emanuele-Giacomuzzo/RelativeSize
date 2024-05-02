@@ -88,8 +88,8 @@ protist_species_indiv_per_ml = paste0(protist_species, "_indiv_per_ml")
 protist_species_bioarea_mm2_per_ml = paste0(protist_species, "_bioarea_mm2_per_ml")
 protist_species_dominance = paste0(protist_species_bioarea_mm2_per_ml, "_dominance")
 
-species_IDD_with_13_threshold = c("Col", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
-species_IDD_with_40_threshold = c("Ble", "Cep", "Spi")
+species_IDD_with_13_threshold = c("Col", "Cep", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
+species_IDD_with_40_threshold = c("Ble", "Spi")
 
 #Old
 # protist_species_hetero = c("Ble", "Cep", "Col", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
@@ -427,7 +427,7 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "day", axis_name = "Time (day)") %>%
   add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem size (ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml", axis_name = "Bioarea Density (mm²/ml)") %>%
-  add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Bioarea Density ES") %>%
+  add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Bioarea Density ES (Hedge's d)") %>%
   add_row(variable = "bioarea_tot", axis_name = "Tot Bioarea (mm²)") %>%
   add_row(variable = "species_richness", axis_name = "Species Richness") %>%
   add_row(variable = "species_richness_d", axis_name = "Species Richness ES") %>%
@@ -489,138 +489,62 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "median_body_area_µm2", axis_name = "Median body size (µm²)") %>%
   add_row(variable = "median_body_area_µm2_d", axis_name = "Median Body Size ES") %>%
   add_row(variable = "beta_diversity_from_unconnected", axis_name = "Divergence from unconnected") %>%
+  
   add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Tot Bioarea (mm²)") %>%
+  add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Tot Bioarea ES (Hedge's d)") %>%
   add_row(variable = "mean_richness", axis_name = "α Diversity") %>%
   add_row(variable = "mean_shannon", axis_name = "α Diversity") %>%
   add_row(variable = "bray_curtis", axis_name = "β Diversity") %>%
   add_row(variable = "metaecosystem_richness", axis_name = "γ Diversity") %>%
-  slice(-1)
-
-parameters_treatments = data.frame(treatment = NA,
-                                   colour = NA,
-                                   linetype = NA) %>%
-  add_row(treatment = "S-A connected (s*d)", colour = "#ccece6", linetype = "solid") %>% 
-  add_row(treatment = "SM-A connected (s*d)", colour = "#b2e2e2", linetype = "solid") %>%
-  add_row(treatment = "ML-A connected (s*d)", colour = "#66c2a4", linetype = "solid") %>%
-  add_row(treatment = "L-A connected (s*d)", colour = "#238b45", linetype = "solid") %>%
-  add_row(treatment = "S-H connected (s*d)", colour = "#eff3ff", linetype = "solid") %>%
-  add_row(treatment = "SM-H connected (s*d)" , colour = "#bdd7e7", linetype = "solid") %>%
-  add_row(treatment = "ML-H connected (s*d)", colour = "#6baed6", linetype = "solid") %>%
-  add_row(treatment = "L-H connected (s*d)", colour = "#2171b5", linetype = "solid") %>%
-  add_row(treatment = "S-A connected (s)", colour = "#ccece6", linetype = "solid") %>% 
-  add_row(treatment = "SM-A connected (s)", colour = "#b2e2e2", linetype = "solid") %>%
-  add_row(treatment = "ML-A connected (s)", colour = "#66c2a4", linetype = "solid") %>%
-  add_row(treatment = "L-A connected (s)", colour = "#238b45", linetype = "solid") %>%
-  add_row(treatment = "S-H connected (s)", colour = "#eff3ff", linetype = "solid") %>%
-  add_row(treatment = "SM-H connected (s)" , colour = "#bdd7e7", linetype = "solid") %>%
-  add_row(treatment = "ML-H connected (s)", colour = "#6baed6", linetype = "solid") %>%
-  add_row(treatment = "L-H connected (s)", colour = "#2171b5", linetype = "solid") %>%
-  add_row(treatment = "S-A unconnected (s*d)", colour = "#ccece6", linetype = "longdash") %>% 
-  add_row(treatment = "SM-A unconnected (s*d)", colour = "#b2e2e2", linetype = "longdash") %>%
-  add_row(treatment = "ML-A unconnected (s*d)", colour = "#66c2a4", linetype = "longdash") %>%
-  add_row(treatment = "L-A unconnected (s*d)", colour = "#238b45", linetype = "longdash") %>%
-  add_row(treatment = "S-H unconnected (s*d)", colour = "#eff3ff", linetype = "longdash") %>%
-  add_row(treatment = "SM-H unconnected (s*d)" , colour = "#bdd7e7", linetype = "longdash") %>%
-  add_row(treatment = "ML-H unconnected (s*d)", colour = "#6baed6", linetype = "longdash") %>%
-  add_row(treatment = "L-H unconnected (s*d)", colour = "#2171b5", linetype = "longdash") %>%
-  add_row(treatment = "S-A unconnected (s)", colour = "#ccece6", linetype = "longdash") %>% 
-  add_row(treatment = "SM-A unconnected (s)", colour = "#b2e2e2", linetype = "longdash") %>%
-  add_row(treatment = "ML-A unconnected (s)", colour = "#66c2a4", linetype = "longdash") %>%
-  add_row(treatment = "L-A unconnected (s)", colour = "#238b45", linetype = "longdash") %>%
-  add_row(treatment = "S-H unconnected (s)", colour = "#eff3ff", linetype = "longdash") %>%
-  add_row(treatment = "SM-H unconnected (s)" , colour = "#bdd7e7", linetype = "longdash") %>%
-  add_row(treatment = "ML-H unconnected (s)", colour = "#6baed6", linetype = "longdash") %>%
-  add_row(treatment = "L-H unconnected (s)", colour = "#2171b5", linetype = "longdash") %>%
   
-  add_row(treatment = "S connected (s)", colour = "#ffffb2", linetype = "solid") %>%
-  add_row(treatment = "SM connected (s)", colour = "#fecc5c", linetype = "solid") %>%
-  add_row(treatment = "ML connected (s)", colour = "#fd8d3c", linetype = "solid") %>%
-  add_row(treatment = "L connected (s)", colour = "#e31a1c", linetype = "solid") %>%
-  
-  add_row(treatment = "S unconnected (s)", colour = "#ffffb2", linetype = "longdash") %>%
-  add_row(treatment = "SM unconnected (s)", colour = "#fecc5c", linetype = "longdash") %>%
-  add_row(treatment = "ML unconnected (s)", colour = "#fd8d3c", linetype = "longdash") %>%
-  add_row(treatment = "L unconnected (s)", colour = "#e31a1c", linetype = "longdash") %>%
-  
-  add_row(treatment = "S connected (s*d)", colour = "#ffffb2", linetype = "solid") %>%
-  add_row(treatment = "SM connected (s*d)", colour = "#fecc5c", linetype = "solid") %>%
-  add_row(treatment = "ML connected (s*d)", colour = "#fd8d3c", linetype = "solid") %>%
-  add_row(treatment = "L connected (s*d)", colour = "#e31a1c", linetype = "solid") %>%
-  
-  add_row(treatment = "S unconnected (s*d)", colour = "#ffffb2", linetype = "longdash") %>%
-  add_row(treatment = "SM unconnected (s*d)", colour = "#fecc5c", linetype = "longdash") %>%
-  add_row(treatment = "ML unconnected (s*d)", colour = "#fd8d3c", linetype = "longdash") %>%
-  add_row(treatment = "L unconnected (s*d)", colour = "#e31a1c", linetype = "longdash") %>%
   slice(-1)
 ```
 
 ```{r}
-colours = c("S" = "#ffffb2", 
-           "S-medium" = "#fecc5c", 
-           "ML" = "#fd8d3c", 
-           "L" = "#e31a1c",
-           "S-A connected (s*d)" = "#ccece6",
-           "SM-A connected (s*d)" = "#b2e2e2",
-           "ML-A connected (s*d)" = "#66c2a4",
-           "L-A connected (s*d)" = "#238b45",
-           "S-H connected (s*d)" = "#eff3ff",
-           "SM-H connected (s*d)"  = "#bdd7e7",
-           "ML-H connected (s*d)" = "#6baed6",
-           "L-H connected (s*d)" = "#2171b5",
-           "S-A connected (s)" = "#ccece6",
-           "SM-A connected (s)" = "#b2e2e2",
-           "ML-A connected (s)" = "#66c2a4",
-           "L-A connected (s)" = "#238b45",
-           "S-H connected (s)" = "#eff3ff",
-           "SM-H connected (s)"  = "#bdd7e7",
-           "ML-H connected (s)" = "#6baed6",
-           "L-H connected (s)" = "#2171b5",
-           "S-A unconnected (s*d)" = "#ccece6",
-           "SM-A unconnected (s*d)" = "#b2e2e2",
-           "ML-A unconnected (s*d)" = "#66c2a4",
-           "L-A unconnected (s*d)" = "#238b45",
-           "S-H unconnected (s*d)" = "#eff3ff",
-           "SM-H unconnected (s*d)"  = "#bdd7e7",
-           "ML-H unconnected (s*d)" = "#6baed6",
-           "L-H unconnected (s*d)" = "#2171b5",
-           "S-A unconnected (s)" = "#ccece6",
-           "SM-A unconnected (s)" = "#b2e2e2",
-           "ML-A unconnected (s)" = "#66c2a4",
-           "L-A unconnected (s)" = "#238b45",
-           "S-H unconnected (s)" = "#eff3ff",
-           "SM-H unconnected (s)"  = "#bdd7e7",
-           "ML-H unconnected (s)" = "#6baed6",
-           "L-H unconnected (s)" = "#2171b5",
-           
-           "S connected (s)" = "#ffffb2",
-           "SM connected (s)" = "#fecc5c",
-           "ML connected (s)" = "#fd8d3c",
-           "L connected (s)" = "#e31a1c",
-           
-           "S unconnected (s)" = "#ffffb2",
-           "SM unconnected (s)" = "#fecc5c",
-           "ML unconnected (s)" = "#fd8d3c",
-           "L unconnected (s)" = "#e31a1c",
-           
-           "S connected (s*d)" = "#ffffb2",
-           "SM connected (s*d)" = "#fecc5c",
-           "ML connected (s*d)" = "#fd8d3c",
-           "L connected (s*d)" = "#e31a1c",
-           
-           "S unconnected (s*d)" = "#ffffb2",
-           "SM unconnected (s*d)" = "#fecc5c",
-           "ML unconnected (s*d)" = "#fd8d3c",
-           "L unconnected (s*d)" = "#e31a1c")
+treatment_colours = c("S" = "#ffffb2",
+                      "SM" = "#fecc5c",
+                      "ML" = "#fd8d3c",
+                      "L" = "#e31a1c",
+                      
+                      "S connected (s)" = "#ffffb2",
+                      "SM connected (s)" = "#fecc5c",
+                      "ML connected (s)" = "#fd8d3c",
+                      "L connected (s)" = "#e31a1c",
+                      
+                      "S unconnected (s)" = "#ffffb2",
+                      "SM unconnected (s)" = "#fecc5c",
+                      "ML unconnected (s)" = "#fd8d3c",
+                      "L unconnected (s)" = "#e31a1c",
+                      
+                      "S connected (s*d)" = "#ffffb2",
+                      "SM connected (s*d)" = "#fecc5c",
+                      "ML connected (s*d)" = "#fd8d3c",
+                      "L connected (s*d)" = "#e31a1c",
+                      
+                      "S unconnected (s*d)" = "#ffffb2",
+                      "SM unconnected (s*d)" = "#fecc5c",
+                      "ML unconnected (s*d)" = "#fd8d3c",
+                      "L unconnected (s*d)" = "#e31a1c",
+                      
+                      "S-A" = "#edf8fb",
+                      "SM-A" = "#b2e2e2",
+                      "ML-A" = "#66c2a4",
+                      "L-A" = "#238b45",
+                      
+                      "S-H" = "#eff3ff",
+                      "SM-H" = "#bdd7e7",
+                      "ML-H" = "#6baed6",
+                      "L-H" = "#2171b5")
 
-scale_linetype = c("connected" = "solid",
-                   "unconnected" = "longdash")
+treatment_linetypes = c("connected" = "solid",
+                        "unconnected" = "longdash")
 ```
 
 
 Parameters for plotting.
 
 ```{r}
-figures_height_rmd_output = 7
+figures_height_rmd_output = 8
 
 legend_position = "top"
 legend_width_cm = 2
@@ -668,7 +592,7 @@ presentation_figure_units = "cm"
 presentation_figure_res = 600
 
 grey_background_xmin = -Inf
-grey_background_xmax = 11.5
+grey_background_xmax = 7.5
 grey_background_ymin = -Inf
 grey_background_ymax = Inf
 grey_background_fill = "#f0f0f0"

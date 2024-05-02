@@ -100,8 +100,21 @@ confusion_matrix = cbind(confusion_matrix,
                                        rowSums(confusion_matrix)) %>%
   as.data.frame() %>%
   mutate(class_error_percentage = class_error * 100,
-         class_error = NULL) %>%
-  print()
+         class_error = NULL)
+
+if(threshold == 13){
+  
+  print(paste(paste(species_IDD_with_13_threshold, collapse = ", "),
+              "are identified with this threshold."))
+  
+  } else if (threshold == 40){
+  
+  print(paste(paste(species_IDD_with_40_threshold, collapse = ", "),
+              "are identified with this threshold."))
+                
+  }
+
+confusion_matrix
 ```
 
 ```{r}

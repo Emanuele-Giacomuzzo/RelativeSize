@@ -269,7 +269,7 @@ for (combination in 1 : nrow(ecosystem_combinations)) {
       group_by(time_point,
                day,
                metaecosystem_type,
-               ecosystem_size,
+               size,
                connection,
                size_effects) %>%
       summarise(total_metaecosystem_bioarea_mm2 = sum(bioarea_tot_mm2)) %>%
@@ -279,7 +279,7 @@ for (combination in 1 : nrow(ecosystem_combinations)) {
              
              system_nr = ecosystem_combinations[combination, ]$system_nr,
              ecosystems_combined = ecosystem_combinations[combination, ]$ecosystems_combined) %>%
-      rename(size = ecosystem_size) %>%
+      rename(size = size) %>%
       ungroup()
   }
 }

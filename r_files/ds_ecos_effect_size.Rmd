@@ -47,7 +47,9 @@ for (variable in 1:length(variables_ecosystems)) {
                              "day",
                              "ecosystem_type",
                              "connection",
-                             "ecosystem_size",
+                             "size",
+                             "size_effects",
+                             "ecosystem_size_and_trophy",
                              "trophic_type",
                              "metaecosystem_type")))) %>%
     summarise(across(all_of(variables_ecosystems[variable]),
@@ -70,7 +72,7 @@ ds_ecosystems_effect_size <- reduce(ds_ecosystems_effect_size,
                                            "day",
                                            "ecosystem_type",
                                            "connection",
-                                           "ecosystem_size",
+                                           "size",
                                            "trophic_type",
                                            "metaecosystem_type"))
 ```
@@ -169,11 +171,11 @@ However, Hedge's d because of how much it depends on the pooled spread of the tr
 
 # Initialise the effect size columns 
 
-for (variable in length(protist_species_dominance)) {
+for (variable in length(variables_ecosystems)) {
   ds_ecosystems_effect_size <- ds_ecosystems_effect_size %>%
-    mutate(!!paste0(protist_species_dominance[variable], "_LRR") := NA,
-           !!paste0(protist_species_dominance[variable], "_LRR_upper") := NA,
-           !!paste0(protist_species_dominance[variable], "_LRR_lower") := NA)
+    mutate(!!paste0(variables_ecosystems[variable], "_LRR") := NA,
+           !!paste0(variables_ecosystems[variable], "_LRR_upper") := NA,
+           !!paste0(variables_ecosystems[variable], "_LRR_lower") := NA)
 }
   
 row_n = 0
@@ -184,21 +186,21 @@ for (treatment in 1:nrow(ecosystem_treatments_and_controls)) {
     
   for (time_p in 0:(length(time_points)-1)) {
     
-      for (variable in 1:length(protist_species_dominance)) {
+      for (variable in 1:length(variables_ecosystems)) {
         
         row_n = row_n + 1
         
         treatment_values = ds_ecosystems %>%
           filter(ecosystem_type == ecosystem_treatments_and_controls$treatment[treatment],
                  time_point == time_points[time_p+1],
-                 !is.na(!!sym(protist_species_dominance[variable]))) %>%
-          pull(!!sym(protist_species_dominance[variable]))
+                 !is.na(!!sym(variables_ecosystems[variable]))) %>%
+          pull(!!sym(variables_ecosystems[variable]))
         
         control_values = ds_ecosystems %>%
           filter(ecosystem_type == ecosystem_treatments_and_controls$control[treatment],
                  time_point == time_points[time_p+1],
-                 !is.na(!!sym(protist_species_dominance[variable]))) %>%
-          pull(!!sym(protist_species_dominance[variable]))
+                 !is.na(!!sym(variables_ecosystems[variable]))) %>%
+          pull(!!sym(variables_ecosystems[variable]))
     
         # By default it corrects for small sample sizes and calculates 95 % CI.
         
@@ -206,21 +208,21 @@ for (treatment in 1:nrow(ecosystem_treatments_and_controls)) {
                           B_data = treatment_values, 
                           scale = "proportion")
         
-        ds_ecosystems_effect_size[[paste0(protist_species_dominance[variable], "_LRR")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_LRR")]][
           ds_ecosystems_effect_size$ecosystem_type ==
            ecosystem_treatments_and_controls$treatment[treatment] &
           ds_ecosystems_effect_size$time_point == 
            time_points[time_p+1]] =
           LRR_output$Est
         
-        ds_ecosystems_effect_size[[paste0(protist_species_dominance[variable], "_LRR_upper")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_LRR_upper")]][
           ds_ecosystems_effect_size$ecosystem_type ==
            ecosystem_treatments_and_controls$treatment[treatment] &
           ds_ecosystems_effect_size$time_point == 
            time_points[time_p+1]] =
           LRR_output$CI_upper
         
-        ds_ecosystems_effect_size[[paste0(protist_species_dominance[variable], "_LRR_lower")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_LRR_lower")]][
           ds_ecosystems_effect_size$ecosystem_type ==
            ecosystem_treatments_and_controls$treatment[treatment] &
           ds_ecosystems_effect_size$time_point == 

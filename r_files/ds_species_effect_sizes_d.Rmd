@@ -1,0 +1,53 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-04-26"
+---
+
+```{r}
+
+# To be able to plot dominance for multiple species, get the effect sizes, their upper boundary, and their lower boundary in a long format. 
+
+filtered_data = ds_ecosystems_effect_size %>%
+  ungroup() %>%
+  filter(connection == "connected",
+         trophic_type == "heterotrophic") %>%
+  filter(time_point > 1) %>%
+
+# To have a cleaner dataset that is easier to look at, select only the columns of the time point, ecosystem type, and protist species dominance (w/ CI). 
+
+  select(time_point, 
+         ecosystem_type, 
+         paste0(protist_species_dominance, "_d"),
+         paste0(protist_species_dominance, "_d_upper"),
+         paste0(protist_species_dominance, "_d_lower")) 
+
+ds_species_effect_sizes_d = filtered_data %>%
+  pivot_longer(cols = ends_with("dominance_d"), 
+               names_to = "species", 
+               values_to = "effect_size") %>%
+  select(time_point,
+         ecosystem_type,
+         species,
+         effect_size)
+
+ds_species_effect_sizes_d_upper = filtered_data %>%
+  pivot_longer(cols = ends_with("dominance_d_upper"), 
+               names_to = "species", 
+               values_to = "upper_95_CI") %>%
+  select(upper_95_CI)
+
+ds_species_effect_sizes_d_lower = filtered_data %>%
+  pivot_longer(cols = ends_with("dominance_d_lower"), 
+               names_to = "species", 
+               values_to = "lower_95_CI") %>%
+  select(lower_95_CI)
+
+ds_species_effect_sizes_d = cbind(ds_species_effect_sizes_d, ds_species_effect_sizes_d_upper, ds_species_effect_sizes_d_lower) %>%
+  mutate(species = str_remove(species, "_bioarea_mm2_per_ml_dominance_d")) %>%
+
+# To understand if there is an effect on size distribution, plot the effects of connection on dominance by disposing species smallest to largest. 
+
+  mutate(species = factor(x = species, 
+                          levels = c("Tet", "Col", "Eup", "Pau", "Cep", "Lox", "Pca", "Spi_te", "Ble", "Spi")))
+```

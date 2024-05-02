@@ -130,7 +130,11 @@ ds_individuals = ds_individuals %>%
                                  levels = c("S", 
                                             "SM",
                                             "ML",
-                                            "L")), 
+                                            "L")),
+        ecosystem_size_and_trophy = paste0(ecosystem_size,"-", ifelse(trophic_type == "autotrophic", "A", "H")),
+        
+        ecosystem_size_and_trophy = factor(ecosystem_size_and_trophy,
+                                           levels = c("S-H", "SM-H", "ML-H", "L-H", "S-A", "SM-A", "ML-A", "L-A")),
                                  
   # ...
   
@@ -144,9 +148,10 @@ ds_individuals = ds_individuals %>%
          metaecosystem_type, 
          ecosystem_ID, 
          ecosystem_type, 
-         trophic_type, 
          ecosystem_size, 
          ecosystem_size_ml,
+         trophic_type, 
+         ecosystem_size_and_trophy,
          connection,
          size_effects,
          bioarea_mm2,

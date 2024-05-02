@@ -6,10 +6,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-Here I want to get the effect size of the meta-ecosystem biomass. I run this code on 2023.11.24. I should redo it as I would like in this case to use the log response ratio, as there is no zero in the total biomass (the lowest biomass in the experiment was `r min(ds_metaecosystems$total_metaecosystem_bioarea_mm2)`.
 
 ```{r eval = FALSE}
-# I run this code on 2023.11.24
+# Here I want to get the effect size of the meta-ecosystem biomass. I run this code on 2023.11.24. I should redo it as I would like in this case to use the log response ratio, as there is no zero in the total biomass (the lowest biomass in the experiment was `r min(ds_metaecosystems$total_metaecosystem_bioarea_mm2)`. I run this code on 2023.11.24
 calculate.effect.sizes.metaecos = function() {
   
   for (metaeco_type in 1:length(treatments_and_controls_metaecos$treatment) {
@@ -94,5 +93,15 @@ calculate.effect.sizes.metaecos = function() {
 ```
 
 ```{r}
-ds_metaecos_es = read.csv(file = here("results", "calculations", "ds_metaecos_es.csv"))
+ds_metaecos_es = read.csv(file = here("results", "calculations", "ds_metaecos_es.csv")) %>%
+  rename(size = patch_size_ml) %>%
+  mutate(size = case_when(size == 6.43 ~ "S",
+                          size == 9.00 ~ "SM",
+                          size == 15.00 ~ "ML",
+                          size == 45.00 ~ "L",
+                          TRUE ~ NA_character_ ),
+         size = factor(size, levels = c("S", "SM", "ML", "L")),
+         size_effects = case_when(grepl("\\(s\\)", system_type) ~ "s",
+                                  grepl("\\(s\\*d\\)", system_type) ~ "s*d",
+                                  TRUE ~ NA_character_))
 ```

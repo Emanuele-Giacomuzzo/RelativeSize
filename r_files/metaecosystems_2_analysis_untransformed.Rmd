@@ -1,0 +1,85 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-04-29"
+---
+
+##### Untransformed data
+
+ <br>
+
+Following the initial inspection, we proceed to analyse statistical differences among meta-ecosystems. Our first step involves filtering the data to isolate the relevant data for analysis. Specifically, we exclude data points where the response variable couldn’t be computed, as well as time points preceding the initial disturbance and resource flow. Then we plot the data to make sure that data was filtered in the right way.
+
+```{r}
+filtered_data = ds_metaecosystems %>%
+  filter(time_point >= first_time_point_model,
+         time_point <= last_time_point_model,
+         !is.na(!!sym(response_variable)),
+         connection == "connected" | 
+          ecosystems_combined %in% unconnected_metaecosystems_selected)
+```
+
+```{r fig.height = figures_height_rmd_output}
+ggarrange(plot.metaecos.points(filtered_data %>% filter(size_effects == "s"),
+                               response_variable) +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank()) +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis),
+          NULL,
+          plot.metaecos.points(filtered_data %>% filter(size_effects == "s*d"),
+                               response_variable) +
+            font("legend.text", size = size_legend) +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none"),
+          heights = c(1, 0.1, 0.8),
+          nrow = 3,
+          align = "v",
+          labels = c("Size effects", "", "Size * disturbance effects"),
+          label.x = c(0.03, 0, -0.055),
+          label.y = c(0.745, 0, 1.06))
+```
+
+
+<br>
+
+Then, to examine how the interaction between meta-ecosystem type size connectivity influenced the response variable, we develop a mixed effect model (`full_model`) with lmerTest (Kuznetsova et al., 2017), treating system nr and time as random effects\
+(**Response variable \~ size \* connection * size effects + (1 \| system_nr) + (1 \| day)**, see [this link](https://cran.r-project.org/web/packages/lme4/vignettes/lmer.pdf) for how to code). In this model we don’t use a Restricted Maximum Likelihood (REML) because, while REML is robust to missing data, it may not perform well with very small sample sizes, especially when the number of random effects is large relative to the number of observations (ChatGPT). After having created the model, we show (i) the significance of the predictor variables through the summary of the model and (ii) the model residuals.
+
+Significance is tested by comparing their slope against zero using a t-test which employs the Satterthwaite’s method to estimate the degrees of freedom for the two groups (fixed variable slope and zero). This method is conservative in order to prevent false positives (Li & Redden, 2015). An alternative method that could be used is the Kenward-Roger’s method, however, it is expected to perform similarly. Because the model utilises Satterthwaite’s method, it should entail a Welch t-test (according to information gleaned from [this Wikipedia page](https://en.wikipedia.org/wiki/Welch%E2%80%93Satterthwaite_equation)), which does not assume equal variance in the two groups. There is no option in this package to alter the type of t-test. In this model, disconnected meta-ecosystems are made of paired unconnected ecosystems, which are paired randomly.
+
+```{r}
+## - Create mixed effect model - ##
+
+# In the ouput lmerModLmerTest which means that it's a Linear Mixed Model from the lmerTest package
+
+model = lmer(get(response_variable) ~
+               size * conn * size_effects +
+               (1 | system_nr) +
+               (1 | day),
+             data = filtered_data %>% mutate(conn = factor(x = ifelse(connection == "connected", 
+                                                                      "con", 
+                                                                      "unconnected"),
+                                                           levels = c("unconnected", "con"))),
+             REML = FALSE,
+             control = lmerControl(optimizer = "Nelder_Mead"))
+```
+
+```{r}
+## - Plot residuals of the model -- ##
+
+qqnorm(resid(model))
+create.res.vs.fit.metaecos(model,
+                           filtered_data)
+```
+
+```{r}
+## - Show summary of the model -- ##
+
+print(summary(model), digits = 3)
+```
+
+<br>

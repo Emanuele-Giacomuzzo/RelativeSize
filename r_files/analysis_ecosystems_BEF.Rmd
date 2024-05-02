@@ -1,0 +1,56 @@
+---
+title: "PhD Chapter 2 - AHSize"
+author: "Emanuele Giacomuzzo"
+date: "`r format(Sys.time(), '%Y-%m-%d %H:%M')`"
+editor_options: 
+  chunk_output_type: console
+---
+
+We want to know whether there was a correlation between biodiversity (richness/shannon/eveness) and productivity. We include all the time points in all the heterotrophic ecosystems (small/medium/large, connected/unconnected). 
+
+```{r}
+ds_ecosystems %>%
+  filter(trophic_type == "heterotrophic") %>%
+  ggplot(aes(x = species_richness,
+             y = bioarea_mm2_per_ml)) +
+  geom_point() +
+  xlim(0, length(protist_species)) +
+  labs(x = axis_names$axis_name[axis_names$variable == "species_richness"],
+       y = axis_names$axis_name[axis_names$variable == "bioarea_mm2_per_ml"]) + 
+  theme_bw() +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = legend_position,
+          legend.key.width = unit(legend_width_cm, "cm"))
+```
+
+```{r}
+ds_ecosystems %>%
+  filter(trophic_type == "heterotrophic") %>%
+  ggplot(aes(x = shannon,
+             y = bioarea_mm2_per_ml)) +
+  geom_point() +
+  labs(x = axis_names$axis_name[axis_names$variable == "shannon"],
+       y = axis_names$axis_name[axis_names$variable == "bioarea_mm2_per_ml"]) + 
+  theme_bw() +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = legend_position,
+          legend.key.width = unit(legend_width_cm, "cm"))
+```
+
+```{r}
+ds_ecosystems %>%
+  filter(trophic_type == "heterotrophic",
+         is.na(evenness_pielou) != TRUE) %>%
+  ggplot(aes(x = evenness_pielou,
+             y = bioarea_mm2_per_ml)) +
+  geom_point() +
+  labs(x = axis_names$axis_name[axis_names$variable == "evenness_pielou"],
+       y = axis_names$axis_name[axis_names$variable == "bioarea_mm2_per_ml"]) + 
+  theme_bw() +
+    theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          legend.position = legend_position,
+          legend.key.width = unit(legend_width_cm, "cm"))
+```

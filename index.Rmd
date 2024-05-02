@@ -84,10 +84,24 @@ threshold = 40
 ```{r child = here("r_files", "ds_ecos_4_both_thresholds_combined.Rmd"), class.source = 'fold-show'}
 ```
 
+### Species dominances with CI (`ds_dominances_with_CI`)
+
+```{r child = here("r_files", "ds_dominances_with_CI.Rmd"), class.source = 'fold-show'}
+```
+
 ### Ecosystems effect sizes (`ds_ecosystems_effect_size`)
 
-
 ```{r child = here("r_files", "ds_ecos_effect_size.Rmd"), class.source = 'fold-show'}
+```
+
+### Species effect sizes d (`ds_species_effect_sizes_d`)
+
+```{r child = here("r_files", "ds_species_effect_sizes_d.Rmd"), class.source = 'fold-show'}
+```
+
+### Species effect sizes LRR (`ds_species_effect_sizes_LRR`)
+
+```{r child = here("r_files", "ds_species_effect_sizes_LRR.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Meta-ecosystems (`ds_metaecosystems`)
@@ -97,12 +111,7 @@ threshold = 40
 
 ### Meta-ecosystems effect sizes (`ds_metaecos_es`)
 
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("environments", "before.RData"))
-```
-
-```{r child = here("r_files", "ds_metaecosystems_effect_size.Rmd")}
+```{r child = here("r_files", "ds_metaecosystems_effect_size.Rmd"), class.source = 'fold-show'}
 ```
 
 ## Plots & analysis {.tabset .tabset-dropdown}
@@ -113,40 +122,180 @@ save.image(file = here("environments", "before.RData"))
 response_variable = "total_metaecosystem_bioarea_mm2"
 ```
 
-```{r child = here("r_files", "metaecosystems.Rmd")}
+```{r child = here("r_files", "metaecosystems_1_plot.Rmd")}
 ```
 
-### Ecosystems {.tabset .tabset-pills}
+```{r child = here("r_files", "metaecosystems_2_analysis_untransformed.Rmd")}
+```
 
-#### Biomass
+```{r child = here("r_files", "metaecosystems_3_analysis_untransformed_only_s.Rmd")}
+```
+
+```{r child = here("r_files", "metaecosystems_4_analysis_ES.Rmd")}
+```
+
+```{r child = here("r_files", "metaecosystems_5_analysis_ES_only_s.Rmd")}
+```
+
+### Autotrophic ecosystems {.tabset .tabset-pills}
+
+```{r}
+trophy_selected = "autotrophic"
+```
+
+#### Biomass {.tabset .tabset-dropdown}
 
 ```{r}
 response_variable = "bioarea_mm2_per_ml"
 ```
 
-```{r child = here("r_files", "ecosystems.Rmd")}
+```{r child = here("r_files", "ecosystems_1_plot.Rmd")}
 ```
 
-#### Shannon
+```{r child = here("r_files", "ecosystems_2_analysis_untransformed.Rmd")}
+```
+
+### Heterotrophic ecosystems {.tabset .tabset-pills}
+
+```{r}
+trophy_selected = "heterotrophic"
+```
+
+#### Biomass {.tabset .tabset-dropdown}
+
+```{r}
+response_variable = "bioarea_mm2_per_ml"
+```
+
+```{r child = here("r_files", "ecosystems_1_plot.Rmd")}
+```
+
+```{r child = here("r_files", "ecosystems_2_analysis_untransformed.Rmd")}
+```
+
+#### Shannon {.tabset .tabset-dropdown}
 
 ```{r}
 response_variable = "shannon"
 ```
 
-#### Evenness
+```{r child = here("r_files", "ecosystems_1_plot.Rmd")}
+```
+
+```{r child = here("r_files", "ecosystems_2_analysis_untransformed.Rmd")}
+```
+
+#### Evenness {.tabset .tabset-dropdown}
 
 ```{r}
 response_variable = "evenness_pielou"
 ```
 
-#### Dominance
+```{r child = here("r_files", "ecosystems_1_plot.Rmd")}
+```
+
+```{r child = here("r_files", "ecosystems_2_analysis_untransformed.Rmd")}
+```
+
+#### Dominance {.tabset .tabset-pills}
+
+##### Size effects {.tabset .tabset-pills}
+
+```{r}
+size_effects_selected = "(s)"
+```
+
+###### S
+
+```{r}
+eco_type = "S-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
+
+###### SM
+
+```{r}
+eco_type = "SM-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
+
+###### ML
+
+```{r}
+eco_type = "ML-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
+
+###### L
+
+```{r}
+eco_type = "L-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
+
+##### Size * Disturbance effects {.tabset .tabset-pills}
+
+```{r}
+size_effects_selected = "(s*d)"
+```
+
+###### S
+
+```{r}
+eco_type = "S-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
+
+###### SM
+
+```{r}
+eco_type = "SM-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
+
+###### ML
+
+```{r}
+eco_type = "ML-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
+
+###### L
+
+```{r}
+eco_type = "L-H"
+```
+
+```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
+```
 
 #### BEF
+
+```{r child = here("r_files", "analysis_ecosystems_BEF.Rmd")}
+```
 
 ## Paper
 
 ```{r child = here("r_files", "paper.Rmd")}
 ```
+
+## To do
+
+- LRR for meta-ecosystems
 
 ## Other
 
