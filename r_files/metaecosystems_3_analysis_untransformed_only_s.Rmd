@@ -19,11 +19,11 @@ filtered_data = ds_metaecosystems %>%
          !is.na(!!sym(response_variable)),
          connection == "connected" | 
           ecosystems_combined %in% unconnected_metaecosystems_selected,
-         size_effects == "s")
+         size_effects == "fixed")
 ```
 
 ```{r fig.height = figures_height_rmd_output}
-plot.metaecos.points(filtered_data %>% filter(size_effects == "s"),
+plot.metaecos.points(filtered_data %>% filter(size_effects == "fixed"),
                                response_variable) +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),

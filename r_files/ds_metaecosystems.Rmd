@@ -41,42 +41,42 @@ combinations_connected = ds_ecosystems %>%
 # Autotrophic 
 
 ID_unconnected_small_autotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "S-A unconnected (s)") %>%
+  filter(ecosystem_type == "S-A unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_small_medium_autotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "SM-A unconnected (s)") %>%
+  filter(ecosystem_type == "SM-A unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_medium_large_autotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "ML-A unconnected (s)") %>%
+  filter(ecosystem_type == "ML-A unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_large_autotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "L-A unconnected (s)") %>%
+  filter(ecosystem_type == "L-A unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_small_autotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "S-A unconnected (s*d)") %>%
+  filter(ecosystem_type == "S-A unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_small_medium_autotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "SM-A unconnected (s*d)") %>%
+  filter(ecosystem_type == "SM-A unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_medium_large_autotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "ML-A unconnected (s*d)") %>%
+  filter(ecosystem_type == "ML-A unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_large_autotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "L-A unconnected (s*d)") %>%
+  filter(ecosystem_type == "L-A unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -84,42 +84,42 @@ ID_unconnected_large_autotrophic_sd = ds_ecosystems %>%
 # Heterotrophic
 
 ID_unconnected_small_heterotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "S-H unconnected (s)") %>%
+  filter(ecosystem_type == "S-H unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_small_medium_heterotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "SM-H unconnected (s)") %>%
+  filter(ecosystem_type == "SM-H unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_medium_large_heterotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "ML-H unconnected (s)") %>%
+  filter(ecosystem_type == "ML-H unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_large_heterotrophic_s = ds_ecosystems %>%
-  filter(ecosystem_type == "L-H unconnected (s)") %>%
+  filter(ecosystem_type == "L-H unconnected (fixed)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_small_heterotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "S-H unconnected (s*d)") %>%
+  filter(ecosystem_type == "S-H unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_small_medium_heterotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "SM-H unconnected (s*d)") %>%
+  filter(ecosystem_type == "SM-H unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_medium_large_heterotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "ML-H unconnected (s*d)") %>%
+  filter(ecosystem_type == "ML-H unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 
 ID_unconnected_large_heterotrophic_sd = ds_ecosystems %>%
-  filter(ecosystem_type == "L-H unconnected (s*d)") %>%
+  filter(ecosystem_type == "L-H unconnected (relative)") %>%
   pull(ecosystem_ID) %>%
   unique()
 ```
@@ -130,7 +130,7 @@ ID_unconnected_large_heterotrophic_sd = ds_ecosystems %>%
 
 combinations_small_s = crossing(ID_unconnected_small_autotrophic_s,
                                 ID_unconnected_small_heterotrophic_s) %>%
-  mutate(metaecosystem_type = "S unconnected (s)") %>%
+  mutate(metaecosystem_type = "S unconnected (fixed)") %>%
   rename(ID_first_ecosystem = ID_unconnected_small_autotrophic_s,
          ID_second_ecosystem = ID_unconnected_small_heterotrophic_s) %>%
   select(metaecosystem_type,
@@ -139,7 +139,7 @@ combinations_small_s = crossing(ID_unconnected_small_autotrophic_s,
 
 combinations_small_medium_s = crossing(ID_unconnected_small_medium_autotrophic_s,
                                        ID_unconnected_small_medium_heterotrophic_s) %>%
-  mutate(metaecosystem_type = "SM unconnected (s)") %>%
+  mutate(metaecosystem_type = "SM unconnected (fixed)") %>%
   rename(ID_first_ecosystem = ID_unconnected_small_medium_autotrophic_s,
          ID_second_ecosystem = ID_unconnected_small_medium_heterotrophic_s) %>%
   select(metaecosystem_type,
@@ -148,7 +148,7 @@ combinations_small_medium_s = crossing(ID_unconnected_small_medium_autotrophic_s
 
 combinations_medium_large_s = crossing(ID_unconnected_medium_large_autotrophic_s,
                                 ID_unconnected_medium_large_heterotrophic_s) %>%
-  mutate(metaecosystem_type = "ML unconnected (s)") %>%
+  mutate(metaecosystem_type = "ML unconnected (fixed)") %>%
   rename(ID_first_ecosystem = ID_unconnected_medium_large_autotrophic_s,
          ID_second_ecosystem = ID_unconnected_medium_large_heterotrophic_s) %>%
   select(metaecosystem_type,
@@ -157,7 +157,7 @@ combinations_medium_large_s = crossing(ID_unconnected_medium_large_autotrophic_s
 
 combinations_large_s = crossing(ID_unconnected_large_autotrophic_s,
                                 ID_unconnected_large_heterotrophic_s) %>%
-  mutate(metaecosystem_type = "L unconnected (s)") %>%
+  mutate(metaecosystem_type = "L unconnected (fixed)") %>%
   rename(ID_first_ecosystem = ID_unconnected_large_autotrophic_s,
          ID_second_ecosystem = ID_unconnected_large_heterotrophic_s) %>%
   select(metaecosystem_type,
@@ -167,7 +167,7 @@ combinations_large_s = crossing(ID_unconnected_large_autotrophic_s,
 
 combinations_small_sd = crossing(ID_unconnected_small_autotrophic_sd,
                                 ID_unconnected_small_heterotrophic_sd) %>%
-  mutate(metaecosystem_type = "S unconnected (s*d)") %>%
+  mutate(metaecosystem_type = "S unconnected (relative)") %>%
   rename(ID_first_ecosystem = ID_unconnected_small_autotrophic_sd,
          ID_second_ecosystem = ID_unconnected_small_heterotrophic_sd) %>%
   select(metaecosystem_type,
@@ -176,7 +176,7 @@ combinations_small_sd = crossing(ID_unconnected_small_autotrophic_sd,
 
 combinations_small_medium_sd = crossing(ID_unconnected_small_medium_autotrophic_sd,
                                        ID_unconnected_small_medium_heterotrophic_sd) %>%
-  mutate(metaecosystem_type = "SM unconnected (s*d)") %>%
+  mutate(metaecosystem_type = "SM unconnected (relative)") %>%
   rename(ID_first_ecosystem = ID_unconnected_small_medium_autotrophic_sd,
          ID_second_ecosystem = ID_unconnected_small_medium_heterotrophic_sd) %>%
   select(metaecosystem_type,
@@ -185,7 +185,7 @@ combinations_small_medium_sd = crossing(ID_unconnected_small_medium_autotrophic_
 
 combinations_medium_large_sd = crossing(ID_unconnected_medium_large_autotrophic_sd,
                                 ID_unconnected_medium_large_heterotrophic_sd) %>%
-  mutate(metaecosystem_type = "ML unconnected (s*d)") %>%
+  mutate(metaecosystem_type = "ML unconnected (relative)") %>%
   rename(ID_first_ecosystem = ID_unconnected_medium_large_autotrophic_sd,
          ID_second_ecosystem = ID_unconnected_medium_large_heterotrophic_sd) %>%
   select(metaecosystem_type,
@@ -194,7 +194,7 @@ combinations_medium_large_sd = crossing(ID_unconnected_medium_large_autotrophic_
 
 combinations_large_sd = crossing(ID_unconnected_large_autotrophic_sd,
                                 ID_unconnected_large_heterotrophic_sd) %>%
-  mutate(metaecosystem_type = "L unconnected (s*d)") %>%
+  mutate(metaecosystem_type = "L unconnected (relative)") %>%
   rename(ID_first_ecosystem = ID_unconnected_large_autotrophic_sd,
          ID_second_ecosystem = ID_unconnected_large_heterotrophic_sd) %>%
   select(metaecosystem_type,

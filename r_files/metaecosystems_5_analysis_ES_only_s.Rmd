@@ -21,7 +21,7 @@ filtered_data = ds_metaecos_es %>%
 ```
 
 ```{r fig.height = figures_height_rmd_output}
-plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_type, "\\(s\\)")),
+plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_type, "\\(fixed\\)")),
                         paste0(response_variable, "_d"))
 ```
 

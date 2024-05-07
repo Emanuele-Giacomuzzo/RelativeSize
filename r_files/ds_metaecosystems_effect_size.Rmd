@@ -101,7 +101,7 @@ ds_metaecos_es = read.csv(file = here("results", "calculations", "ds_metaecos_es
                           size == 45.00 ~ "L",
                           TRUE ~ NA_character_ ),
          size = factor(size, levels = c("S", "SM", "ML", "L")),
-         size_effects = case_when(grepl("\\(s\\)", system_type) ~ "s",
-                                  grepl("\\(s\\*d\\)", system_type) ~ "s*d",
+         size_effects = case_when(grepl("\\(s\\)", system_type) ~ "fixed",
+                                  grepl("\\(s\\*d\\)", system_type) ~ "relative",
                                   TRUE ~ NA_character_))
 ```

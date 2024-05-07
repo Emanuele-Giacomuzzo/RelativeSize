@@ -134,7 +134,7 @@ response_variable = "total_metaecosystem_bioarea_mm2"
 ```{r child = here("r_files", "metaecosystems_4_analysis_ES.Rmd")}
 ```
 
-```{r child = here("r_files", "metaecosystems_5_analysis_ES_only_s.Rmd")}
+```{r child = here("r_files", "metaecosystems_5_analysis_ES_only_s.Rmd"), eval = FALSE}
 ```
 
 ### Autotrophic ecosystems {.tabset .tabset-pills}
@@ -150,6 +150,11 @@ response_variable = "bioarea_mm2_per_ml"
 ```
 
 ```{r child = here("r_files", "ecosystems_1_plot.Rmd")}
+```
+
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "before.RData"))
 ```
 
 ```{r child = here("r_files", "ecosystems_2_analysis_untransformed.Rmd")}
@@ -199,10 +204,10 @@ response_variable = "evenness_pielou"
 
 #### Dominance {.tabset .tabset-pills}
 
-##### Size effects {.tabset .tabset-pills}
+##### Fixed disturbance {.tabset .tabset-pills}
 
 ```{r}
-size_effects_selected = "(s)"
+size_effects_selected = "(fixed)"
 ```
 
 ###### S
@@ -241,10 +246,10 @@ eco_type = "L-H"
 ```{r child = here("r_files", "analysis_ecosystems_dominance.Rmd")}
 ```
 
-##### Size * Disturbance effects {.tabset .tabset-pills}
+##### Disturbance relative to size {.tabset .tabset-pills}
 
 ```{r}
-size_effects_selected = "(s*d)"
+size_effects_selected = "(relative)"
 ```
 
 ###### S

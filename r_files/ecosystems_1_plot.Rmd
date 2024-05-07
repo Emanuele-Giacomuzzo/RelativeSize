@@ -9,7 +9,7 @@ editor_options:
 In our experiment, we manipulated meta-ecosystems consisting of autotrophic and heterotrophic patches, varying meta-ecosystem size and their connectivity (unconnected versus connected). Now, we want to know whether, at the local ecosystem level, the connectivity of the ecosystem interacted with ecosystem size to affect this specific response variable. Essentially, we are interested in understanding if ecosystem size modulated the impact of spatial feedback locally. To begin, we plot how this response variable varied across different treatments throughout the experiment, represented by mean values with a 95% confidence interval.
 
 ```{r fig.height = figures_height_rmd_output}
-ggarrange(plot.ecosystems.points(ds_ecosystems %>% filter(size_effects == "s"),
+ggarrange(plot.ecosystems.points(ds_ecosystems %>% filter(size_effects == "fixed"),
                                  trophy_selected,
                                  response_variable,
                                  legend_row_n_input = 4)  +
@@ -19,7 +19,7 @@ ggarrange(plot.ecosystems.points(ds_ecosystems %>% filter(size_effects == "s"),
             font("legend.text", size = size_legend) +
             font("ylab", size = size_y_axis),
           NULL,
-          plot.ecosystems.points(ds_ecosystems %>% filter(size_effects == "s*d"),
+          plot.ecosystems.points(ds_ecosystems %>% filter(size_effects == "relative"),
                                  trophy_selected,
                                  response_variable,
                                  legend_row_n_input = 4)  +
@@ -31,7 +31,7 @@ ggarrange(plot.ecosystems.points(ds_ecosystems %>% filter(size_effects == "s"),
           heights = c(1, 0.1, 0.8),
           nrow = 3,
           align = "v",
-          labels = c("Size effects", "", "Size * disturbance effects"),
+          labels = c(fixed_label, "", relative_label),
           label.x = c(0, 0, -0.083),
           label.y = c(0.750, 0, 1.06))
 ```
@@ -42,12 +42,12 @@ ggarrange(plot.ecosystems.points(ds_ecosystems %>% filter(size_effects == "s"),
 <summary>Click here to view the same data represented through the single replicates</summary>
 
 ```{r fig.height = figures_height_rmd_output}
-"Size effects"
-plot.ecosystems.replicates.one.by.one(ds_ecosystems %>% filter(size_effects == "s"),
+fixed_label
+plot.ecosystems.replicates.one.by.one(ds_ecosystems %>% filter(size_effects == "fixed"),
                                       response_variable)
 
 "Size * Disturbance effects"
-plot.ecosystems.replicates.one.by.one(ds_ecosystems %>% filter(size_effects == "s*d"),
+plot.ecosystems.replicates.one.by.one(ds_ecosystems %>% filter(size_effects == "relative"),
                                       response_variable)
 ```
 
@@ -60,7 +60,7 @@ plot.ecosystems.replicates.one.by.one(ds_ecosystems %>% filter(size_effects == "
 ```{r fig.height = figures_height_rmd_output}
 ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
                                     trophy_selected,
-                                    "s",
+                                    "fixed",
                                     paste0(response_variable, "_d")) +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),
@@ -70,7 +70,7 @@ ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
           NULL,
           plot.ecosystems.points.ES(ds_ecosystems_effect_size,
                                     trophy_selected,
-                                    "s*d",
+                                    "relative",
                                     paste0(response_variable, "_d"))  +
             font("legend.text", size = size_legend) +
             font("xlab", size = size_y_axis) +
@@ -80,7 +80,7 @@ ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
           heights = c(1, 0.1, 0.8),
           nrow = 3,
           align = "v",
-          labels = c("Size effects", "", "Size * disturbance effects"),
+          labels = c(fixed_label, "", relative_label),
           label.x = c(0.01, 0, -0.083),
           label.y = c(0.915, 0, 1.06))
 ```
@@ -94,7 +94,7 @@ ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
 ```{r fig.height = figures_height_rmd_output}
 ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
                                     trophy_selected,
-                                    "s",
+                                    "fixed",
                                     paste0(response_variable, "_LRR")) +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),
@@ -104,7 +104,7 @@ ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
           NULL,
           plot.ecosystems.points.ES(ds_ecosystems_effect_size,
                                     trophy_selected,
-                                    "s*d",
+                                    "relative",
                                     paste0(response_variable, "_LRR"))  +
             font("legend.text", size = size_legend) +
             font("xlab", size = size_y_axis) +
@@ -114,7 +114,7 @@ ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
           heights = c(1, 0.1, 0.8),
           nrow = 3,
           align = "v",
-          labels = c("Size effects", "", "Size * disturbance effects"),
+          labels = c(fixed_label, "", relative_label),
           label.x = c(0.01, 0, -0.083),
           label.y = c(0.915, 0, 1.06))
 ```

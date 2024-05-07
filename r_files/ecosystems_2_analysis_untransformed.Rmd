@@ -2,6 +2,8 @@
 title: "Untitled"
 output: html_document
 date: "2024-04-29"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ##### Untransformed data 
@@ -19,7 +21,7 @@ filtered_data = ds_ecosystems %>%
 ```
 
 ```{r fig.height = figures_height_rmd_output}
-ggarrange(plot.ecosystems.points(filtered_data %>% filter(size_effects == "s"),
+ggarrange(plot.ecosystems.points(filtered_data %>% filter(size_effects == "fixed"),
                                  trophy_selected,
                                  response_variable,
                                  legend_row_n_input = 4) +
@@ -29,7 +31,7 @@ ggarrange(plot.ecosystems.points(filtered_data %>% filter(size_effects == "s"),
             font("legend.text", size = size_legend) +
             font("ylab", size = size_y_axis),
           NULL,
-          plot.ecosystems.points(filtered_data %>% filter(size_effects == "s*d"),
+          plot.ecosystems.points(filtered_data %>% filter(size_effects == "relative"),
                                  trophy_selected,
                                  response_variable,
                                  legend_row_n_input = 4) +
@@ -41,7 +43,7 @@ ggarrange(plot.ecosystems.points(filtered_data %>% filter(size_effects == "s"),
           heights = c(1, 0.1, 0.8),
           nrow = 3,
           align = "v",
-          labels = c("Size effects", "", "Size * disturbance effects"),
+          labels = c(fixed_label, "", relative_label),
           label.x = c(0, 0, -0.083),
           label.y = c(0.785, 0, 1.06))
 ```
@@ -51,12 +53,12 @@ ggarrange(plot.ecosystems.points(filtered_data %>% filter(size_effects == "s"),
 <summary>Click here to view the same data represented through the single replicates</summary>
 
 ```{r fig.height = figures_height_rmd_output}
-"Size effects"
-plot.ecosystems.replicates.one.by.one(filtered_data %>% filter(size_effects == "s"),
+fixed_label
+plot.ecosystems.replicates.one.by.one(filtered_data %>% filter(size_effects == "fixed"),
                                       response_variable)
 
-"Size * Disturbance effects"
-plot.ecosystems.replicates.one.by.one(filtered_data %>% filter(size_effects == "s*d"),
+relative_label
+plot.ecosystems.replicates.one.by.one(filtered_data %>% filter(size_effects == "relative"),
                                       response_variable)
 ```
 

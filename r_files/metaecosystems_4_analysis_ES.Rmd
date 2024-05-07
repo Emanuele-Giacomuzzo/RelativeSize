@@ -20,7 +20,7 @@ filtered_data = ds_metaecos_es %>%
 ```
 
 ```{r fig.height = figures_height_rmd_output}
-ggarrange(plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_type, "\\(s\\)")),
+ggarrange(plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_type, "\\(fixed\\)")),
                                   paste0(response_variable, "_d")) +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),
@@ -28,7 +28,7 @@ ggarrange(plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_typ
             font("legend.text", size = size_legend) +
             font("ylab", size = size_y_axis),
           NULL,
-          plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_type, "\\(s\\*d\\)")),
+          plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_type, "\\(relative\\)")),
                                   paste0(response_variable, "_d")) +
             font("legend.text", size = size_legend) +
             font("xlab", size = size_y_axis) +
@@ -38,7 +38,7 @@ ggarrange(plot.metaecos.points.ES(filtered_data %>% filter(str_detect(system_typ
           heights = c(1, 0.1, 0.8),
           nrow = 3,
           align = "v",
-          labels = c("Size effects", "", "Size * disturbance effects"),
+          labels = c(fixed_label, "", relative_label),
           label.x = c(0.01, 0, -0.085),
           label.y = c(0.915, 0, 1.06))
 ```
