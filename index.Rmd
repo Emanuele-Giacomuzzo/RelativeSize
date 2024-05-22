@@ -122,6 +122,12 @@ threshold = 40
 response_variable = "total_metaecosystem_bioarea_mm2"
 ```
 
+
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("environments", "before.RData"))
+```
+
 ```{r child = here("r_files", "metaecosystems_1_plot.Rmd")}
 ```
 
@@ -150,11 +156,6 @@ response_variable = "bioarea_mm2_per_ml"
 ```
 
 ```{r child = here("r_files", "ecosystems_1_plot.Rmd")}
-```
-
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("environments", "before.RData"))
 ```
 
 ```{r child = here("r_files", "ecosystems_2_analysis_untransformed.Rmd")}

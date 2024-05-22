@@ -78,8 +78,8 @@ Parameters related to resource flows.
 ```{r}
 resource_flow_days = c(5, 9, 13, 17, 21, 25)
 size_effect_types = c("fixed", "relative")
-fixed_label = "Disturbance and resource flows are fixed"
-relative_label = "Disturbance and resource flows are relative to size"
+fixed_label = "Fixed disturbance and resource flows"
+relative_label = "Relative to size disturbance and resource flows"
 ```
 
 Parameters related to protists.
@@ -92,18 +92,6 @@ protist_species_dominance = paste0(protist_species_bioarea_mm2_per_ml, "_dominan
 
 species_IDD_with_13_threshold = c("Col", "Cep", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
 species_IDD_with_40_threshold = c("Ble", "Spi")
-
-#Old
-# protist_species_hetero = c("Ble", "Cep", "Col", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
-# protist_species_hetero_indiv_per_ml = paste0(protist_species_hetero, "_indiv_per_ml")
-# protist_species_hetero_indiv_per_volume = paste0(protist_species_hetero, "_indiv_per_volume")
-# protist_species_hetero_dominance = paste0(protist_species_hetero_indiv_per_ml, "_dominance")
-# protist_species_hetero_total = paste0(protist_species_hetero, "_tot_indiv")
-# n_protist_species_hetero = length(protist_species_hetero)
-# species_IDD_with_13_threshold = c("Col", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
-# species_IDD_with_13_threshold_indiv_per_volume = paste0(species_IDD_with_13_threshold, "_indiv_per_volume")
-# species_IDD_with_40_threshold = c("Ble", "Cep", "Spi")
-# species_IDD_with_40_threshold_indiv_per_volume = paste0(species_IDD_with_40_threshold, "_indiv_per_volume")
 ```
 
 Parameters related to ecosystems.
@@ -118,19 +106,6 @@ ecosystem_info = read.csv(here("data", "ecosystems_info.csv"), header = TRUE) %>
   rename(ecosystem_ID = culture_ID)
 
 n_ecosystems = max(ecosystem_info$ecosystem_ID)
-
-# n_cultures = max(ecosystem_info$ecosystem_ID)
-# n_replicates = 6
-
-# columns_to_group_by = c("time_point",
-#                         "day",
-#                         "ecosystem_ID",
-#                         "system_nr",
-#                         "ecosystem_type",
-#                         "ecosystem_size",
-#                         "ecosystem_size_ml",
-#                         "metaecosystem",
-#                         "metaecosystem_type")
 
 variables_ecosystems = c("bioarea_mm2_per_ml",
                         "indiv_per_ml",
@@ -244,14 +219,6 @@ n_treatments = length(unique(ecosystem_treatments_and_controls$treatment))
 n_controls = length(unique(ecosystem_treatments_and_controls$control))
 
 connection_ordered = c("unconnected", "connected")
-
-
-# ecosystem_size_and_trophy_ordered = c("S autotrophic",
-#                                       "medium autotrophic",
-#                                       "L autotrophic",
-#                                       "S heterotrophic",
-#                                       "medium heterotrophic",
-#                                       "L heterotrophic")
 ```
 
 Parameters related to meta-ecosystems.
@@ -303,13 +270,6 @@ treatments_and_controls_metaecos = data.frame(treatment = c("S connected (fixed)
                                                           "SM unconnected (relative)",
                                                           "ML unconnected (relative)",
                                                           "L unconnected (relative)"))
-
-# columns_metaecos = c("time_point",
-#                      "day",
-#                      "system_nr",
-#                      "system_type",
-#                      "ecosystem_size_ml",
-#                      "ecosystems_combined")
 
 metaecosystems_renamed = data.frame(new = c("S connected",
                                             "SM connected",
@@ -427,10 +387,10 @@ Name of the axes per response variable.
 axis_names = data.frame(variable = NA,
                         axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Time (day)") %>%
-  add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem size (ml)") %>%
+  add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem Size (ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml", axis_name = "Bioarea Density (mm²/ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Bioarea Density ES (Hedge's d)") %>%
-  add_row(variable = "bioarea_tot", axis_name = "Tot Bioarea (mm²)") %>%
+  add_row(variable = "bioarea_tot", axis_name = "Total Bioarea (mm²)") %>%
   add_row(variable = "species_richness", axis_name = "Species Richness") %>%
   add_row(variable = "species_richness_d", axis_name = "Species Richness ES") %>%
   add_row(variable = "shannon", axis_name = "Shannon Index") %>%
@@ -486,18 +446,14 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "Sp_indiv_per_mli_dominance_d", axis_name = "Spi Dominance ES") %>%
   add_row(variable = "Spi_te_indiv_per_ml_dominance_d", axis_name = "Spi te Dominance ES") %>%
   add_row(variable = "Tet_indiv_per_ml_dominance_d", axis_name = "Tet Dominance ES") %>%
-  add_row(variable = "log_size_class", axis_name = "Log size (μm2)") %>%
+  add_row(variable = "log_size_class", axis_name = "Log Size (μm2)") %>%
   add_row(variable = "class_indiv_per_µl", axis_name = "Density (ind/ml)") %>%
-  add_row(variable = "median_body_area_µm2", axis_name = "Median body size (µm²)") %>%
+  add_row(variable = "median_body_area_µm2", axis_name = "Median Body Size (µm²)") %>%
   add_row(variable = "median_body_area_µm2_d", axis_name = "Median Body Size ES") %>%
   add_row(variable = "beta_diversity_from_unconnected", axis_name = "Divergence from unconnected") %>%
   
-  add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Tot Bioarea (mm²)") %>%
-  add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Tot Bioarea ES (Hedge's d)") %>%
-  add_row(variable = "mean_richness", axis_name = "α Diversity") %>%
-  add_row(variable = "mean_shannon", axis_name = "α Diversity") %>%
-  add_row(variable = "bray_curtis", axis_name = "β Diversity") %>%
-  add_row(variable = "metaecosystem_richness", axis_name = "γ Diversity") %>%
+  add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Total Bioarea (mm²)") %>%
+  add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Total Bioarea ES (Hedge's d)") %>%
   
   slice(-1)
 ```
@@ -507,6 +463,11 @@ treatment_colours = c("S" = "#ffffb2",
                       "SM" = "#fecc5c",
                       "ML" = "#fd8d3c",
                       "L" = "#e31a1c",
+                      
+                      "6.43 ml" = "#ffffb2",
+                      "9.00 ml" = "#fecc5c",
+                      "15.00 ml" = "#fd8d3c",
+                      "45.00 ml" = "#e31a1c",
                       
                       "S connected (fixed)" = "#ffffb2",
                       "SM connected (fixed)" = "#fecc5c",

@@ -30,8 +30,8 @@ ggarrange(plot.metaecos.points(ds_metaecosystems %>% filter(size_effects == "fix
           nrow = 3,
           align = "v",
           labels = c(fixed_label, "", relative_label),
-          label.x = c(0.03, 0, -0.055),
-          label.y = c(0.745, 0, 1.06))
+          label.x = c(-0.12, 0, -0.15),
+          label.y = c(0.7, 0, 1.06))
 ```
 
 <details>
