@@ -1,0 +1,137 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-02-29"
+editor_options: 
+  chunk_output_type: console
+---
+
+We have now completed the assembly of the dataset containing all individuals in the experiment (ds_individuals), each linked with morphological and behavioral traits. We then construct a support vector machine model capable of identifying a protist species based on these traits, as we have recorded the mono-cultures of species just prior to the experiment. To do so, we must go through the following steps. (1) Create training dataset. Import the training dataset comprising monoculture data and modify it so that it can be used to construct the predictive model. (2) Create predictive model. Construct a predictive model for species identification using support vector machines and all traits we have measured. (3) Show confusion matrix. To see with what precision species are identified, let’s plot the confusion matrix of this model. In this matrix, the class error tells us with what percentage individuals of a species are misidentified. (4) Identify species. Identify protist individuals in ds_individuals.
+
+```{r}
+
+## - (1) Create training dataset - ##
+
+# Import the master (aka particles) data where particles in each video have been tracked.  
+
+training_individuals = read.csv(here("2_data",
+                                     paste0(threshold, "_threshold_analysis"),
+                                     "training.csv")) %>%
+  
+  # To increase the precision of the model, exclude Eug from the training monocultures, as we don't want species in heterotrophic to be mistaken for Euglena, as Euglena was not present in there. It doesn't matter how species in autotrophic ecosystems are identified, as we will change them anyway to Euglena. 
+
+  filter(species != "Eug") %>%
+  
+  # To make it easier to handle the level, transform Spi te into Spi_te. 
+
+  mutate(species = case_when(species == "Spi te" ~ "Spi_te",
+                             TRUE ~ species),
+         
+  # To don't create rows with unnecessary NAs, remove the column "comment", as no entry received a comment in the experiment.
+  
+         comment = NULL,
+  
+  # ...
+  
+         file = as.numeric(str_extract(file, "\\d+"))) %>%
+  
+  # To don't have particles where some values couldn't be computed, remove rows that have NAs.
+  
+  filter(complete.cases(.)) %>% 
+  
+  # To tidy up, reorder columns.
+  
+  select(file,
+         id,
+         species,
+         N_frames,
+         mean_area,
+         everything())
+```
+
+```{r}
+
+## - (2) Create predictive model - ##
+
+  species_ID_model = svm(
+    factor(species) ~
+      mean_grey +
+      sd_grey +
+      mean_area +
+      sd_area +
+      mean_perimeter +
+      mean_turning +
+      sd_turning +
+      sd_perimeter +
+      mean_major +
+      sd_major +
+      mean_minor +
+      sd_minor +
+      mean_ar +
+      sd_ar +
+      duration +
+      max_net  +
+      net_disp +
+      net_speed +
+      gross_disp +
+      max_step +
+      min_step +
+      sd_step +
+      sd_gross_speed +
+      max_gross_speed +
+      min_gross_speed ,
+    data = training_individuals,
+    probability = T,
+    na.action = na.pass)
+```
+
+```{r}
+
+## - (3) Show confusion matrix - ##
+
+confusion_matrix = table(species_ID_model$fitted,
+                         training_individuals$species)
+
+confusion_matrix_with_diagonal_zeros = confusion_matrix
+diag(confusion_matrix_with_diagonal_zeros) = 0
+
+confusion_matrix = cbind(confusion_matrix,
+                         class_error = rowSums(confusion_matrix_with_diagonal_zeros) / 
+                                       rowSums(confusion_matrix)) %>%
+  as.data.frame() %>%
+  mutate(class_error_percentage = class_error * 100,
+         class_error = NULL)
+
+if(threshold == 13){
+  
+  print(paste(paste(species_IDD_with_13_threshold, collapse = ", "),
+              "are identified with this threshold."))
+  
+  } else if (threshold == 40){
+  
+  print(paste(paste(species_IDD_with_40_threshold, collapse = ", "),
+              "are identified with this threshold."))
+                
+  }
+
+confusion_matrix
+```
+
+```{r}
+
+## - (4) Identify species - ##
+
+ds_individuals = ds_individuals %>%
+  filter(complete.cases(.)) %>% 
+  mutate(species = as.character(predict(object = species_ID_model,
+                                        .,
+                                        type = "response")),
+         species = ifelse(trophic_type == "autotrophic",
+                          "Eug",
+                          species),
+         
+         # To make it easier to handle the level, transform Spi te into Spi_te. 
+
+         species = case_when(species == "Spi te " ~ "Spi_te",
+                             TRUE ~ species))
+```
