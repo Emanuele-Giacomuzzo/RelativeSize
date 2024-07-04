@@ -23,20 +23,19 @@ editor_options:
 library("here")
 ```
 
-```{r child = here("3_r_files", "set_packages.Rmd"), echo=FALSE}
+```{r child = here("2_r_files", "set_packages.Rmd"), echo=FALSE}
 ```
 
-```{r child = here("3_r_files", "set_functions.Rmd"), echo=FALSE}
+```{r child = here("2_r_files", "set_functions.Rmd"), echo=FALSE}
 ```
 
 ## Design
 
-```{r child = here("3_r_files", "show_design.Rmd"), echo=FALSE}
-```
+![](Design.png)
 
 ## Parameters {.tabset .tabset-dropdown}
 
-```{r child = here("3_r_files", "set_parameters.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "set_parameters.Rmd"), class.source = 'fold-show'}
 ```
 
 ## Data {.tabset .tabset-dropdown}
@@ -53,13 +52,13 @@ To analyse the biomass, biodiversity, and population densities within ecosystems
 threshold = 13
 ```
 
-```{r child = here("3_r_files", "create_ds_ecos_1_single_threshold_individuals.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_1_single_threshold_individuals.Rmd"), class.source = 'fold-show'}
 ```
 
-```{r child = here("3_r_files", "create_ds_ecos_2_single_threshold_species_ID.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_2_single_threshold_species_ID.Rmd"), class.source = 'fold-show'}
 ```
 
-```{r child = here("3_r_files", "create_ds_ecos_3_single_threshold_ecosystems.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_3_single_threshold_ecosystems.Rmd"), class.source = 'fold-show'}
 ```
 
 <br>
@@ -70,53 +69,53 @@ threshold = 13
 threshold = 40
 ```
 
-```{r child = here("3_r_files", "create_ds_ecos_1_single_threshold_individuals.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_1_single_threshold_individuals.Rmd"), class.source = 'fold-show'}
 ```
 
-```{r child = here("3_r_files", "create_ds_ecos_2_single_threshold_species_ID.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_2_single_threshold_species_ID.Rmd"), class.source = 'fold-show'}
 ```
 
-```{r child = here("3_r_files", "create_ds_ecos_3_single_threshold_ecosystems.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_3_single_threshold_ecosystems.Rmd"), class.source = 'fold-show'}
 ```
 
 #### Combine thresholds
 
-```{r child = here("3_r_files", "create_ds_ecos_4_both_thresholds_combined.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_4_both_thresholds_combined.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Species dominances with CI (`ds_dominances_with_CI`)
 
-```{r child = here("3_r_files", "create_ds_dominances_with_CI.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_dominances_with_CI.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Ecosystems effect sizes (`ds_ecosystems_effect_size`)
 
-```{r child = here("3_r_files", "create_ds_ecos_effect_size.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_ecos_effect_size.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Species effect sizes d (`ds_species_effect_sizes_d`)
 
-```{r child = here("3_r_files", "create_ds_species_effect_sizes_d.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_species_effect_sizes_d.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Species effect sizes LRR (`ds_species_effect_sizes_LRR`)
 
-```{r child = here("3_r_files", "create_ds_species_effect_sizes_LRR.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_species_effect_sizes_LRR.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Meta-ecosystems (`ds_metaecosystems`)
 
 ```{r echo=FALSE, message=FALSE}
 #Save environment
-save.image(file = here("4_environments", "before.RData"))
+save.image(file = here("3_results", "before.RData"))
 ```
 
-```{r child = here("3_r_files", "create_ds_metaecosystems.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_metaecosystems.Rmd"), class.source = 'fold-show'}
 ```
 
 ### Meta-ecosystems effect sizes (`ds_metaecos_es`)
 
-```{r child = here("3_r_files", "create_ds_metaecosystems_effect_size.Rmd"), class.source = 'fold-show'}
+```{r child = here("2_r_files", "create_ds_metaecosystems_effect_size.Rmd"), class.source = 'fold-show'}
 ```
 
 ## Plots & analysis {.tabset .tabset-dropdown}
@@ -129,22 +128,22 @@ response_variable = "total_metaecosystem_bioarea_mm2"
 
 ```{r echo=FALSE, message=FALSE}
 #Save environment
-save.image(file = here("4_environments", "before2.RData"))
+save.image(file = here("3_results", "before2.RData"))
 ```
 
-```{r child = here("3_r_files", "analyse_metaecosystems_1_plot.Rmd")}
+```{r child = here("2_r_files", "analyse_metaecosystems_1_plot.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_metaecosystems_2_untransformed.Rmd")}
+```{r child = here("2_r_files", "analyse_metaecosystems_2_untransformed.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_metaecosystems_3_untransformed_only_s.Rmd")}
+```{r child = here("2_r_files", "analyse_metaecosystems_3_untransformed_only_s.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_metaecosystems_4_ES.Rmd")}
+```{r child = here("2_r_files", "analyse_metaecosystems_4_ES.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_metaecosystems_5_ES_only_s.Rmd"), eval = FALSE}
+```{r child = here("2_r_files", "analyse_metaecosystems_5_ES_only_s.Rmd"), eval = FALSE}
 ```
 
 ### Autotrophic ecosystems {.tabset .tabset-pills}
@@ -159,10 +158,10 @@ trophy_selected = "autotrophic"
 response_variable = "bioarea_mm2_per_ml"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_1_plot.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_1_plot.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
 ```
 
 ### Heterotrophic ecosystems {.tabset .tabset-pills}
@@ -177,10 +176,10 @@ trophy_selected = "heterotrophic"
 response_variable = "bioarea_mm2_per_ml"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_1_plot.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_1_plot.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
 ```
 
 #### Shannon {.tabset .tabset-dropdown}
@@ -189,10 +188,10 @@ response_variable = "bioarea_mm2_per_ml"
 response_variable = "shannon"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_1_plot.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_1_plot.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
 ```
 
 #### Evenness {.tabset .tabset-dropdown}
@@ -201,10 +200,10 @@ response_variable = "shannon"
 response_variable = "evenness_pielou"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_1_plot.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_1_plot.Rmd")}
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_2_untransformed.Rmd")}
 ```
 
 #### Dominance {.tabset .tabset-pills}
@@ -221,7 +220,7 @@ size_effects_selected = "(fixed)"
 eco_type = "S-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 ###### SM
@@ -230,7 +229,7 @@ eco_type = "S-H"
 eco_type = "SM-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 ###### ML
@@ -239,7 +238,7 @@ eco_type = "SM-H"
 eco_type = "ML-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 ###### L
@@ -248,7 +247,7 @@ eco_type = "ML-H"
 eco_type = "L-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 ##### Disturbance relative to size {.tabset .tabset-pills}
@@ -263,7 +262,7 @@ size_effects_selected = "(relative)"
 eco_type = "S-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 ###### SM
@@ -272,7 +271,7 @@ eco_type = "S-H"
 eco_type = "SM-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 ###### ML
@@ -281,7 +280,7 @@ eco_type = "SM-H"
 eco_type = "ML-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 ###### L
@@ -290,17 +289,17 @@ eco_type = "ML-H"
 eco_type = "L-H"
 ```
 
-```{r child = here("3_r_files", "analyse_ecosystems_dominance.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
 #### BEF
 
-```{r child = here("3_r_files", "analyse_ecosystems_BEF.Rmd")}
+```{r child = here("2_r_files", "analyse_ecosystems_BEF.Rmd")}
 ```
 
 ## Paper
 
-```{r child = here("3_r_files", "show_paper.Rmd")}
+```{r child = here("2_r_files", "show_paper.Rmd")}
 ```
 
 ## To do
@@ -309,12 +308,12 @@ eco_type = "L-H"
 
 ## Other
 
-```{r child = here("3_r_files", "show_other.Rmd")}
+```{r child = here("2_r_files", "show_other.Rmd")}
 ```
 
 ## Bibliography
 
 ```{r echo=FALSE, message=FALSE}
 #Save environment
-save.image(file = here("4_environments", "end.RData"))
+save.image(file = here("3_results", "end.RData"))
 ```

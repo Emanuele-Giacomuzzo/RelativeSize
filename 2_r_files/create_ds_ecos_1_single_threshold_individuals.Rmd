@@ -1,0 +1,161 @@
+---
+title: "Biomass of meta-ecosystems"
+output: html_document
+date: "2022-11-08"
+editor_options: 
+  chunk_output_type: console
+---
+
+To compile a dataset that encompasses information on every individual organism detected at this threshold (ds_individuals), where each row represents an individual, we will go through the four following steps. (1) Import datasets. We import the individuals at each time point, as each time point is saved in a different file. (2) Bind time points. We bind all time points (ds_individuals[[1:5]]) together in a single dataset (ds_individuals). (3) Finish up. Finish up the ds_individuals dataset by adjusting some columns and levels.
+
+```{r}
+
+## - (1) Import datasets - ##
+
+ds_individuals = NULL
+for(time_point in time_points){
+  
+  # Import the master data (aka particles data) where particles in each video have been tracked.
+  # We use time_point + 1 because our first time point is 0 and we cannot assign an object to ds_individuals[[0]], as the index of a dataset in R needs to be an integer >= 1. 
+  
+  ds_individuals[[time_point + 1]] = read.csv(here("1_data",
+                                                   paste0(threshold, "_threshold_analysis"),
+                                                   paste0("t", time_point, ".csv"))) %>%
+    
+    # To don't create rows with unnecessary NAs, remove the column "comment", as no entry received a comment in the experiment.
+    
+    mutate(comment = NULL) %>%
+    
+    # To keep consistent with the term "ecosystem", rename culture ID to ecosystem ID.
+    
+    rename(ecosystem_ID = culture_ID) %>%
+    
+    # To tidy up, reorder columns. 
+    
+    select(time_point, 
+           day, 
+           ecosystem_ID,
+           id, 
+           everything())
+}
+```
+
+```{r}
+
+## - (2) Bind time points - ##
+
+ds_individuals = ds_individuals %>%
+  bind_rows()
+```
+
+```{r}
+
+## - (3) Finish up ds_individuals - ##
+
+ds_individuals = ds_individuals %>%
+  
+  # To have all the information on the ecosystems that were not in the original data, bind 'ds_individuals' with 'ecosystem_info'.
+  
+  left_join(ecosystem_info,
+            by = "ecosystem_ID") %>%
+  
+  # To make dataset clearer, rename columns.
+  
+  rename(ecosystem_type = eco_metaeco_type,
+         ecosystem_size = patch_size,
+         ecosystem_size_ml = patch_size_ml) %>%
+  
+  # To have everything in mm2 and ml, transform bioarea columns. 
+  
+  mutate(bioarea_µm2 = mean_area,
+         bioarea_mm2 = bioarea_µm2 * 10^-6,
+         bioarea_mm2_per_ml = bioarea_mm2 / volume_recorded_ml,
+         bioarea_mm2_per_frame_per_ml = bioarea_mm2_per_ml * N_frames / total_frames,
+         
+  # To have levels that are easier to read, transform them. 
+  
+         ecosystem_type = case_when(ecosystem_type == "AutoS_absolute" ~ "S-A unconnected (relative)",
+                                    ecosystem_type == "AutoSM_absolute" ~ "SM-A unconnected (relative)",
+                                    ecosystem_type == "AutoML_absolute" ~ "ML-A unconnected (relative)",
+                                    ecosystem_type == "AutoL_absolute" ~ "L-A unconnected (relative)",
+                                    ecosystem_type == "HeteroS_absolute" ~ "S-H unconnected (relative)",
+                                    ecosystem_type == "HeteroSM_absolute" ~ "SM-H unconnected (relative)",
+                                    ecosystem_type == "HeteroML_absolute" ~ "ML-H unconnected (relative)",
+                                    ecosystem_type == "HeteroL_absolute" ~ "L-H unconnected (relative)",
+                                    ecosystem_type == "AutoS_relative" ~ "S-A unconnected (fixed)",
+                                    ecosystem_type == "AutoSM_relative" ~ "SM-A unconnected (fixed)",
+                                    ecosystem_type == "AutoML_relative" ~ "ML-A unconnected (fixed)",
+                                    ecosystem_type == "AutoL_relative" ~ "L-A unconnected (fixed)",
+                                    ecosystem_type == "HeteroS_relative" ~ "S-H unconnected (fixed)",
+                                    ecosystem_type == "HeteroSM_relative" ~ "SM-H unconnected (fixed)",
+                                    ecosystem_type == "HeteroML_relative" ~ "ML-H unconnected (fixed)",
+                                    ecosystem_type == "HeteroL_relative" ~ "L-H unconnected (fixed)",
+                                    ecosystem_type == "AutoS_absolute_connected" ~ "S-A connected (relative)",
+                                    ecosystem_type == "AutoSM_absolute_connected" ~ "SM-A connected (relative)",
+                                    ecosystem_type == "AutoML_absolute_connected" ~ "ML-A connected (relative)",
+                                    ecosystem_type == "AutoL_absolute_connected" ~ "L-A connected (relative)",
+                                    ecosystem_type == "HeteroS_absolute_connected" ~ "S-H connected (relative)",
+                                    ecosystem_type == "HeteroSM_absolute_connected" ~ "SM-H connected (relative)",
+                                    ecosystem_type == "HeteroML_absolute_connected" ~ "ML-H connected (relative)",
+                                    ecosystem_type == "HeteroL_absolute_connected" ~ "L-H connected (relative)",
+                                    ecosystem_type == "AutoS_relative_connected" ~ "S-A connected (fixed)",
+                                    ecosystem_type == "AutoSM_relative_connected" ~ "SM-A connected (fixed)",
+                                    ecosystem_type == "AutoML_relative_connected" ~ "ML-A connected (fixed)",
+                                    ecosystem_type == "AutoL_relative_connected" ~ "L-A connected (fixed)",
+                                    ecosystem_type == "HeteroS_relative_connected" ~ "S-H connected (fixed)",
+                                    ecosystem_type == "HeteroSM_relative_connected" ~ "SM-H connected (fixed)",
+                                    ecosystem_type == "HeteroML_relative_connected" ~ "ML-H connected (fixed)",
+                                    ecosystem_type == "HeteroL_relative_connected" ~ "L-H connected (fixed)",
+                                    TRUE ~ ecosystem_type),
+         ecosystem_type = factor(ecosystem_type,
+                                 levels = ecosystem_types_ordered),
+
+  # To better plot and analyse data, add the columns connection and ecosystem_size_and_trophy.
+  
+         connection = factor(x = ifelse(metaecosystem == "yes",
+                                        "connected",
+                                        "unconnected"),
+                             levels = connection_ordered),
+  
+         size_effects = factor(x = ifelse(flow == "relative",
+                                          "fixed",
+                                          "relative")),
+  
+  # ...
+  
+         ecosystem_size = factor(case_when(ecosystem_size == "small" ~ "S",
+                                           ecosystem_size == "small-medium" ~ "SM",
+                                           ecosystem_size == "medium-large" ~ "ML",
+                                           ecosystem_size == "large" ~ "L"),
+                                 levels = c("S", 
+                                            "SM",
+                                            "ML",
+                                            "L")),
+        ecosystem_size_and_trophy = paste0(ecosystem_size,"-", ifelse(trophic_type == "autotrophic", "A", "H")),
+        
+        ecosystem_size_and_trophy = factor(ecosystem_size_and_trophy,
+                                           levels = c("S-H", "SM-H", "ML-H", "L-H", "S-A", "SM-A", "ML-A", "L-A")),
+                                 
+  # ...
+  
+         metaecosystem_type = paste0(ecosystem_size, " ", connection, " (", size_effects, ")")) %>%
+  
+  # To tidy up, reorder columns. 
+  
+  select(time_point, 
+         day, 
+         system_nr, 
+         metaecosystem_type, 
+         ecosystem_ID, 
+         ecosystem_type, 
+         ecosystem_size, 
+         ecosystem_size_ml,
+         trophic_type, 
+         ecosystem_size_and_trophy,
+         connection,
+         size_effects,
+         bioarea_mm2,
+         bioarea_mm2_per_frame_per_ml,
+         N_frames,
+         all_of(columns_for_species_ID))
+```
