@@ -32,6 +32,7 @@ library("here")
 ## Design
 
 ![](Design.png)
+![](Design_paper.png)
 
 ## Parameters {.tabset .tabset-dropdown}
 
@@ -105,11 +106,6 @@ threshold = 40
 
 ### Meta-ecosystems (`ds_metaecosystems`)
 
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("3_results", "before.RData"))
-```
-
 ```{r child = here("2_r_files", "create_ds_metaecosystems.Rmd"), class.source = 'fold-show'}
 ```
 
@@ -123,12 +119,12 @@ save.image(file = here("3_results", "before.RData"))
 ### Meta-ecosystems {.tabset .tabset-pills}
 
 ```{r}
-response_variable = "total_metaecosystem_bioarea_mm2"
+response_variable = "bioarea_mm2_per_ml"
 ```
 
 ```{r echo=FALSE, message=FALSE}
 #Save environment
-save.image(file = here("3_results", "before2.RData"))
+save.image(file = here("3_results", "before.RData"))
 ```
 
 ```{r child = here("2_r_files", "analyse_metaecosystems_1_plot.Rmd")}
@@ -140,7 +136,7 @@ save.image(file = here("3_results", "before2.RData"))
 ```{r child = here("2_r_files", "analyse_metaecosystems_3_untransformed_only_s.Rmd")}
 ```
 
-```{r child = here("2_r_files", "analyse_metaecosystems_4_ES.Rmd")}
+```{r child = here("2_r_files", "analyse_metaecosystems_4_ES.Rmd"), eval = FALSE}
 ```
 
 ```{r child = here("2_r_files", "analyse_metaecosystems_5_ES_only_s.Rmd"), eval = FALSE}
@@ -211,40 +207,40 @@ response_variable = "evenness_pielou"
 ##### Fixed disturbance {.tabset .tabset-pills}
 
 ```{r}
-size_effects_selected = "(fixed)"
+disturbance_percentage_selected = "fixed"
 ```
 
-###### S
+###### 6.43 ml
 
 ```{r}
-eco_type = "S-H"
+ecosystem_size_i = 6.43
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
-###### SM
+###### 9.00 ml
 
 ```{r}
-eco_type = "SM-H"
+ecosystem_size_i = 9.00
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
-###### ML
+###### 15.00 ml
 
 ```{r}
-eco_type = "ML-H"
+ecosystem_size_i = 15.00
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
-###### L
+###### 45.00 ml
 
 ```{r}
-eco_type = "L-H"
+ecosystem_size_i = 45.00
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
@@ -253,40 +249,40 @@ eco_type = "L-H"
 ##### Disturbance relative to size {.tabset .tabset-pills}
 
 ```{r}
-size_effects_selected = "(relative)"
+disturbance_percentage_selected = "decreasing_with_size"
 ```
 
-###### S
+###### 6.43 ml
 
 ```{r}
-eco_type = "S-H"
+ecosystem_size_i = 6.43
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
-###### SM
+###### 9.00 ml
 
 ```{r}
-eco_type = "SM-H"
+ecosystem_size_i = 9.00
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
-###### ML
+###### 15.00 ml
 
 ```{r}
-eco_type = "ML-H"
+ecosystem_size_i = 15.00
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
 ```
 
-###### L
+###### 45.00 ml
 
 ```{r}
-eco_type = "L-H"
+ecosystem_size_i = 45.00
 ```
 
 ```{r child = here("2_r_files", "analyse_ecosystems_dominance.Rmd")}
@@ -301,10 +297,6 @@ eco_type = "L-H"
 
 ```{r child = here("2_r_files", "show_paper.Rmd")}
 ```
-
-## To do
-
-- LRR for meta-ecosystems
 
 ## Other
 

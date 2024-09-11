@@ -6,16 +6,23 @@ plot.metaecos.points = function(data,
     
     # Manipulate
     
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
     filter(!is.na(!!sym(response_variable))) %>%
     summarySE(measurevar = response_variable,
-              groupvars = c("day", "size", "connection")) %>%
+              groupvars = c("day", "ecosystem_size_ml", "connection")) %>%
     
     # Create plot
     
     ggplot(aes(x = day,
                y = get(response_variable),
-               group = interaction(day, size, connection),
-               color = size,
+               group = interaction(day, ecosystem_size_ml, connection),
+               color = ecosystem_size_ml,
                linetype = connection)) +
     
     # Points
@@ -27,13 +34,13 @@ plot.metaecos.points = function(data,
                       ymin = get(response_variable) - ci),
                   width = width_errorbar,
                   position = position_dodge(dodging)) +
-    scale_color_manual(values = treatment_colours) +
+    scale_color_manual(values = treatment_colours_metaecosystems) +
     
     # Lines
     
     geom_line(stat = "summary",
               fun = "mean",
-              aes(group = interaction(size, connection)),
+              aes(group = interaction(ecosystem_size_ml, connection)),
               position = position_dodge(dodging),
               linewidth = treatment_lines_linewidth) +
     scale_linetype_manual(values = treatment_linetypes) +

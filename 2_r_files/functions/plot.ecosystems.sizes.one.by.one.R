@@ -1,35 +1,41 @@
-plot.ecosystems.replicates.one.by.one = function(data,
+plot.ecosystems.sizes.one.by.one = function(data,
+                                                 trophy_selected,
+                                                 disturbance_percentage_selected,
                                                  response_variable,
                                                  legend_row_n_input = 2) {
   
-  ecosystem_size_and_trophy_selected = data %>% filter(trophic_type == trophy_selected) %>% pull(ecosystem_size_and_trophy) %>% unique()
-  
-  for (i in 1:length(ecosystem_size_and_trophy_selected)) {
+  p = NULL
+
+  for (ecosystem_size_i in 1:length(ecosystem_sizes_ml)) {
     
-    p = data %>%
+    p[[ecosystem_size_i]] = data %>%
       
       # Manipulate
       
-      filter(ecosystem_size_and_trophy == ecosystem_size_and_trophy_selected[i]) %>%
+      filter(ecosystem_size_ml == ecosystem_sizes_ml[ecosystem_size_i],
+             trophic_type == trophy_selected,
+             disturbance_percentage == disturbance_percentage_selected) %>%
+      mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", ecosystem_size_ml), "ml"),
+                                        levels = c("45.00 ml", "15.00 ml", "9.00 ml", "6.43 ml"))) %>%
       
       # Create plot
       
       ggplot(aes(x = day,
                  y = get(response_variable),
                  group = ecosystem_ID,
-                 linetype = connection)) +
+                 color = connection)) +
       
       # Lines
       
       geom_line(stat = "summary", 
                 fun = "mean") +
-      scale_linetype_manual(values = treatment_linetypes) +
       
       # Axes and labels
       
       labs(x = axis_names$axis_name[axis_names$variable == "day"],
            y = axis_names$axis_name[axis_names$variable == response_variable],
-           linetype = "") +
+           color = "",
+           title = paste(ecosystem_sizes_ml[ecosystem_size_i], "ml")) +
       guides(linetype = guide_legend(order = 2, title = NULL, nrow = legend_row_n_input)) +
       scale_x_continuous(breaks = unique(data$day)) +
       
@@ -54,9 +60,11 @@ plot.ecosystems.replicates.one.by.one = function(data,
                  color = resource_flow_line_colour,
                  linewidth = resource_flow_line_width)
     
-    print(ecosystem_size_and_trophy_selected[i])
-    print(p)
+    # print(paste("Showing only the replicates for", ecosystem_sizes_ml[ecosystem_size_i], "ml"))
+    # print(p)
     
   }
+  
+  gridExtra::grid.arrange(p[[1]], p[[2]], p[[3]], p[[4]], nrow = 2, ncol = 2)
   
 }

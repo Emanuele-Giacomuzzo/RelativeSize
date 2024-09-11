@@ -1,15 +1,33 @@
-plot.ecosystems.points.legend <- function(data, trophy_selected, response_variable, legend_row_n_input = 4) {
+plot.ecosystems.points.legend <- function(data, 
+                                          trophy_selected, 
+                                          response_variable, 
+                                          legend_row_n_input = 4) {
   
   # Create the base plot to generate the legend
+  
+  if(trophy_selected == "autotrophic"){
+    treatment_colours = treatment_colours_autotrophic
+    } else {
+    treatment_colours = treatment_colours_heterotrophic
+    }
+  
+  
   plot <- data %>%
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
     filter(trophic_type == trophy_selected,
            !is.na(!!sym(response_variable))) %>%
     summarySE(measurevar = response_variable,
-              groupvars = c("day", "size", "connection")) %>%
+              groupvars = c("day", "ecosystem_size_ml", "connection")) %>%
     ggplot(aes(x = day,
                y = get(response_variable),
-               group = interaction(day, size, connection),
-               color = size,
+               group = interaction(day, ecosystem_size_ml, connection),
+               color = ecosystem_size_ml,
                linetype = connection)) +
     geom_point(stat = "summary",
                fun = "mean",
@@ -17,7 +35,7 @@ plot.ecosystems.points.legend <- function(data, trophy_selected, response_variab
                size = treatment_points_size) +
     geom_line(stat = "summary",
               fun = "mean",
-              aes(group = interaction(size, connection)),
+              aes(group = interaction(ecosystem_size_ml, connection)),
               position = position_dodge(dodging),
               linewidth = treatment_lines_linewidth) +
     geom_errorbar(aes(ymax = get(response_variable) + ci,

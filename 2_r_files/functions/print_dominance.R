@@ -1,10 +1,15 @@
-print_dominance = function(ecosystem_type_i){
+print_dominance = function(ecosystem_size_i,
+                           connection_selected,
+                           disturbance_percentage_selected){
   
   p = ds_dominances_with_CI %>%
     
-    # Mainpulate
+    # Manipulate
     
-    filter(ecosystem_type == ecosystem_type_i) %>%
+    filter(ecosystem_size_ml == ecosystem_size_i,
+           trophic_type == "heterotrophic",
+           connection == connection_selected,
+           disturbance_percentage == disturbance_percentage_selected) %>%
     
     # Create plot
     
@@ -40,7 +45,7 @@ print_dominance = function(ecosystem_type_i){
          color = "") +
     coord_cartesian(ylim = c(0, 100)) +
     
-    # Othe graphic elements
+    # Other graphic elements
     
     theme_bw() +
     theme(panel.grid.major = element_blank(),

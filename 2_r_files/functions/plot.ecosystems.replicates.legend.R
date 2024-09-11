@@ -1,7 +1,18 @@
-plot.ecosystems.replicates.legend <- function(data, ecosystem_type_input, response_variable, legend_row_n_input = 2) {
+plot.ecosystems.replicates.legend <- function(data, 
+                                              ecosystem_type_input, 
+                                              response_variable, 
+                                              legend_row_n_input = 2) {
   
   # Create the base plot to generate the legend
+  
   plot <- data %>%
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
     filter(ecosystem_type %in% ecosystem_type_input) %>%
     ggplot(aes(x = day,
                y = get(response_variable),
@@ -38,10 +49,12 @@ plot.ecosystems.replicates.legend <- function(data, ecosystem_type_input, respon
                linewidth = resource_flow_line_width)
   
   # Extract the legend
+  
   g <- ggplotGrob(plot)
   legend <- g$grobs[[which(sapply(g$grobs, function(x) x$name) == "guide-box")]]
   
   # Create a blank plot and add the legend as annotation
+  
   legend_plot <- ggplot() + 
     annotation_custom(legend) + 
     theme_void()

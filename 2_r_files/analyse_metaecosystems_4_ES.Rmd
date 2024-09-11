@@ -53,7 +53,7 @@ Significance is tested by comparing their slope against zero using a t-test whic
 
 ```{r}
 model = lmer(get(paste0(response_variable, "_d")) ~
-               size * size_effects +
+               size * disturbance_percentage +
                (1 | day),
              data = filtered_data,
              REML = FALSE,

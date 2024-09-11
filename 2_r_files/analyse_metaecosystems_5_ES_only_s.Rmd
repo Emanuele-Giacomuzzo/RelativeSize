@@ -17,7 +17,7 @@ filtered_data = ds_metaecos_es %>%
   filter(time_point >= first_time_point_model,
          time_point <= last_time_point_model,
          !is.na(!!sym(paste0(response_variable, "_d"))),
-         size_effects == "s")
+         disturbance_percentage == "s")
 ```
 
 ```{r fig.height = figures_height_rmd_output}

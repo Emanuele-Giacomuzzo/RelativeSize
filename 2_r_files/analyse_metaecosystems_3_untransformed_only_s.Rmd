@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-##### Untransformed data with only s
+##### Untransformed data with only fixed disturbance
 
  <br>
 
@@ -19,11 +19,11 @@ filtered_data = ds_metaecosystems %>%
          !is.na(!!sym(response_variable)),
          connection == "connected" | 
           ecosystems_combined %in% unconnected_metaecosystems_selected,
-         size_effects == "fixed")
+         disturbance_percentage == "fixed")
 ```
 
 ```{r fig.height = figures_height_rmd_output}
-plot.metaecos.points(filtered_data %>% filter(size_effects == "fixed"),
+plot.metaecos.points(filtered_data %>% filter(disturbance_percentage == "fixed"),
                                response_variable) +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),
@@ -48,13 +48,31 @@ model = lmer(get(response_variable) ~
                size * conn +
                (1 | system_nr) +
                (1 | day),
-             data = filtered_data %>% mutate(conn = factor(x = ifelse(connection == "connected", 
-                                                                      "con", 
-                                                                      "unconnected"),
-                                                           levels = c("unconnected", "con"))),
+             data = filtered_data %>% 
+               rename(size = ecosystem_size_ml) %>%
+               mutate(conn = factor(x = ifelse(connection == "connected", 
+                                               "con", 
+                                               "unconnected"),
+                                    levels = c("unconnected", "con"))),
              REML = FALSE,
              control = lmerControl(optimizer = "Nelder_Mead"))
 ```
+
+```{r eval = FALSE}
+#Try a gamma distribution, it actually made it worse
+model = glmmTMB::glmmTMB(get(response_variable) ~
+               size * conn +
+               (1 | system_nr) +
+               (1 | day),
+               family = Gamma(link = "log"),
+             data = filtered_data %>% 
+               rename(size = ecosystem_size_ml) %>%
+               mutate(conn = factor(x = ifelse(connection == "connected", 
+                                               "con", 
+                                               "unconnected"),
+                                    levels = c("unconnected", "con"))))
+```
+
 
 ```{r}
 ## - Plot residuals of the model -- ##

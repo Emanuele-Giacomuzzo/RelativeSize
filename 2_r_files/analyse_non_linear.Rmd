@@ -1,0 +1,59 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-07-31"
+editor_options: 
+  chunk_output_type: console
+---
+
+https://www.youtube.com/watch?v=J5suxqKyhYM&t=1669s&ab_channel=ISULunchinatoRs
+
+```{r}
+library("lattice")
+library("nlraa")
+library("nlme")
+library("lme4")
+library("metafor")
+library("rstanarm")
+library("forcats")
+
+#Define the x and y axes, as well as the grouping variable
+
+filtered_data = ds_metaecosystems %>%
+  filter(disturbance_percentage == "decreasing_with_size",
+         connection == "unconnected",
+         time_point > 1) %>%
+  rename(ml = ecosystem_size_ml) %>%
+  mutate(bioarea_mm2_per_ml = total_metaecosystem_bioarea_mm2 / (ml * 2))
+
+sbGrp <- groupedData(bioarea_mm2_per_ml ~ day | ml, data = filtered_data)
+
+xyplot(bioarea_mm2_per_ml ~ day | factor(ml), 
+       data = filtered_data, 
+       type = c("p", "smooth"),
+       layout = c(4, 1),
+       strip = strip.custom(factor.levels = as.character(unique(filtered_data$ml))))
+
+sb.plot = nlsList(bioarea_mm2_per_ml ~ SSdlf(day, upper, lower, middle, scale), data = sbGrp)
+
+#Which function could I use in the nlsList function to model a decrease in biomass which then slightly increased at the end?
+start_values = list(A = 1, B = 1, C = 1, D = 1, E = 1)
+
+sb.plot <- nlsList(bioarea_mm2_per_ml ~ A / (1 + exp(-B * (day - C))) + D, data = sbGrp, start = start_values)
+
+piecewiseModel <- function(day, a1, b1, a2, b2, breakpoint) {
+  ifelse(day < breakpoint, a1 * day + b1, a2 * day + b2)
+}
+
+sb.plot <- nlsList(bioarea_mm2_per_ml ~ piecewiseModel(day, a1, b1, a2, b2, breakpoint), data = sbGrp, start = start_values)
+
+sb.plot <- nlsList(bioarea_mm2_per_ml ~ a * day^2 + b * day + c, data = sbGrp, start = start_values)
+
+customModel <- function(day, A, B, C, D, E) {
+  A * exp(-B * day) + C * exp(D * day) + E
+}
+
+sb.plot <- nlsList(bioarea_mm2_per_ml ~ customModel(day, A, B, C, D, E), data = sbGrp)
+
+```
+

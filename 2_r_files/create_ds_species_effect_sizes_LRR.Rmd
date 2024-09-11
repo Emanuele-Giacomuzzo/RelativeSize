@@ -2,6 +2,8 @@
 title: "Untitled"
 output: html_document
 date: "2024-04-26"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r}
@@ -10,14 +12,17 @@ date: "2024-04-26"
 
 filtered_data = ds_ecosystems_effect_size %>%
   ungroup() %>%
-  filter(connection == "connected",
-         trophic_type == "heterotrophic") %>%
+  filter(trophic_type == "heterotrophic",
+         connection == "connected") %>%
   filter(time_point > 1) %>%
 
 # To have a cleaner dataset that is easier to look at, select only the columns of the time point, ecosystem type, and protist species dominance (w/ CI). 
 
   select(time_point, 
-         ecosystem_type, 
+         ecosystem_size_ml,
+         trophic_type,
+         connection,
+         disturbance_percentage,
          paste0(protist_species_dominance, "_LRR"),
          paste0(protist_species_dominance, "_LRR_upper"),
          paste0(protist_species_dominance, "_LRR_lower")) 
@@ -27,7 +32,10 @@ ds_species_effect_sizes_LRR = filtered_data %>%
                names_to = "species", 
                values_to = "effect_size") %>%
   select(time_point,
-         ecosystem_type,
+         ecosystem_size_ml,
+         trophic_type,
+         connection,
+         disturbance_percentage,
          species,
          effect_size)
 
@@ -43,7 +51,9 @@ ds_species_effect_sizes_LRR_lower = filtered_data %>%
                values_to = "lower_95_CI") %>%
   select(lower_95_CI)
 
-ds_species_effect_sizes_LRR = cbind(ds_species_effect_sizes_LRR, ds_species_effect_sizes_LRR_upper, ds_species_effect_sizes_LRR_lower) %>%
+ds_species_effect_sizes_LRR = cbind(ds_species_effect_sizes_LRR, 
+                                    ds_species_effect_sizes_LRR_upper, 
+                                    ds_species_effect_sizes_LRR_lower) %>%
   mutate(species = str_remove(species, "_bioarea_mm2_per_ml_dominance_LRR")) %>%
 
 # To understand if there is an effect on size distribution, plot the effects of connection on dominance by disposing species smallest to largest. 

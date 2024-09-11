@@ -5,6 +5,13 @@ plot.metaecos.points.ES = function(data,
     
     # Create plot
     
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
     ggplot(aes(x = day,
                y = get(response_variable),
                color = size,

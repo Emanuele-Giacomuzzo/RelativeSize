@@ -101,7 +101,7 @@ ds_metaecos_es = read.csv(file = here("3_results", "calculations", "ds_metaecos_
                           size == 45.00 ~ "L",
                           TRUE ~ NA_character_ ),
          size = factor(size, levels = c("S", "SM", "ML", "L")),
-         size_effects = case_when(grepl("\\(s\\)", system_type) ~ "fixed",
-                                  grepl("\\(s\\*d\\)", system_type) ~ "relative",
+         disturbance_percentage = case_when(grepl("\\(s\\)", system_type) ~ "fixed",
+                                  grepl("\\(s\\*d\\)", system_type) ~ "decreasing_with_size",
                                   TRUE ~ NA_character_))
 ```

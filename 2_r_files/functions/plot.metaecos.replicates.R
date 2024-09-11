@@ -3,6 +3,14 @@ plot.metaecos.replicates = function(data,
   
   data %>%
     
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
+    
     # Create plot
     
     ggplot(aes(x = day,
@@ -10,7 +18,7 @@ plot.metaecos.replicates = function(data,
                group = system_nr,
                fill = system_nr,
                color = system_nr,
-               linetype = size)) +
+               linetype = ecosystem_size_ml)) +
     
     # Lines
     

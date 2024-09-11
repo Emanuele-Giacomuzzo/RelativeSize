@@ -2,6 +2,8 @@
 title: "Untitled"
 output: html_document
 date: "2024-04-26"
+editor_options: 
+  chunk_output_type: console
 ---
 
 Get ds_dominances_with_CI with all the mean and 95 % CI dominance of all the species. 
@@ -11,7 +13,7 @@ Get ds_dominances_with_CI with all the mean and 95 % CI dominance of all the spe
 # To be able to plot dominance for multiple species, get their mean, upper boundary, and lower boundary in a long format. 
 
 dominances_mean = ds_ecosystems %>%
-  group_by(day, time_point, ecosystem_type) %>%
+  group_by(day, time_point, ecosystem_size_ml, trophic_type, connection, disturbance_percentage) %>%
   reframe(Ble = mean(Ble_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Cep = mean(Cep_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Col = mean(Col_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
@@ -23,12 +25,12 @@ dominances_mean = ds_ecosystems %>%
           Spi = mean(Spi_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Spi_te = mean(Spi_te_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Tet = mean(Tet_bioarea_mm2_per_ml_dominance, na.rm = TRUE)) %>%
-  pivot_longer(cols = -c("day", "time_point", "ecosystem_type"), 
+  pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
                names_to = "species", 
                values_to = "mean_dominance")
 
 dominances_lower = ds_ecosystems %>%
-  group_by(day, time_point, ecosystem_type) %>%
+  group_by(day, time_point, ecosystem_size_ml, trophic_type, connection, disturbance_percentage) %>%
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
@@ -40,12 +42,12 @@ dominances_lower = ds_ecosystems %>%
           Spi = quantile(Spi_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Spi_te = quantile(Spi_te_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Tet = quantile(Tet_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE)) %>%
-  pivot_longer(cols = -c("day", "time_point", "ecosystem_type"), 
+  pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
                names_to = "species", 
                values_to = "lower_95_CI")
 
 dominances_upper = ds_ecosystems %>%
-  group_by(day, time_point, ecosystem_type) %>%
+  group_by(day, time_point, ecosystem_size_ml, trophic_type, connection, disturbance_percentage) %>%
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
@@ -57,7 +59,7 @@ dominances_upper = ds_ecosystems %>%
           Spi = quantile(Spi_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Spi_te = quantile(Spi_te_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Tet = quantile(Tet_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE)) %>%
-  pivot_longer(cols = -c("day", "time_point", "ecosystem_type"), 
+  pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
                names_to = "species", 
                values_to = "upper_95_CI")
 

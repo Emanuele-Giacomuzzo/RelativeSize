@@ -1,19 +1,21 @@
-library(ggplot2)
-library(dplyr)
-library(grid)
-library(gridExtra)
-library(ggpubr)
-
-plot.metaecos.replicates.legend <- function(data, response_variable) {
+plot.metaecos.replicates.legend <- function(data, 
+                                            response_variable) {
   
   # Create the base plot to generate the legend
   plot <- data %>%
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
     ggplot(aes(x = day,
                y = get(response_variable),
                group = system_nr,
                fill = system_nr,
                color = system_nr,
-               linetype = size)) +
+               linetype = ecosystem_size_ml)) +
     geom_line(stat = "summary", fun = "mean") +
     labs(x = axis_names$axis_name[axis_names$variable == "day"],
          y = axis_names$axis_name[axis_names$variable == response_variable],

@@ -7,11 +7,15 @@ editor_options:
 ---
 
 ```{r}
-connected_type = paste(eco_type, "connected", size_effects_selected) %>% print()
-print_dominance(connected_type)
+"Connected"
+print_dominance(ecosystem_size_i,
+                "connected",
+                disturbance_percentage_selected)
 
-unconnected_type = paste(eco_type, "unconnected", size_effects_selected) %>% print()
-print_dominance(unconnected_type)
+"Unconnected"
+print_dominance(ecosystem_size_i,
+                "unconnected",
+                disturbance_percentage_selected)
 ```
 
 <br>
@@ -31,7 +35,7 @@ for(time_point_i in 2:4){
     print(paste("Time point ", time_point_i))
     
     p = ds_species_effect_sizes_d %>%
-      filter(ecosystem_type == connected_type,
+      filter(connection == "connected",
              time_point == time_point_i,
              species != "Eug") %>%
       ggplot(aes(x = species,
@@ -68,9 +72,12 @@ for(time_point_i in 2:4){
     print(paste("Time point ", time_point_i))
     
     p = ds_species_effect_sizes_LRR %>%
-      filter(ecosystem_type == connected_type,
-             time_point == time_point_i,
-             species != "Eug") %>%
+      filter(time_point == time_point_i,
+             species != "Eug",
+             ecosystem_size_ml == ecosystem_size_i,
+             trophic_type == "heterotrophic",
+             connection == "connected",
+             disturbance_percentage == disturbance_percentage_selected) %>%
       ggplot(aes(x = species,
                  y = effect_size)) + 
       geom_pointrange(aes(ymin = lower_95_CI, ymax = upper_95_CI)) + 

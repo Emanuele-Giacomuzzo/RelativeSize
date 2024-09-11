@@ -20,7 +20,7 @@ ds_ecosystems[[threshold]] = ds_individuals %>%
   
   # To afterwards calculate the biomass and individuals of an ecosystem, summarise the bioarea and individuals of each species.
 
-  group_by_at(vars(time_point:size_effects,
+  group_by_at(vars(time_point:disturbance_percentage,
                    species)) %>%
   summarise(bioarea_mm2_per_ml = sum(bioarea_mm2_per_frame_per_ml),
             indiv_per_ml = sum(N_frames) / total_frames) %>%
@@ -63,7 +63,7 @@ if(threshold == 13){
 # To have a single value at time point 0, average the values of all the videos. 
 
 ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
-  group_by_at(vars(time_point:size_effects)) %>%
+  group_by_at(vars(time_point:disturbance_percentage)) %>%
   summarise(across(contains("bioarea_mm2_per_ml"), 
                    sum, 
                    na.rm = TRUE),
@@ -97,15 +97,11 @@ ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
   group_by(across(all_of(c("time_point", 
                            "day",
                            "system_nr",
-                           "metaecosystem_type",
                            "ecosystem_ID",
-                           "ecosystem_size_and_trophy",
-                           "ecosystem_type",
                            "trophic_type",
-                           "ecosystem_size",
                            "ecosystem_size_ml",
                            "connection",
-                           "size_effects")))) %>%
+                           "disturbance_percentage")))) %>%
   summarise(across(contains("_per_ml"), mean),
             across(contains("tot"), mean),
             species_richness = mean(species_richness),
@@ -118,15 +114,11 @@ ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
   select(time_point, 
          day, 
          system_nr, 
-         metaecosystem_type, 
          ecosystem_ID, 
-         ecosystem_type,
-         ecosystem_size_and_trophy,
          trophic_type, 
-         ecosystem_size, 
          ecosystem_size_ml,
          connection,
-         size_effects,
+         disturbance_percentage,
          bioarea_mm2_per_ml,
          bioarea_tot_mm2,
          indiv_per_ml,

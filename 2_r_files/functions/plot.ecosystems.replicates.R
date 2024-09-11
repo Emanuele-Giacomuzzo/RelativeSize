@@ -7,6 +7,13 @@ plot.ecosystems.replicates = function(data,
     
     # Manipulate
     
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
     filter(ecosystem_type %in% ecosystem_type_input) %>%
     
     # Create  plot

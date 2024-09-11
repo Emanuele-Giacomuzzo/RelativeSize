@@ -10,10 +10,10 @@ editor_options:
 
 In the experiment we studied two-patch meta-ecosystems in which we manipulated the size of their patches and their connection (unconnected vs connected). Now, we want to know whether meta-ecosystem size influenced the effects of connection on this response variable. Therefore, we start by looking at how this response variable changed across time for all meta-ecosystems through its mean ± 95 confidence interval:
 
-```{r fig.height = figures_height_rmd_output}
-ggarrange(plot.metaecos.legend(ds_metaecosystems %>% filter(size_effects == "fixed"),
+```{r fig.height = figures_height_rmd_output, fig.width = figures_height_rmd_output}
+ggarrange(plot.metaecos.legend(ds_metaecosystems %>% filter(disturbance_percentage == "fixed"),
                               response_variable),
-          plot.metaecos.points(ds_metaecosystems %>% filter(size_effects == "fixed"),
+          plot.metaecos.points(ds_metaecosystems %>% filter(disturbance_percentage == "fixed"),
                                response_variable)  +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),
@@ -22,7 +22,7 @@ ggarrange(plot.metaecos.legend(ds_metaecosystems %>% filter(size_effects == "fix
             font("legend.text", size = size_legend) +
             font("ylab", size = size_y_axis) + 
             ggtitle(fixed_label),
-          plot.metaecos.points(ds_metaecosystems %>% filter(size_effects == "relative"),
+          plot.metaecos.points(ds_metaecosystems %>% filter(disturbance_percentage == "decreasing_with_size"),
                                response_variable)  +
             font("xlab", size = size_y_axis) +
             font("ylab", size = size_y_axis) +
@@ -36,41 +36,64 @@ ggarrange(plot.metaecos.legend(ds_metaecosystems %>% filter(size_effects == "fix
 
 <details>
 
-<summary>Click here to view the same data represented through the single replicates</summary>
+<summary>View a plot per ecosystem size, means </summary>
 
-```{r fig.height = figures_height_rmd_output}
-ggarrange(plot.metaecos.replicates.legend(ds_metaecosystems %>% filter(size_effects == "fixed"),
-                                          response_variable),
-          plot.metaecos.replicates(ds_metaecosystems %>% filter(size_effects == "fixed"),
-                                   response_variable)  +
-            rremove("xlab") +
-            theme(axis.text.x = element_blank(),
-                  axis.ticks.x = element_blank(),
-                  legend.position = "none") +
-            font("ylab", size = size_y_axis) +
-            ggtitle(fixed_label),
-          plot.metaecos.replicates(ds_metaecosystems %>% filter(size_effects == "relative"),
-                                   response_variable) + 
-            font("xlab", size = size_y_axis) +
-            font("ylab", size = size_y_axis) +
-            ggtitle(relative_label) + 
-            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
-            theme(legend.position = "none"),
-          heights = c(0.25, 0.6, 0.6),
-          nrow = 3,
-          align = "v")
+```{r fig.height = (figures_height_rmd_output * 0.7), fig.width = figures_height_rmd_output, message=FALSE}
+sizes = unique(ds_metaecosystems$ecosystem_size_ml)
+p = NULL
+
+"Disturbance percentage FIXED"
+for(ecosystem_size_ml_i in 1:length(sizes)){
+  
+  p[[ecosystem_size_ml_i]] = plot.metaecos.points(ds_metaecosystems %>% 
+                                                    filter(disturbance_percentage == "fixed",
+                                                           ecosystem_size_ml == sizes[ecosystem_size_ml_i]),
+                                                  response_variable) + 
+    theme(legend.position = "none")
+    
+}
+
+gridExtra::grid.arrange(p[[1]], 
+                        p[[2]], 
+                        p[[3]], 
+                        p[[4]], 
+                        nrow = 2, 
+                        ncol = 2)
+
+"Disturbance percentage DECREASING WITH SIZE"
+for(ecosystem_size_ml_i in 1:length(sizes)){
+  
+  p[[ecosystem_size_ml_i]] = plot.metaecos.points(ds_metaecosystems %>% 
+                                                    filter(disturbance_percentage == "decreasing_with_size",
+                                                           ecosystem_size_ml == sizes[ecosystem_size_ml_i]),
+                                                  response_variable) + 
+    theme(legend.position = "none")
+}
+
+gridExtra::grid.arrange(p[[1]], 
+                        p[[2]], 
+                        p[[3]], 
+                        p[[4]], 
+                        nrow = 2, 
+                        ncol = 2)
 ```
 
 </details>
 
 <details>
 
-<summary>Click here to view the same data represented through effect sizes</summary>
+<summary>View a plot per ecosystem size, replicates [WORK IN PROGRESS]</summary>
 
-```{r fig.height = figures_height_rmd_output}
-ggarrange(plot.metaecos.points.ES.legend(ds_metaecos_es %>% filter(str_detect(system_type, "\\(s\\)")),
+</details>
+
+<details>
+
+<summary>View effect sizes using Hedge's d [WORK IN PROGRESS]</summary>
+
+```{r fig.height = figures_height_rmd_output, fig.width = figures_height_rmd_output, eval = FALSE}
+ggarrange(plot.metaecos.points.ES.legend(ds_metaecos_es %>% filter(disturbance_percentage == "fixed"),
                                          paste0(response_variable, "_d")),
-          plot.metaecos.points.ES(ds_metaecos_es %>% filter(str_detect(system_type, "\\(s\\)")),
+          plot.metaecos.points.ES(ds_metaecos_es %>% filter(disturbance_percentage == "fixed"),
                                   paste0(response_variable, "_d")) +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),
@@ -79,7 +102,7 @@ ggarrange(plot.metaecos.points.ES.legend(ds_metaecos_es %>% filter(str_detect(sy
             font("legend.text", size = size_legend) +
             font("ylab", size = size_y_axis) +
             ggtitle(fixed_label),
-          plot.metaecos.points.ES(ds_metaecos_es %>% filter(str_detect(system_type, "\\(s\\*d\\)")),
+          plot.metaecos.points.ES(ds_metaecos_es %>% filter(disturbance_percentage == "decreasing_with_size"),
                                   paste0(response_variable, "_d")) +
             font("legend.text", size = size_legend) +
             font("xlab", size = size_y_axis) +
@@ -96,46 +119,10 @@ ggarrange(plot.metaecos.points.ES.legend(ds_metaecos_es %>% filter(str_detect(sy
 
 <details>
 
-<summary>Click here to view the same data represented through single comparisons </summary>
-
-```{r fig.height = figures_height_rmd_output}
-sizes = levels(ds_metaecosystems$size)
-p = NULL
-
-"% of disturbance and resource flows are FIXED"
-for(i in 1:length(sizes)){
-  
-  p[[i]] = plot.metaecos.points(ds_metaecosystems %>% 
-                                  filter(size_effects == "fixed",
-                                         size == sizes[i]),
-                                response_variable) + 
-    theme(legend.position = "none")
-    
-}
-gridExtra::grid.arrange(p[[1]], 
-                        p[[2]], 
-                        p[[3]], 
-                        p[[4]], 
-                        nrow = 2, 
-                        ncol = 2)
-
-"% of disturbance and resource flows are RELATIVE to size"
-for(i in 1:length(sizes)){
-  
-  p[[i]] = plot.metaecos.points(ds_metaecosystems %>% 
-                         filter(size_effects == "relative",
-                                size == sizes[i]),
-                       response_variable) + 
-    theme(legend.position = "none")
-}
-gridExtra::grid.arrange(p[[1]], 
-                        p[[2]], 
-                        p[[3]], 
-                        p[[4]], 
-                        nrow = 2, 
-                        ncol = 2)
-```
+<summary>View effect sizes using log response ratio [WORK IN PROGRESS]</summary>
 
 </details>
+
+
 
 <br>

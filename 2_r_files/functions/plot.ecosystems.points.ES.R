@@ -1,22 +1,38 @@
 plot.ecosystems.points.ES = function(data,
-                                     trophic_type_selected,
-                                     size_effect_selected,
+                                     trophy_selected,
+                                     disturbance_percentage_selected,
                                      response_variable) {
   
+  if(trophy_selected == "autotrophic"){
+    treatment_colours = treatment_colours_autotrophic
+  } else {
+    treatment_colours = treatment_colours_heterotrophic
+  }
+  
   data %>%
+    
+    # Manipulate
+    
     filter(time_point > 1,
-           trophic_type == trophic_type_selected,
-           size_effects == size_effect_selected) %>%
+           trophic_type == trophy_selected,
+           disturbance_percentage == disturbance_percentage_selected) %>%
+    mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
+                                                    ecosystem_size_ml), 
+                                            "ml"),
+                                      levels = c("45.00 ml", 
+                                                 "15.00 ml", 
+                                                 "9.00 ml", 
+                                                 "6.43 ml"))) %>%
     ggplot(aes(x = day,
                y = get(response_variable),
-               color = ecosystem_size_and_trophy,
-               group = interaction(day, ecosystem_size_and_trophy))) +
+               color = ecosystem_size_ml,
+               group = interaction(day, ecosystem_size_ml))) +
     geom_point(stat = "summary",
                fun = "mean",
                position = position_dodge(dodging)) +
     geom_line(stat = "summary",
               fun = "mean",
-              aes(group = ecosystem_size_and_trophy),
+              aes(group = ecosystem_size_ml),
               position = position_dodge(dodging),
               linewidth = treatment_lines_linewidth) + 
     geom_errorbar(aes(ymin = get(paste0(response_variable, "_lower")),

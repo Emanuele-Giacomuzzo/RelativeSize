@@ -32,34 +32,31 @@ $$
 
 ## - (1) Calculate means, standard deviations and sample sizes - ##
 
-for (variable in 1:length(variables_ecosystems)) {
+for (variable_i in 1:length(variables_ecosystems)) {
   
-  ds_ecosystems_effect_size[[variable]] = ds_ecosystems %>%
+  ds_ecosystems_effect_size[[variable_i]] = ds_ecosystems %>%
     filter(
       
       # To have a cleaner dataset filter out ecosystems in which this variable could not be computed (e.g., species richness of a crashed culture). 
       
-      !is.na(!!sym(variables_ecosystems[variable]))) %>%
+      !is.na(!!sym(variables_ecosystems[variable_i]))) %>%
     
     # To afterwards calculate effect sizes, get the mean, sd, and sample size of treatments at each time point 
     
     group_by(across(all_of(c("time_point",
                              "day",
-                             "ecosystem_type",
-                             "connection",
-                             "size",
-                             "size_effects",
-                             "ecosystem_size_and_trophy",
+                             "ecosystem_size_ml",
                              "trophic_type",
-                             "metaecosystem_type")))) %>%
-    summarise(across(all_of(variables_ecosystems[variable]),
+                             "connection",
+                             "disturbance_percentage")))) %>%
+    summarise(across(all_of(variables_ecosystems[variable_i]),
                      list(mean = mean,
                           sd = sd)),
               sample_size = n()) %>%
     
     # To know of which variable the sample size is when you afterwards bind columns, add the name of the variable to the name of the sample size column. 
     
-    rename_with( ~ paste0(variables_ecosystems[variable], 
+    rename_with( ~ paste0(variables_ecosystems[variable_i], 
                           "_sample_size"),
                  matches("sample_size"))
 }
@@ -70,11 +67,10 @@ ds_ecosystems_effect_size <- reduce(ds_ecosystems_effect_size,
                                     full_join,
                                     by = c("time_point",
                                            "day",
-                                           "ecosystem_type",
-                                           "connection",
-                                           "size",
+                                           "ecosystem_size_ml",
                                            "trophic_type",
-                                           "metaecosystem_type"))
+                                           "connection",
+                                           "disturbance_percentage"))
 ```
 
 ```{r echo=FALSE, eval=FALSE}
@@ -88,60 +84,67 @@ expect_equal(nrow(ds_ecosystems_effect_size),
 
 # Initialise the effect size columns 
 
-for (variable in length(variables_ecosystems)) {
+for (variable_i in length(variables_ecosystems)) {
   ds_ecosystems_effect_size <- ds_ecosystems_effect_size %>%
-    mutate(!!paste0(variables_ecosystems[variable], "_d") := NA,
-           !!paste0(variables_ecosystems[variable], "_d_upper") := NA,
-           !!paste0(variables_ecosystems[variable], "_d_lower") := NA)
+    mutate(!!paste0(variables_ecosystems[variable_i], "_d") := NA,
+           !!paste0(variables_ecosystems[variable_i], "_d_upper") := NA,
+           !!paste0(variables_ecosystems[variable_i], "_d_lower") := NA)
 }
+
+ds_ecosystems_effect_size = ds_ecosystems_effect_size %>%
+  mutate(ecosystem_type = paste(ecosystem_size_ml, "ml", trophic_type, disturbance_percentage))
   
 row_n = 0
 
-# For each treatment at each time point, calculate effect size and 95% CI
+# For each treatment at each time point, calculate effect size and 95% 
 
-for (treatment in 1:nrow(ecosystem_treatments_and_controls)) {
+ecosystem_treatments = unique(ds_ecosystems_effect_size$ecosystem_type)
+
+for (treatment_i in 1:length(ecosystem_treatments)) {
     
-  for (time_p in 0:(length(time_points)-1)) {
+  for (time_point_i in 0:(length(time_points)-1)) {
     
     row_n = row_n + 1
     
     treatment_row = ds_ecosystems_effect_size %>%
-      filter(ecosystem_type == ecosystem_treatments_and_controls$treatment[treatment],
-             time_point == time_points[time_p+1])
+      filter(ecosystem_type == ecosystem_treatments[treatment_i],
+             connection == "connected",
+             time_point == time_points[time_point_i+1])
       
     control_row = ds_ecosystems_effect_size %>%
-      filter(ecosystem_type == ecosystem_treatments_and_controls$control[treatment],
-             time_point == time_points[time_p+1])
+      filter(ecosystem_type == ecosystem_treatments[treatment_i],
+             connection == "unconnected",
+             time_point == time_points[time_point_i+1])
       
-      for (variable in 1:length(variables_ecosystems)) {
+      for (variable_i in 1:length(variables_ecosystems)) {
         
         hedges_d = calculate.hedges_d(
-          treatment_row[[paste0(variables_ecosystems[variable], "_mean")]],
-          treatment_row[[paste0(variables_ecosystems[variable], "_sd")]],
-          treatment_row[[paste0(variables_ecosystems[variable], "_sample_size")]],
-          control_row[[paste0(variables_ecosystems[variable], "_mean")]],
-          control_row[[paste0(variables_ecosystems[variable], "_sd")]],
-          control_row[[paste0(variables_ecosystems[variable], "_sample_size")]])
+          treatment_row[[paste0(variables_ecosystems[variable_i], "_mean")]],
+          treatment_row[[paste0(variables_ecosystems[variable_i], "_sd")]],
+          treatment_row[[paste0(variables_ecosystems[variable_i], "_sample_size")]],
+          control_row[[paste0(variables_ecosystems[variable_i], "_mean")]],
+          control_row[[paste0(variables_ecosystems[variable_i], "_sd")]],
+          control_row[[paste0(variables_ecosystems[variable_i], "_sample_size")]])
         
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_d")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d")]][
           ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments_and_controls$treatment[treatment] &
+           ecosystem_treatments[treatment_i] &
           ds_ecosystems_effect_size$time_point == 
-           time_points[time_p+1]] =
+           time_points[time_point_i+1]] =
           hedges_d$d
         
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_d_upper")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d_upper")]][
           ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments_and_controls$treatment[treatment] &
+           ecosystem_treatments[treatment_i] &
           ds_ecosystems_effect_size$time_point == 
-           time_points[time_p+1]] =
+           time_points[time_point_i+1]] =
           hedges_d$upper_CI
         
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_d_lower")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d_lower")]][
           ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments_and_controls$treatment[treatment] &
+           ecosystem_treatments[treatment_i] &
           ds_ecosystems_effect_size$time_point == 
-           time_points[time_p+1]] =
+           time_points[time_point_i+1]] =
           hedges_d$lower_CI
         
       }
@@ -171,36 +174,40 @@ However, Hedge's d because of how much it depends on the pooled spread of the tr
 
 # Initialise the effect size columns 
 
-for (variable in length(variables_ecosystems)) {
+for (variable_i in length(variables_ecosystems)) {
   ds_ecosystems_effect_size <- ds_ecosystems_effect_size %>%
-    mutate(!!paste0(variables_ecosystems[variable], "_LRR") := NA,
-           !!paste0(variables_ecosystems[variable], "_LRR_upper") := NA,
-           !!paste0(variables_ecosystems[variable], "_LRR_lower") := NA)
+    mutate(!!paste0(variables_ecosystems[variable_i], "_LRR") := NA,
+           !!paste0(variables_ecosystems[variable_i], "_LRR_upper") := NA,
+           !!paste0(variables_ecosystems[variable_i], "_LRR_lower") := NA)
 }
   
 row_n = 0
 
 # For each treatment, time point, and variable calculate LRR and 95% CI
 
-for (treatment in 1:nrow(ecosystem_treatments_and_controls)) {
+for (treatment_i in 1:length(ecosystem_treatments)) {
     
-  for (time_p in 0:(length(time_points)-1)) {
+  for (time_point_i in 0:(length(time_points)-1)) {
     
-      for (variable in 1:length(variables_ecosystems)) {
+      for (variable_i in 1:length(variables_ecosystems)) {
         
         row_n = row_n + 1
         
         treatment_values = ds_ecosystems %>%
-          filter(ecosystem_type == ecosystem_treatments_and_controls$treatment[treatment],
-                 time_point == time_points[time_p+1],
-                 !is.na(!!sym(variables_ecosystems[variable]))) %>%
-          pull(!!sym(variables_ecosystems[variable]))
+          mutate(ecosystem_type = paste(ecosystem_size_ml, "ml", trophic_type, disturbance_percentage)) %>%
+          filter(ecosystem_type == ecosystem_treatments[treatment_i],
+                 connection == "connected",
+                 time_point == time_points[time_point_i+1],
+                 !is.na(!!sym(variables_ecosystems[variable_i]))) %>%
+          pull(!!sym(variables_ecosystems[variable_i]))
         
         control_values = ds_ecosystems %>%
-          filter(ecosystem_type == ecosystem_treatments_and_controls$control[treatment],
-                 time_point == time_points[time_p+1],
-                 !is.na(!!sym(variables_ecosystems[variable]))) %>%
-          pull(!!sym(variables_ecosystems[variable]))
+          mutate(ecosystem_type = paste(ecosystem_size_ml, "ml", trophic_type, disturbance_percentage)) %>%
+          filter(ecosystem_type == ecosystem_treatments[treatment_i],
+                 connection == "unconnected",
+                 time_point == time_points[time_point_i+1],
+                 !is.na(!!sym(variables_ecosystems[variable_i]))) %>%
+          pull(!!sym(variables_ecosystems[variable_i]))
     
         # By default it corrects for small sample sizes and calculates 95 % CI.
         
@@ -208,25 +215,25 @@ for (treatment in 1:nrow(ecosystem_treatments_and_controls)) {
                           B_data = treatment_values, 
                           scale = "proportion")
         
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_LRR")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_LRR")]][
           ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments_and_controls$treatment[treatment] &
+           ecosystem_treatments[treatment_i] &
           ds_ecosystems_effect_size$time_point == 
-           time_points[time_p+1]] =
+           time_points[time_point_i+1]] =
           LRR_output$Est
         
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_LRR_upper")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_LRR_upper")]][
           ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments_and_controls$treatment[treatment] &
+           ecosystem_treatments[treatment_i] &
           ds_ecosystems_effect_size$time_point == 
-           time_points[time_p+1]] =
+           time_points[time_point_i+1]] =
           LRR_output$CI_upper
         
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable], "_LRR_lower")]][
+        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_LRR_lower")]][
           ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments_and_controls$treatment[treatment] &
+           ecosystem_treatments[treatment_i] &
           ds_ecosystems_effect_size$time_point == 
-           time_points[time_p+1]] =
+           time_points[time_point_i+1]] =
           LRR_output$CI_lower
         
       }
