@@ -120,7 +120,7 @@ threshold = 40
 
 ```{r}
 response_variable = "bioarea_mm2_per_ml"
-```
+ ```
 
 ```{r echo=FALSE, message=FALSE}
 #Save environment
