@@ -6,17 +6,8 @@ editor_options:
   chunk_output_type: console
 ---
 
-Finally, now that we have a dataset with all the identified individuals, let’s proceed to create the dataset with ecosystem-level information (ds_ecosystems). There are three important information on how we proceed to create such a dataset.
-
-1. Individuals per volume of a species are computed as the average number of individuals present in a frame (total species frames / measured frames / measured volume). For example, let’s say we want to measure the individuals of Ble. We detect individual A for 10 frames, individual B for 20 frames, and individual C for 30 frames. The individuals per volume of Ble will be as follows. Ble individuals =
-total species frames / measured frames / measured volume = (10+20+30) frames / 125 frames / 0.0344 ml = 13.95 individuals / ml.
-
-2. Biomass per volume of a species is computed as the average biomass present in a frame (total species biomass / total species frames / measured frames / measured volume). For example, let’s say we want to measure the biomass of Ble. We detect individual A with a biomass of 0.5 mm2/ml in 10 frames, individual B with a biomass of 1.0 mm2/ml in 20 frames, and individual C with a biomass of 1.5 mm2/ml in 30 frames. The biomass per volume of Ble will be as follows. Ble biomass = total species biomass / total species frames / measured frames / measured volume = (0.5 + 1.0 + 1.5) mm2 / 125 frames / 0.0344 ml = 0.70 mm2 / ml.
-
-3. The information of different videos at time point 0 is averaged across videos for each ecosystems. For example, if the unconnected autotrophic ecosystem with ID = 1 at time point 0 had biomass of video 1 = 1 mm2 / ml, video 2 = 2 mm2/ml, video 3 = 1 mm2/ml, video 4 = 2 mm2/ml, video 5 = 1 mm2/ml, and video 6 = 1 mm2/ml, then biomass will be averaged across videos and will be 1.5 mm2/ml.
-
 ```{r}
-ds_ecosystems[[threshold]] = ds_individuals %>%
+ds_ecosystems = ds_individuals %>%
   
   # To afterwards calculate the biomass and individuals of an ecosystem, summarise the bioarea and individuals of each species.
 
@@ -32,6 +23,8 @@ ds_ecosystems[[threshold]] = ds_individuals %>%
                               indiv_per_ml)) %>%
   rename(Ble_indiv_per_ml = indiv_per_ml_Ble,
          Cep_indiv_per_ml = indiv_per_ml_Cep,
+         Col_indiv_per_ml = indiv_per_ml_Col,
+         Tet_indiv_per_ml = indiv_per_ml_Tet,
          Eug_indiv_per_ml = indiv_per_ml_Eug,
          Eup_indiv_per_ml = indiv_per_ml_Eup,
          Lox_indiv_per_ml = indiv_per_ml_Lox,
@@ -40,6 +33,7 @@ ds_ecosystems[[threshold]] = ds_individuals %>%
          Spi_indiv_per_ml = indiv_per_ml_Spi,
          Spi_te_indiv_per_ml = indiv_per_ml_Spi_te,
          Ble_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Ble,
+         Col_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Col,
          Cep_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Cep,
          Eug_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Eug,
          Eup_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Eup,
@@ -47,22 +41,12 @@ ds_ecosystems[[threshold]] = ds_individuals %>%
          Pau_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Pau,
          Pca_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Pca,
          Spi_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Spi,
-         Spi_te_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Spi_te)
-
-# To avoid issues with column renaming, only rename the Col, Tet columns where the threshold is set to 13. This is necessary because at a threshold of 40, Col and Tet are no detected, resulting in no Col and Tet columns being generated.
-
-if(threshold == 13){
-  
-  ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
-  rename(Col_indiv_per_ml = indiv_per_ml_Col,
-         Col_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Col,
-         Tet_indiv_per_ml = indiv_per_ml_Tet,
+         Spi_te_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Spi_te,
          Tet_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Tet)
-}
 
 # To have a single value at time point 0, average the values of all the videos. 
 
-ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
+ds_ecosystems = ds_ecosystems %>%
   group_by_at(vars(time_point:disturbance_percentage)) %>%
   summarise(across(contains("bioarea_mm2_per_ml"), 
                    sum, 
@@ -126,5 +110,50 @@ ds_ecosystems[[threshold]] = ds_ecosystems[[threshold]] %>%
          shannon,
          evenness_pielou,
          any_of(paste0(protist_species, "_bioarea_mm2_per_ml")),
-         any_of(paste0(protist_species, "_indiv_per_ml")))
+         any_of(paste0(protist_species, "_indiv_per_ml"))) %>%
+  mutate(across(all_of(protist_species_indiv_per_ml), 
+                ~ (.x / indiv_per_ml) * 100, .names = "{.col}_dominance"),
+         across(all_of(protist_species_bioarea_mm2_per_ml), 
+                ~ (.x / indiv_per_ml) * 100, .names = "{.col}_dominance"),
+         log10_bioarea_mm2_per_ml = log10(bioarea_mm2_per_ml),
+         ln_bioarea_mm2_per_ml = log(bioarea_mm2_per_ml),
+         sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
+         cbrt_bioarea_mm2_per_ml = bioarea_mm2_per_ml^(1/3))
+```
+
+
+```{r}
+
+# --- FILL EMPTY ROWS --- #
+
+#Add the rows of the ecosystems that crashed as biomass zero and the rest as NA. 
+
+for(ecosystem_ID_i in 1:max(ds_ecosystems$ecosystem_ID)){
+  for(time_point_i in 0:max(ds_ecosystems$time_point)){
+  
+  empty_row = ds_ecosystems %>%
+    filter(ecosystem_ID == ecosystem_ID_i,
+           time_point == time_point_i) %>%
+    pull(bioarea_mm2_per_ml) %>%
+    { length(.) == 0 }
+  
+  if(empty_row == TRUE){
+    
+    ds_ecosystems = ds_ecosystems %>%
+       add_row(time_point = time_point_i,
+               day = unique(ds_ecosystems$day[ds_ecosystems$time_point == time_point_i]),
+               system_nr = unique(ds_ecosystems$system_nr[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
+               ecosystem_ID = ecosystem_ID_i,
+               trophic_type = unique(ds_ecosystems$trophic_type[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
+               ecosystem_size_ml = unique(ds_ecosystems$ecosystem_size_ml[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
+               connection = unique(ds_ecosystems$connection[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
+               disturbance_percentage = unique(ds_ecosystems$disturbance_percentage[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
+               bioarea_mm2_per_ml = 0,
+               bioarea_tot_mm2 = 0,
+               indiv_per_ml = 0,
+               sqrt_bioarea_mm2_per_ml = 0,
+               cbrt_bioarea_mm2_per_ml = 0)
+    }
+  }
+} 
 ```

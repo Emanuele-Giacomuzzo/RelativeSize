@@ -10,13 +10,17 @@ We have now completed the assembly of the dataset containing all individuals in 
 
 ```{r}
 
-## - (1) Create training dataset - ##
+# --- CREATE TRAINING DATASET --- #
 
-# Import the master (aka particles) data where particles in each video have been tracked.  
-
-training_individuals = read.csv(here("1_data",
-                                     paste0(threshold, "_threshold_analysis"),
-                                     "training.csv")) %>%
+training_individuals = NULL
+for(threshold_i in 1:length(threshold_levels)){
+  
+  # Import the master (aka particles) data where particles in each video have been tracked.  
+  
+  training_individuals[[threshold_i]] = read.csv(here("1_data",
+                                                      paste0(threshold_levels[threshold_i], 
+                                                             "_threshold_analysis"),
+                                                      "training.csv")) %>%
   
   # To increase the precision of the model, exclude Eug from the training monocultures, as we don't want species in heterotrophic to be mistaken for Euglena, as Euglena was not present in there. It doesn't matter how species in autotrophic ecosystems are identified, as we will change them anyway to Euglena. 
 
@@ -47,42 +51,52 @@ training_individuals = read.csv(here("1_data",
          N_frames,
          mean_area,
          everything())
+
+}
+
+ds_individuals_13 = training_individuals[[1]] %>%
+  filter(!species == "Ble")
+
+ds_individuals_40 = training_individuals[[2]] %>%
+  filter(species == "Ble")
+
+training_individuals = rbind(ds_individuals_13,
+                             ds_individuals_40)
 ```
 
 ```{r}
 
 ## - (2) Create predictive model - ##
 
-  species_ID_model = svm(
-    factor(species) ~
-      mean_grey +
-      sd_grey +
-      mean_area +
-      sd_area +
-      mean_perimeter +
-      mean_turning +
-      sd_turning +
-      sd_perimeter +
-      mean_major +
-      sd_major +
-      mean_minor +
-      sd_minor +
-      mean_ar +
-      sd_ar +
-      duration +
-      max_net  +
-      net_disp +
-      net_speed +
-      gross_disp +
-      max_step +
-      min_step +
-      sd_step +
-      sd_gross_speed +
-      max_gross_speed +
-      min_gross_speed ,
-    data = training_individuals,
-    probability = T,
-    na.action = na.pass)
+species_ID_model = svm(factor(species) ~
+                         mean_grey +
+                         sd_grey +
+                         mean_area +
+                         sd_area +
+                         mean_perimeter +
+                         mean_turning +
+                         sd_turning +
+                         sd_perimeter +
+                         mean_major +
+                         sd_major +
+                         mean_minor +
+                         sd_minor +
+                         mean_ar +
+                         sd_ar +
+                         duration +
+                         max_net  +
+                         net_disp +
+                         net_speed +
+                         gross_disp +
+                         max_step +
+                         min_step +
+                         sd_step +
+                         sd_gross_speed +
+                         max_gross_speed +
+                         min_gross_speed ,
+                       data = training_individuals,
+                       probability = T,
+                       na.action = na.pass)
 ```
 
 ```{r}
@@ -101,18 +115,6 @@ confusion_matrix = cbind(confusion_matrix,
   as.data.frame() %>%
   mutate(class_error_percentage = class_error * 100,
          class_error = NULL)
-
-if(threshold == 13){
-  
-  print(paste(paste(species_IDD_with_13_threshold, collapse = ", "),
-              "are identified with this threshold."))
-  
-  } else if (threshold == 40){
-  
-  print(paste(paste(species_IDD_with_40_threshold, collapse = ", "),
-              "are identified with this threshold."))
-                
-  }
 
 confusion_matrix
 ```

@@ -317,7 +317,8 @@ treatment_linetypes = c("connected" = "solid",
 Parameters for plotting.
 
 ```{r}
-figures_height_rmd_output = 10
+figures_width_rmd_output = 10
+figures_height_rmd_output = 8
 
 legend_position = "top"
 legend_width_cm = 2

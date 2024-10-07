@@ -52,3 +52,10 @@ write.csv(ds_metaecosystems,
 write.csv(ds_metaecosystems,
           file = here("files_for_ds_metaecos_es", "ds_metaecosystems.csv"))
 ```
+
+## Bibliography
+
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("3_results", "environments", "end.RData"))
+```

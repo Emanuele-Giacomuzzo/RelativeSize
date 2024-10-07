@@ -1,8 +1,0 @@
----
-title: "Untitled"
-output: html_document
-date: "2024-04-16"
----
-
-When we study the autotrophic-heterotrophic spatial feedback we always consider the size of the ecosystems to be the same. In my past experiment I show that the size of the ecosystems matter. However, we only showed that the relative size of ecosystems had an effect. Here, I ran an experiment in which I show that the absolute size of ecosystems matters as well. To do so, I run an experiment.
-

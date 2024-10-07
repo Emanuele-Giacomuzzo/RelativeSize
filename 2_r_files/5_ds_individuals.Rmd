@@ -10,7 +10,7 @@ To compile a dataset that encompasses information on every individual organism d
 
 ```{r}
 
-## - (1) Import datasets - ##
+# --- IMPORT DATASETS --- #
 
 ds_individuals = NULL
 for(time_point in time_points){
@@ -19,7 +19,7 @@ for(time_point in time_points){
   # We use time_point + 1 because our first time point is 0 and we cannot assign an object to ds_individuals[[0]], as the index of a dataset in R needs to be an integer >= 1. 
   
   ds_individuals[[time_point + 1]] = read.csv(here("1_data",
-                                                   paste0(threshold, "_threshold_analysis"),
+                                                   "13_threshold_analysis",
                                                    paste0("t", time_point, ".csv"))) %>%
 
     # To keep consistent with the term "ecosystem", rename culture ID to ecosystem ID.
