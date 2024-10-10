@@ -1,4 +1,4 @@
-plot.ecosystems.sizes.one.by.one = function(data,
+plot.ecos.sizes.one.by.one.replicates = function(data,
                                                  trophy_selected,
                                                  disturbance_percentage_selected,
                                                  response_variable,

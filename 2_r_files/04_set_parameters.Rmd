@@ -381,6 +381,7 @@ Parameters for modelling.
 first_time_point_model = 2 #Time point 2 is the first after disturbance
 last_time_point_model = time_points[length(time_points)]
 iterated_results_table = NULL
+time_point_of_baselines = 1
 
 optimizer_input = 'Nelder_Mead'
 method_input = ''

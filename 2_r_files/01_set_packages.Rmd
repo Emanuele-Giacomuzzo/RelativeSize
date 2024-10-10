@@ -36,6 +36,8 @@ library("officer")
 
 #Data analysis
 library("lmerTest") #To use mixed effects models that get you p-values and F statistics
+library("glmmTMB") # To use mixed effects models with Tweedie distributions
+library("nlme")
 library("vegan")
 library("betapart")
 library("Rmisc") #For summarySE

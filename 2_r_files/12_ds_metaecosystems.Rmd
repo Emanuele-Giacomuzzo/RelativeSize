@@ -381,5 +381,9 @@ expect_equal(nrow(ds_metaecosystems),
 
 ```{r}
 ds_metaecosystems = ds_metaecosystems %>%
-  mutate(bioarea_mm2_per_ml = total_metaecosystem_bioarea_mm2 / (ecosystem_size_ml * 2))
+  mutate(bioarea_mm2_per_ml = total_metaecosystem_bioarea_mm2 / (ecosystem_size_ml * 2),
+         sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
+         log_bioarea_mm2_per_ml = log(bioarea_mm2_per_ml),
+         inv_bioarea_mm2_per_ml = 1 / bioarea_mm2_per_ml,
+         exp_bioarea_mm2_per_ml = exp(bioarea_mm2_per_ml))
 ```

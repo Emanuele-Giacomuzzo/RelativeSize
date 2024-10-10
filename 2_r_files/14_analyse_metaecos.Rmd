@@ -1,0 +1,388 @@
+---
+title: "Isolated Autotrophic Relative - Biomass"
+output: html_document
+date: "2023-02-07"
+editor_options: 
+  chunk_output_type: console
+---
+
+#### Biomass {.tabset .tabset-dropdown}
+
+In the experiment we studied two-patch meta-ecosystems in which we manipulated the size of their patches and their connection (unconnected vs connected). Now, we want to know whether meta-ecosystem size influenced the effects of connection on this response variable. Therefore, we start by looking at how this response variable changed across time for all meta-ecosystems through its mean ± 95 confidence interval:
+
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+
+# --- PLOT ORIGINAL DATA MEAN ± 95 % CI --- #
+
+ggarrange(plot.metaecos.legend(ds_metaecosystems %>% filter(disturbance_percentage == "fixed"),
+                              response_variable_selected),
+          plot.metaecos.points(ds_metaecosystems %>% filter(disturbance_percentage == "fixed"),
+                               response_variable_selected)  +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank(),
+                  legend.position = "none") +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis) + 
+            ggtitle(fixed_label),
+          plot.metaecos.points(ds_metaecosystems %>% 
+                                 filter(disturbance_percentage == "decreasing_with_size"),
+                               response_variable_selected)  +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none") +
+            ggtitle(relative_label),
+          heights = c(0.25, 0.6, 0.6),
+          nrow = 3,
+          align = "v")
+```
+
+<details>
+<summary>A plot per ecosystem size - means </summary>
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output, message=FALSE}
+
+# --- PLOT ORIGINAL DATA MEAN ± 95 % CI WITH ONE PLOT PER ECOSYSTEM SIZE --- #
+
+sizes = unique(ds_metaecosystems$ecosystem_size_ml)
+p = NULL
+
+"Disturbance percentage FIXED"
+for(ecosystem_size_ml_i in 1:length(sizes)){
+  
+  p[[ecosystem_size_ml_i]] = plot.metaecos.points(ds_metaecosystems %>% 
+                                                    filter(disturbance_percentage == "fixed",
+                                                           ecosystem_size_ml == sizes[ecosystem_size_ml_i]),
+                                                  response_variable_selected) + 
+    theme(legend.position = "none")
+    
+}
+
+gridExtra::grid.arrange(p[[1]], 
+                        p[[2]], 
+                        p[[3]], 
+                        p[[4]], 
+                        nrow = 2, 
+                        ncol = 2)
+
+"Disturbance percentage DECREASING WITH SIZE"
+for(ecosystem_size_ml_i in 1:length(sizes)){
+  
+  p[[ecosystem_size_ml_i]] = plot.metaecos.points(ds_metaecosystems %>% 
+                                                    filter(disturbance_percentage == "decreasing_with_size",
+                                                           ecosystem_size_ml == sizes[ecosystem_size_ml_i]),
+                                                  response_variable_selected) + 
+    theme(legend.position = "none")
+}
+
+gridExtra::grid.arrange(p[[1]], 
+                        p[[2]], 
+                        p[[3]], 
+                        p[[4]], 
+                        nrow = 2, 
+                        ncol = 2)
+```
+</details>
+
+<br>
+
+```{r}
+
+# --- PREPARE DATA FOR ANALYSIS --- #
+
+# Add baselines
+
+baseline = ds_metaecosystems %>%
+  filter(time_point == time_point_of_baselines) %>%
+  select(system_nr,
+         all_of(response_variable_selected)) %>%
+  rename(baseline = all_of(response_variable_selected))
+
+data_for_analysis = ds_metaecosystems %>%
+  left_join(baseline)
+
+# Filter and mutate
+
+data_for_analysis = data_for_analysis %>%
+  filter(time_point >= first_time_point_model,
+         time_point <= last_time_point_model,
+         !is.na(!!sym(response_variable_selected)),
+         connection == "connected" | 
+          ecosystems_combined %in% unconnected_metaecosystems_selected) %>%
+  mutate(conn = factor(x = ifelse(connection == "connected", 
+                                  "con", 
+                                  "unconnected"),
+                       levels = c("unconnected", "con")))
+```
+
+<details>
+<summary>Filtered data</summary>
+```{r fig.height = figures_height_rmd_output, fig.width = figures_height_rmd_output}
+
+# --- PLOT DATA FOR ANALYSIS --- #
+
+ggarrange(plot.metaecos.legend(data_for_analysis %>% filter(disturbance_percentage == "fixed"),
+                              response_variable_selected),
+          plot.metaecos.points(data_for_analysis %>% filter(disturbance_percentage == "fixed"),
+                               response_variable_selected)  +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank(),
+                  legend.position = "none") +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis) + 
+            ggtitle(fixed_label),
+          plot.metaecos.points(data_for_analysis %>% filter(disturbance_percentage == "decreasing_with_size"),
+                               response_variable_selected)  +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(data_for_analysis$day)) +
+            theme(legend.position = "none") +
+            ggtitle(relative_label),
+          heights = c(0.25, 0.6, 0.6),
+          nrow = 3,
+          align = "v")
+```
+</details>
+
+```{r}
+
+# --- CREATE MODEL --- #
+
+# Prepare data
+
+data_for_analysis = data_for_analysis %>% 
+  rename(size = ecosystem_size_ml,
+         dis_per = disturbance_percentage) %>%
+  mutate(size = as.factor(size),
+         day = as.factor(day))
+
+# In the ouput lmerModLmerTest which means that it's a Linear Mixed Model from the lmerTest package
+
+basic_model = lmer(get(response_variable_selected) ~
+               size * conn * dis_per +
+               (1 | system_nr) +
+               (1 | baseline) + 
+               (1 | day),
+             data = data_for_analysis,
+             REML = FALSE,
+             control = lmerControl(optimizer = "Nelder_Mead"))
+
+# Extract residuals from the basic model
+
+data_for_analysis$residuals <- resid(basic_model)
+
+# Fit a new model with varIdent
+
+model <- gls(residuals ~ 
+               size * conn * dis_per,
+             data = data_for_analysis,
+             weights = varIdent(form = ~ 1 | day))
+
+model <-gls(bioarea_mm2_per_ml ~ size * conn * dis_per, 
+          data = data_for_analysis,
+          weights = varIdent(form =~ 1 | day * system_nr * baseline)) #Best size * dis_per * day + system_nr + 
+```
+
+```{r}
+
+# --- SELECT WHICH VARIABLE IS THE ONE THAT EXPLAINS HETEROSCEDISTICITY --- #
+# 
+# library(nlme)
+# 
+# f1 <- formula(bioarea_mm2_per_ml ~ size * conn * dis_per)
+# 
+# M0 <- gls(f1, 
+#           data = data_for_analysis)
+# 
+# M1A <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | size * dis_per * conn))
+# 
+# M1B <-gls(f1, 
+#           data = data_for_analysis,
+#           weights = varIdent(form =~ 1 | size * dis_per)) #This
+# 
+# M1C <-gls(f1, 
+#           data = data_for_analysis,
+#           weights = varIdent(form =~ 1 | dis_per * conn))
+# 
+# M1D <-gls(f1, 
+#           data = data_for_analysis,
+#           weights = varIdent(form =~ 1 | size * conn))
+# 
+# M1E <-gls(f1, 
+#           data = data_for_analysis,
+#           weights = varIdent(form =~ 1 | size))
+# 
+# M1F <-gls(f1, 
+#           data = data_for_analysis,
+#           weights = varIdent(form =~ 1 | dis_per))
+# 
+# M1G <-gls(f1, 
+#           data = data_for_analysis,
+#           weights = varIdent(form =~ 1 | conn))
+# 
+# M1H <-gls(f1, 
+#           data = data_for_analysis,
+#           weights = varIdent(form =~ 1 | day))
+# 
+# M1I <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | size * dis_per * conn * day))
+# 
+# M1L <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | size * dis_per * day)) #Best
+# 
+# M1M <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | size * conn * day))
+# 
+# M1N <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | dis_per * conn * day))
+# 
+# M1O <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | size * day))
+# 
+# M1P <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | dis_per * day))
+# 
+# M1Q <-gls(f1, 
+#           data = data_for_analysis, 
+#           weights = varIdent(form =~ 1 | conn * day))
+# 
+# anova(M0, M1A, M1B, M1C, M1D, M1E, M1F, M1G, M1H, M1I, M1L, M1M, M1N, M1O, M1P, M1Q)
+# 
+# plot(M1L)
+```
+
+
+<details>
+<summary>Model summary</summary>
+```{r}
+
+# --- SHOW MODEL SUMMARY --- #
+
+print(summary(model), digits = 3)
+```
+</details>
+
+<details open="open">
+<summary>Model ANOVA</summary>
+```{r}
+
+# --- SHOW MODEL ANOVA --- #
+
+car::Anova(model, type = "III")
+```
+</details>
+
+<details>
+<summary>Model residuals coding</summary>
+```{r}
+
+# --- CODE MODEL RESIDUALS --- #
+
+emmeans_output = emmeans(model,
+                         specs = ~  conn * dis_per * size,
+                         adjust = "sidak",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite") 
+
+emmeans_output
+
+uncon_decr_6_43 = c(1, rep(0,15)) 
+con_decr_6_43 = c(rep(0,1), 1, rep(0,14)) 
+uncon_fix_6_43 = c(rep(0,2), 1, rep(0,13)) 
+con_fix_6_43 = c(rep(0,3), 1, rep(0,12)) 
+uncon_decr_9 = c(rep(0,4), 1, rep(0,11)) 
+con_decr_9 = c(rep(0,5), 1, rep(0,10)) 
+uncon_fix_9 = c(rep(0,6), 1, rep(0,9)) 
+con_fix_9 = c(rep(0,7), 1, rep(0,8)) 
+uncon_decr_15 = c(rep(0,8), 1, rep(0,7))
+con_decr_15 = c(rep(0,9), 1, rep(0,6))
+uncon_fix_15 = c(rep(0,10), 1, rep(0,5))
+con_fix_15 = c(rep(0,11), 1, rep(0,4))
+uncon_decr_45 = c(rep(0,12), 1, rep(0,3))
+con_decr_45 = c(rep(0,13), 1, rep(0,2))
+uncon_fix_45 = c(rep(0,14), 1, rep(0,1))
+con_fix_45 = c(rep(0,15), 1)
+
+n_of_digits = 3
+contrasts = contrast(emmeans_output, 
+                     method = list("6.43 ml - decreasing % with size" = con_decr_6_43 - uncon_decr_6_43,
+                                   "9.00 ml - decreasing % with size" = con_decr_9 - uncon_decr_9,
+                                   "15.00 ml - decreasing % with size" = con_decr_15 - uncon_decr_15,
+                                   "45.00 ml - decreasing % with size" = con_decr_45 - uncon_decr_45,
+                                   "6.43 ml - fixed % with size" = con_fix_6_43 - uncon_fix_6_43,
+                                   "9.00 ml - fixed % with size" = con_fix_9 - uncon_fix_9,
+                                   "15.00 ml - fixed % with size" = con_fix_15 - uncon_fix_15,
+                                   "45.00 ml - fixed % with size" = con_fix_45 - uncon_fix_45)) %>% 
+  as.data.frame() %>%
+  mutate(p.value = round(p.value, digits = n_of_digits),
+         estimate = round(estimate, digits = n_of_digits),
+         SE = round(SE, digits = n_of_digits),
+         df = round(df, digits = n_of_digits),
+         t.ratio = round(t.ratio, digits = n_of_digits),
+         e = "",
+         e = ifelse(p.value > 0.1, 
+                           "",
+                           e),
+         e = ifelse(p.value < 0.05, 
+                           "*",
+                           e),
+         e = ifelse(p.value < 0.01, 
+                           "**",
+                           e),
+         e = ifelse(p.value < 0.001, 
+                           "***",
+                           e)) %>%
+  rename(" " = e)
+```
+</details>
+
+```{r}
+contrasts
+```
+
+<details open="open">
+<summary>Model residuals</summary>
+```{r fig.width = figures_height_rmd_output}
+
+# --- PLOT MODEL RESIDUALS --- #
+
+# Show Q-Q plot
+
+qqnorm(resid(model))
+qqline(resid(model))
+
+# Show Residuals vs Fitted plot
+
+create.res.vs.fit.metaecos(model,
+                           data_for_analysis)
+
+# Second way of doing it
+# fitted_values <- fitted(model)
+# residuals_values <- resid(model)
+# 
+# plot(fitted_values, residuals_values, 
+#      xlab = "Fitted Values", 
+#      ylab = "Residuals", 
+#      main = "Residuals vs. Fitted Values")
+# 
+# abline(h = 0, col = "red", lty = 2)
+# 
+# loess_fit <- loess(residuals_values ~ fitted_values)
+# lines(fitted_values[order(fitted_values)], 
+#       predict(loess_fit)[order(fitted_values)], 
+#       col = "blue", 
+#       lwd = 2)
+# 
+```
+</details>
+
+<br>

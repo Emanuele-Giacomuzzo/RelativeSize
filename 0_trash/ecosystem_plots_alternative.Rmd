@@ -1,0 +1,140 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-10-09"
+---
+
+<details>
+<summary>Single treatments: for each size connected vs unconnected</summary>
+```{r fig.width = figures_height_rmd_output, fig.height = (figures_height_rmd_output * 0.7)}
+
+# --- PLOT SINGLE REPLICATES, FOR EACH SIZE A PLOT --- #
+
+fixed_label
+plot.ecosystems.sizes.one.by.one(filtered_data,
+                                 trophy_selected,
+                                 disturbance_percentage_selected = "fixed",
+                                 response_variable_selected)
+
+relative_label
+plot.ecosystems.sizes.one.by.one(filtered_data,
+                                 trophy_selected,
+                                 disturbance_percentage_selected = "decreasing_with_size",
+                                 response_variable_selected)
+```
+</details>
+
+<details>
+<summary>A plot per ecosystem size, single replicates </summary>
+```{r fig.width = figures_height_rmd_output, fig.height = (figures_height_rmd_output * 0.7)}
+
+# --- PLOT ORIGINAL DATA MEAN ± 95 % CI WITH ONE PLOT PER ECOSYSTEM SIZE --- #
+
+for(trophy_selected in c("autotrophic", "heterotrophic")) {
+  
+  if(trophy_selected == "autotrophic" & response_variable_selected == "evenness_pielou"){
+    next
+  }
+  
+  trophy_selected
+  
+  fixed_label
+  plot.ecos.sizes.one.by.one.replicates(ds_ecosystems,
+                                        trophy_selected,
+                                        disturbance_percentage_selected = "fixed",
+                                        response_variable_selected)
+  
+  relative_label
+  plot.ecos.sizes.one.by.one.replicates(ds_ecosystems,
+                                        trophy_selected,
+                                        disturbance_percentage_selected = "decreasing_with_size",
+                                        response_variable_selected)
+}
+```
+</details>
+
+<details>
+<summary>Effect sizes using Hedge's d</summary>
+```{r fig.width = figures_height_rmd_output, fig.height = (figures_height_rmd_output * 0.7)}
+
+# --- PLOT ORIGINAL DATA EFFECT SIZES (HEDGE'S D) --- #
+
+for(trophy_selected in c("autotrophic", "heterotrophic")) {
+  
+  if(trophy_selected == "autotrophic" & response_variable_selected == "evenness_pielou"){
+    next
+  }
+  
+  ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
+                                    trophy_selected,
+                                    "fixed",
+                                    paste0(response_variable_selected, "_d")) +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank()) +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis),
+          NULL,
+          plot.ecosystems.points.ES(ds_ecosystems_effect_size,
+                                    trophy_selected,
+                                    "decreasing_with_size",
+                                    paste0(response_variable_selected, "_d"))  +
+            font("legend.text", size = size_legend) +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none"),
+          heights = c(1, 0.1, 0.8),
+          nrow = 3,
+          align = "v",
+          labels = c(fixed_label, "", relative_label),
+          label.x = c(0.01, 0, -0.083),
+          label.y = c(0.760, 0, 0.96)) %>%
+  print()
+
+  }
+```
+</details>
+
+<details>
+<summary>Effect sizes using log response ratio</summary>
+```{r fig.width = figures_height_rmd_output, fig.height = (figures_height_rmd_output * 0.7)}
+
+# --- PLOT ORIGINAL DATA EFFECT SIZES (LRR) --- #
+
+for(trophy_selected in c("autotrophic", "heterotrophic")) {
+  
+  if(trophy_selected == "autotrophic" & response_variable_selected == "evenness_pielou"){
+    next
+  }
+  
+
+ggarrange(plot.ecosystems.points.ES(ds_ecosystems_effect_size,
+                                    trophy_selected,
+                                    "fixed",
+                                    paste0(response_variable_selected, "_LRR")) +
+            rremove("xlab") +
+            theme(axis.text.x = element_blank(),
+                  axis.ticks.x = element_blank()) +
+            font("legend.text", size = size_legend) +
+            font("ylab", size = size_y_axis),
+          NULL,
+          plot.ecosystems.points.ES(ds_ecosystems_effect_size,
+                                    trophy_selected,
+                                    "decreasing_with_size",
+                                    paste0(response_variable_selected, "_LRR"))  +
+            font("legend.text", size = size_legend) +
+            font("xlab", size = size_y_axis) +
+            font("ylab", size = size_y_axis) +
+            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
+            theme(legend.position = "none"),
+          heights = c(1, 0.1, 0.8),
+          nrow = 3,
+          align = "v",
+          labels = c(fixed_label, "", relative_label),
+          label.x = c(0.01, 0, -0.083),
+          label.y = c(0.760, 0, 0.96)) %>%
+    print()
+}
+```
+</details>
