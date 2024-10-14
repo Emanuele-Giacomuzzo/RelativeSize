@@ -90,11 +90,6 @@ library("here")
 response_variable_selected = "bioarea_mm2_per_ml"
 ```
 
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("3_results", "environments", "before.RData"))
-```
-
 ```{r child = here("2_r_files", "14_analyse_metaecos.Rmd")}
 ```
 
@@ -105,6 +100,11 @@ save.image(file = here("3_results", "environments", "before.RData"))
 ```{r}
 response_variable_selected = "bioarea_mm2_per_ml"
 trophy_selected = c("heterotrophic", "autotrophic")
+```
+
+```{r echo=FALSE, message=FALSE}
+#Save environment
+save.image(file = here("3_results", "environments", "before.RData"))
 ```
 
 ```{r child = here("2_r_files", "15_analyse_ecos.Rmd")}
