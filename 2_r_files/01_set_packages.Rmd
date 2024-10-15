@@ -33,8 +33,10 @@ library("plotly")
 library("rempsyc")
 library("broom")
 library("officer")
+library("DHARMa") # Residuals visualisation for mixed effect models
 
 #Data analysis
+library("DHARMa")  # For model diagnostics
 library("lmerTest") #To use mixed effects models that get you p-values and F statistics
 library("glmmTMB") # To use mixed effects models with Tweedie distributions
 library("nlme")

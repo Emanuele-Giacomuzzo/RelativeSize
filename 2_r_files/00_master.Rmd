@@ -98,7 +98,7 @@ response_variable_selected = "bioarea_mm2_per_ml"
 ### Biomass {.tabset .tabset-dropdown}
 
 ```{r}
-response_variable_selected = "bioarea_mm2_per_ml"
+response_variable_selected = "log10_bioarea_mm2_per_ml"
 trophy_selected = c("heterotrophic", "autotrophic")
 ```
 

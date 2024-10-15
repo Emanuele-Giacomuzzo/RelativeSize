@@ -1,0 +1,87 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-10-15"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+
+# --- DEFINE PARAMETERS --- #
+
+response_variable_selected = "log10_bioarea_mm2_per_ml"
+trophy_selected = c("heterotrophic", "autotrophic")
+
+# --- PREPARE DATA FOR ANALYSIS --- #
+
+# Add baselines
+
+baseline = ds_ecosystems %>%
+  filter(time_point == time_point_of_baselines) %>%
+  select(ecosystem_ID,
+         all_of(response_variable_selected)) %>%
+  rename(baseline = all_of(response_variable_selected))
+
+data_for_analysis = ds_ecosystems %>%
+  left_join(baseline)
+
+# Filter and mutate
+
+data_for_analysis = data_for_analysis %>%
+  filter(time_point >= first_time_point_model,
+         time_point <= last_time_point_model,
+         !is.na(!!sym(response_variable_selected))) %>%
+  mutate(ecosystem_ID = as.factor(ecosystem_ID),
+         size = as.factor(ecosystem_size_ml),
+         conn = factor(x = ifelse(connection == "connected", 
+                                  "con", 
+                                  "unconnected"),
+                       levels = c("unconnected", "con")),
+         trophic_type = as.factor(trophic_type)) %>%
+  rename(dis_per = disturbance_percentage)
+```
+
+```{r}
+
+# --- MODELLING --- #
+
+model <- glmmTMB(bioarea_mm2_per_ml ~
+                   trophic_type * size * conn * dis_per + 
+                   (1 | ecosystem_ID) +
+                   (1 | day) +
+                   (1 | baseline),
+                 data = data_for_analysis,
+                 family = tweedie(link = "log"))
+
+simulationOutput <- simulateResiduals(fittedModel = model, n = 1000)
+testDispersion(simulationOutput)
+plot(simulationOutput) # Heterogeneous residuals
+plotResiduals(simulationOutput, form = data_for_analysis$size) # Heterogeneity caused by ecosystem size
+plotResiduals(simulationOutput, form = data_for_analysis$conn) # Heterogeneity NOT caused by connection
+plotResiduals(simulationOutput, form = data_for_analysis$dis_per) # Heterogeneity caused by dis_per
+plotResiduals(simulationOutput, form = data_for_analysis$trophic_type) # Heterogeneity caused by trophic type 
+testOutliers(simulationOutput) # No outliers
+testZeroInflation(simulationOutput) # No problems with zero inflation
+
+model <- glmmTMB(bioarea_mm2_per_ml ~
+                   trophic_type * size * conn * dis_per + 
+                   (1 | ecosystem_ID) +
+                   (1 | day) +
+                   (1 | baseline),
+                 data = data_for_analysis,
+                 family = tweedie(link = "log"),
+                 dispformula = ~ day + trophic_type + dis_per,)
+
+simulationOutput <- simulateResiduals(fittedModel = model, n = 1000)
+testDispersion(simulationOutput)
+plot(simulationOutput) # Problem with heterogeneity
+plotResiduals(simulationOutput, form = data_for_analysis$size) # Problem
+plotResiduals(simulationOutput, form = data_for_analysis$conn) 
+plotResiduals(simulationOutput, form = data_for_analysis$dis_per)  # Problem
+plotResiduals(simulationOutput, form = data_for_analysis$trophic_type) # Problem
+testOutliers(simulationOutput) 
+testZeroInflation(simulationOutput)
+```
+
+
