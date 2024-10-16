@@ -6,10 +6,15 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r echo=FALSE, message=FALSE, results=FALSE}
-functions_paths = list.files(here("..", "Functions"), pattern = ".R$", full.names = TRUE)
-lapply(functions_paths, source)
+```{r import-functions, echo=FALSE, message=FALSE, results=FALSE}
+
+# --- IMPORT MY FUNCTIONS --- #
+
+# Find the name of the files containing the functions
 
 functions_paths = list.files(here("2_r_files", "functions"), pattern = ".R$", full.names = TRUE)
+
+# Import the functions
+
 lapply(functions_paths, source)
 ```

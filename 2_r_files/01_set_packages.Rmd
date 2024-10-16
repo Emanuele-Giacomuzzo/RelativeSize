@@ -6,15 +6,24 @@ editor_options:
   chunk_output_type: console
 ---
 
-```{r set-up-environment, echo = FALSE, results = FALSE, message = FALSE, cache = FALSE}
+```{r set-up-renv, echo = FALSE, results = FALSE, message = FALSE, cache = FALSE}
+
+# --- SET UP THE PACKAGE "renv" FOR A REPRODUCIBILE ENVIRONMENT --- #
 
 # Install the package "renv" if it's not installed yet. Renv allows you to reinstall the specific package versions that were used when writing code for this project. 
+#
 # if (!requireNamespace("renv", quietly = TRUE)) {
 #   install.packages("renv")
 # }
 # 
 # #Reinstall the specific package versions that were used when writing code for this project. 
+#
 # renv::restore()
+```
+
+```{r load-packages, echo = FALSE, results = FALSE, message = FALSE, cache = FALSE}
+
+# --- LOAD PACKAGES --- #
 
 #General computing
 library("here")
@@ -51,6 +60,12 @@ library("SingleCaseES") #For the log response ratio
 
 #Conflicts
 library("conflicted")
+```
+
+```{r solve-package-conflicts, echo = FALSE, results = FALSE, message = FALSE, cache = FALSE}
+
+# --- SOLVE PACKAGE CONFLICTS --- #
+
 conflict_prefer("load", "base")
 conflict_prefer("filter", "dplyr")
 conflict_prefer("mutate", "dplyr")

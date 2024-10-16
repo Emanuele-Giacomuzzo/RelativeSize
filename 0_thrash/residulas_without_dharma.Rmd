@@ -1,0 +1,123 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-10-15"
+---
+
+```{r}
+# Create Q-Q plots
+
+qqnorm(resid(model))
+qqline(resid(model))
+
+# Create Res vs Fit plots - interactive
+
+create.res.vs.fit.ecosystems(model,
+                             data_for_analysis)
+
+# Create Res vs Fit plots - non interactive
+
+fitted_values <- fitted(model)
+residuals_values <- resid(model)
+
+plot(fitted_values, residuals_values,
+     xlab = "Fitted Values",
+     ylab = "Residuals",
+     main = "Residuals vs. Fitted Values")
+
+abline(h = 0, col = "red", lty = 2)
+
+loess_fit <- loess(residuals_values ~ fitted_values)
+lines(fitted_values[order(fitted_values)],
+      predict(loess_fit)[order(fitted_values)],
+      col = "blue",
+      lwd = 2)
+
+# Plot residuals spread by trophic type
+
+data_for_analysis$residuals <- residuals(model)
+data_for_analysis$fitted <- fitted(model)
+ggplot(data_for_analysis, aes(x = factor(trophic_type), y = residuals)) +
+  geom_boxplot() +
+  labs(x = "Trophic Type", y = "Residuals", title = "Residuals by Trophic Type")
+
+# Plot residuals spread by connection
+
+ggplot(data_for_analysis, aes(x = factor(connection), y = residuals)) +
+  geom_boxplot() +
+  labs(x = "Connection", y = "Residuals", title = "Residuals by connection")
+
+# Plot residuals spread by day
+
+ggplot(data_for_analysis, aes(x = factor(day), y = residuals)) +
+  geom_boxplot() +
+  labs(x = "Day", y = "Residuals", title = "Residuals by Day")
+
+# Plot residuals spread by disturbance percentage
+
+ggplot(data_for_analysis, aes(x = factor(dis_per), y = residuals)) +
+  geom_boxplot() +
+  labs(x = "Disturbance percentage", y = "Residuals", title = "Residuals by disturbance percentage")
+
+# Check zero inflation
+
+calculate_total_zeros <- function(data, factor_var) {
+  data %>%
+    group_by(!!rlang::sym(factor_var)) %>%  # Group by the specified factor
+    summarise(num_zeros = sum(bioarea_mm2_per_ml == 0), .groups = "drop")  # Count zeros
+}
+
+total_zeros_size <- calculate_total_zeros(data_for_analysis, "size")
+total_zeros_size$size <- factor(total_zeros_size$size, levels = c(6.43, 9, 15, 45))
+total_zeros_conn <- calculate_total_zeros(data_for_analysis, "conn")
+total_zeros_dis_per <- calculate_total_zeros(data_for_analysis, "dis_per")
+total_zeros_trophic <- calculate_total_zeros(data_for_analysis, "trophic_type")
+
+ggplot(total_zeros_day, aes(x = day, y = num_zeros, fill = day)) +
+  geom_bar(stat = "identity") +
+  labs(x = "Day", 
+       y = "Total Number of Zeros") +
+  theme_minimal() 
+
+ggplot(total_zeros_size, 
+       aes(x = as.factor(size), 
+           y = num_zeros, 
+           fill = as.factor(size))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Size", 
+       y = "Total Number of Zeros") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1", name = "Size")
+
+ggplot(total_zeros_conn, 
+       aes(x = as.factor(conn), 
+           y = num_zeros, 
+           fill = as.factor(conn))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Conn", 
+       y = "Total Number of Zeros") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1", name = "Conn")
+
+ggplot(total_zeros_dis_per, 
+       aes(x = as.factor(dis_per), 
+           y = num_zeros, 
+           fill = as.factor(dis_per))) +
+  geom_bar(stat = "identity") +
+  labs(x = "Dis_per", 
+       y = "Total Number of Zeros") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1", name = "Dis_per")
+
+ggplot(total_zeros_trophic, 
+       aes(x = trophic_type, 
+           y = num_zeros, 
+           fill = trophic_type)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Total Number of Zeros in bioarea_mm2_per_ml by Trophic Type", 
+       x = "Trophic Type", 
+       y = "Total Number of Zeros") +
+  theme_minimal() +
+  scale_fill_brewer(palette = "Set1", name = "Trophic Type")
+```
+

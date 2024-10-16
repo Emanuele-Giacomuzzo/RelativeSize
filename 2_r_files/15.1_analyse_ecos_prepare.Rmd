@@ -1,0 +1,84 @@
+---
+title: "Untitled"
+output: html_document
+date: "2023-11-28"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r fig.height = figures_height_rmd_output}
+
+# --- PLOT ORIGINAL DATA MEAN ± 95 % CI --- #
+
+plot.ecos.multi.plots(ds_ecosystems)
+```
+
+<details>
+<summary>Single treatments: for each size connected vs unconnected</summary>
+```{r fig.width = figures_height_rmd_output, fig.height = (figures_height_rmd_output * 0.7)}
+
+# --- PLOT ORIGINAL DATA MEAN ± 95 % CI - ONE PLOT FOR EACH SIZE --- #
+
+for(trophy_i in 1:length(trophy_selected)) {
+  
+  print(trophy_selected[trophy_i])
+  
+  print(fixed_label)
+  plot.ecos.sizes.one.by.one.means(ds_ecosystems,
+                                   trophy_selected = trophy_selected[trophy_i],
+                                   disturbance_percentage_selected = "fixed",
+                                   response_variable_selected)
+  
+  print(relative_label)
+  plot.ecos.sizes.one.by.one.means(ds_ecosystems,
+                                   trophy_selected = trophy_selected[trophy_i],
+                                   disturbance_percentage_selected = "decreasing_with_size",
+                                   response_variable_selected)
+  }
+```
+</details>
+
+ <br>
+
+```{r}
+
+# --- PREPARE DATA FOR ANALYSIS --- #
+
+# Add baselines
+
+baseline = ds_ecosystems %>%
+  filter(time_point == time_point_of_baselines) %>%
+  select(ecosystem_ID,
+         all_of(response_variable_selected)) %>%
+  rename(baseline = all_of(response_variable_selected))
+
+data_for_analysis = ds_ecosystems %>%
+  left_join(baseline)
+
+# Filter and mutate
+
+data_for_analysis = data_for_analysis %>%
+  filter(time_point %in% time_points_model,
+         !is.na(!!sym(response_variable_selected))) %>%
+  mutate(trophic_type = as.factor(trophic_type),
+         size = as.factor(ecosystem_size_ml),
+         conn = factor(x = ifelse(connection == "connected", 
+                                  "con", 
+                                  "unconnected"),
+                       levels = c("unconnected", "con")),
+         disturbance_percentage = as.factor(disturbance_percentage),
+         day = as.double(day),
+         ecosystem_ID = as.factor(ecosystem_ID))
+```
+
+<details>
+<summary>Filtered data mean ± 95 % CI</summary>
+```{r fig.width = figures_height_rmd_output, fig.height = figures_height_rmd_output}
+
+# --- PLOT DATA FOR ANALYSIS MEAN ± 95 % CI --- #
+
+plot.ecos.multi.plots(data_for_analysis)
+```
+</details>
+
+<br>

@@ -6,80 +6,43 @@ editor_options:
   chunk_output_type: console
 ---
 
-To compile a dataset that encompasses information on every individual organism detected at this threshold (ds_individuals), where each row represents an individual, we will go through the four following steps. (1) Import datasets. We import the individuals at each time point, as each time point is saved in a different file. (2) Bind time points. We bind all time points (ds_individuals[[1:5]]) together in a single dataset (ds_individuals). (3) Finish up. Finish up the ds_individuals dataset by adjusting some columns and levels.
-
 ```{r}
 
 # --- IMPORT DATASETS --- #
 
-ds_individuals = NULL
+# Loop through time points to import them and modify them
+
 for(time_point in time_points){
   
-  # Import the master data (aka particles data) where particles in each video have been tracked.
-  # We use time_point + 1 because our first time point is 0 and we cannot assign an object to ds_individuals[[0]], as the index of a dataset in R needs to be an integer >= 1. 
+  # Note: We use time_point + 1 for 1-based indexing in R.
   
   ds_individuals[[time_point + 1]] = read.csv(here("1_data",
                                                    "13_threshold_analysis",
                                                    paste0("t", time_point, ".csv"))) %>%
-
-    # To keep consistent with the term "ecosystem", rename culture ID to ecosystem ID.
-    
     rename(ecosystem_ID = culture_ID) %>%
-    
-    mutate(
-      
-      # To don't create rows with unnecessary NAs, remove the column "comment", as no entry received a comment in the experiment.
-      
-      comment = NULL,
-      
-      # To have everything in mm2 and ml, transform bioarea columns. 
-      
-      bioarea_µm2 = mean_area,
-      bioarea_mm2 = bioarea_µm2 * 10^-6,
-      bioarea_mm2_per_ml = bioarea_mm2 / volume_recorded_ml,
-      bioarea_mm2_per_frame_per_ml = bioarea_mm2_per_ml * N_frames / total_frames) %>%
-    
-    # To tidy up, reorder columns. 
-    
-    select(time_point, 
-           day, 
+    mutate(comment = NULL,
+           bioarea_µm2 = mean_area,
+           bioarea_mm2 = bioarea_µm2 * 10^-6,
+           bioarea_mm2_per_ml = bioarea_mm2 / volume_recorded_ml,
+           bioarea_mm2_per_frame_per_ml = bioarea_mm2_per_ml * N_frames / total_frames) %>%
+    left_join(ecosystem_info,
+              by = "ecosystem_ID") %>% # Add information about ecosystems
+    select(time_point,
+           day,
+           system_nr,
            ecosystem_ID,
-           id, 
-           everything())
+           ecosystem_size_ml,
+           trophic_type,
+           connection,
+           disturbance_percentage,
+           bioarea_mm2,
+           bioarea_mm2_per_frame_per_ml,
+           N_frames,
+           all_of(columns_for_species_ID))
 }
-```
 
-```{r}
-
-## - (2) Bind time points - ##
+# Bind time points
 
 ds_individuals = ds_individuals %>%
-  bind_rows()
-```
-
-```{r}
-
-## - (3) Finish up ds_individuals - ##
-
-ds_individuals = ds_individuals %>%
-  
-  # To have all the information on the ecosystems that were not in the original data, bind 'ds_individuals' with 'ecosystem_info'.
-  
-  left_join(ecosystem_info,
-            by = "ecosystem_ID") %>%
-  
-  # To tidy up, reorder columns. 
-  
-  select(time_point, 
-         day, 
-         system_nr, 
-         ecosystem_ID, 
-         ecosystem_size_ml,
-         trophic_type, 
-         connection,
-         disturbance_percentage,
-         bioarea_mm2,
-         bioarea_mm2_per_frame_per_ml,
-         N_frames,
-         all_of(columns_for_species_ID))
+  bind_rows() 
 ```

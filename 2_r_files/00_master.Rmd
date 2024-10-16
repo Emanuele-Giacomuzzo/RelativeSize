@@ -98,16 +98,14 @@ response_variable_selected = "bioarea_mm2_per_ml"
 ### Biomass {.tabset .tabset-dropdown}
 
 ```{r}
-response_variable_selected = "log10_bioarea_mm2_per_ml"
+response_variable_selected = "bioarea_mm2_per_ml"
 trophy_selected = c("heterotrophic", "autotrophic")
 ```
 
-```{r echo=FALSE, message=FALSE}
-#Save environment
-save.image(file = here("3_results", "environments", "before.RData"))
+```{r child = here("2_r_files", "15.1_analyse_ecos_prepare.Rmd")}
 ```
 
-```{r child = here("2_r_files", "15_analyse_ecos.Rmd")}
+```{r child = here("2_r_files", "15.2_analyse_ecos_biomass.Rmd")}
 ```
 
 ### Shannon {.tabset .tabset-dropdown}
@@ -117,17 +115,10 @@ response_variable_selected = "shannon"
 trophy_selected = "heterotrophic"
 ```
 
-```{r child = here("2_r_files", "15_analyse_ecos.Rmd")}
+```{r child = here("2_r_files", "15.1_analyse_ecos_prepare.Rmd")}
 ```
 
-### Evenness {.tabset .tabset-dropdown}
-
-```{r}
-response_variable_selected = "evenness_pielou"
-trophy_selected = "heterotrophic"
-```
-
-```{r child = here("2_r_files", "15_analyse_ecos.Rmd")}
+```{r child = here("2_r_files", "15.2_analyse_ecos_shannon.Rmd")}
 ```
 
 ### Dominance {.tabset .tabset-pills}

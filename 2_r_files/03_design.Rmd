@@ -4,6 +4,4 @@ output: html_document
 date: "2024-10-07"
 ---
 
-
-![](../4_other/Design.png)
 ![](../4_other/Design_paper.png)

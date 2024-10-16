@@ -6,9 +6,10 @@ editor_options:
   chunk_output_type: console
 ---
 
-Parameters for R markdown and the general running of the code.
+```{r general-parameters}
 
-```{r}
+# --- SET PARAMETERS FOR R MARKDOWN AND THE GENERAL RUNNING OF THE CODE --- #
+
 knitr::opts_chunk$set(message = FALSE, 
                       cache = FALSE,
                       autodep = FALSE)
@@ -16,86 +17,120 @@ start_time = Sys.time()
 recompute_analyses = FALSE 
 ```
 
-Parameters necessary to use the package BEMOVI (includes sampling parameters).
+```{r bemovi-parameters}
 
-```{r}
-fps = 25 #Frames per second 
-seconds_per_video = 5
-total_frames = fps * seconds_per_video
-measured_volume = 34.4 #volume measured for each video in µL
-volume_recorded_μl = measured_volume
-volume_recorded_ml = volume_recorded_μl * 10^-3
-pixel_to_scale = 4.05
-filter_min_net_disp = 25
-filter_min_duration = 1 
-filter_detection_freq = 0.1
-filter_median_step_length = 3
+# --- SET PARAMETERS NECESSARY TO USE THE PACKAGE BEMOVI (INCLUDES SAMPLING PARAMETERS) --- #
+
+# Define time points and associated sampling days
 
 time_points = 0:7
 sampling_days = c(0, 4, 8, 12, 16, 20, 24, 28)
 
-threshold_levels = c(13, 40) #These are the two lower threshold for pixel intensity for imageJ to distinguish between background and foreground. We analysed the videos using 13 as the minimum threshold, then did the same with 40. 
+# Define parameters used for analysing the videos in the package BEMOVI
 
-video.description.folder = "0_video_description/"
-video.description.file = "video_description.txt"
-merged_data_folder = "5_merged_data/"
+fps = 25  # Frames per second (frame rate of the video)
+seconds_per_video = 5  # Duration of each video in seconds
+total_frames = fps * seconds_per_video  # Total number of frames in each video
+measured_volume = 34.4  # Volume measured for each video in microliters (µL)
+volume_recorded_μl = measured_volume  # Storing the measured volume in µL
+volume_recorded_ml = volume_recorded_μl * 10**-3  # Converting the volume from µL to milliliters (mL)
+pixel_to_scale = 4.05  # Conversion factor for pixels to µm
+filter_min_net_disp = 25  # Minimum net displacement for an object to be considered a protist (pixels)
+filter_min_duration = 1  # Minimum duration an object must be tracked to be considered a protist (seconds)
+filter_detection_freq = 0.1  # Minimum frequency of detection in the video for an object to be considered a protist (detected frames / total frames)
+filter_median_step_length = 3  # Minimum step length for an object to be considered a protist (pixels)
+threshold_levels = c(13, 40) # Two lower pixel intensity thresholds for ImageJ to distinguish background from protists (higher threshold used for Ble)
+video.description.folder = "0_video_description/" # Folder where the video descriptions (metadata about each video) are stored
+video.description.file = "video_description.txt" # Filename of the text file containing the description of each video
+merged_data_folder = "5_merged_data/" # Folder where the merged data files from the analysis will be stored
 
-columns_for_species_ID = c("mean_grey",
-                           "sd_grey",
-                           "mean_area",
-                           "sd_area",
-                           "mean_perimeter",
-                           "mean_turning",
-                           "sd_turning",
-                           "sd_perimeter",
-                           "mean_major",
-                           "sd_major",
-                           "mean_minor",
-                           "sd_minor",
-                           "mean_ar",
-                           "sd_ar",
-                           "duration",
-                           "max_net",
-                           "net_disp",
-                           "net_speed",
-                           "gross_disp",
-                           "max_step",
-                           "min_step",
-                           "sd_step",
-                           "sd_gross_speed",
-                           "max_gross_speed",
-                           "min_gross_speed")
+# Define columns that will be used for identifying species based on their movement and morphological characteristics
+
+columns_for_species_ID = c(
+  "mean_grey",         # Mean grayscale value (intensity) of the detected protist (brightness)
+  "sd_grey",           # Standard deviation of the grayscale values (intensity variation)
+  "mean_area",         # Mean area (in pixels) of the detected protist
+  "sd_area",           # Standard deviation of the protist's area
+  "mean_perimeter",    # Mean perimeter (length around the protist) of the detected protist
+  "mean_turning",      # Mean turning angle of the protist's trajectory (how much the protist changes direction)
+  "sd_turning",        # Standard deviation of the turning angles (variability in direction change)
+  "sd_perimeter",      # Standard deviation of the protist's perimeter
+  "mean_major",        # Mean length of the major axis of the protist (longest dimension)
+  "sd_major",          # Standard deviation of the major axis length
+  "mean_minor",        # Mean length of the minor axis of the protist (shortest dimension)
+  "sd_minor",          # Standard deviation of the minor axis length
+  "mean_ar",           # Mean aspect ratio (ratio of major to minor axis length)
+  "sd_ar",             # Standard deviation of the aspect ratio
+  "duration",          # Duration of time the protist is tracked in the video
+  "max_net",           # Maximum net displacement (greatest straight-line distance traveled)
+  "net_disp",          # Total net displacement (total straight-line distance from start to end of the trajectory)
+  "net_speed",         # Mean net speed (speed based on net displacement)
+  "gross_disp",        # Total gross displacement (total distance traveled including all movement)
+  "max_step",          # Maximum step length (largest distance moved between two consecutive frames)
+  "min_step",          # Minimum step length (smallest distance moved between two consecutive frames)
+  "sd_step",           # Standard deviation of the step lengths (variability in frame-to-frame movement)
+  "sd_gross_speed",    # Standard deviation of gross speed (variability in speed over time)
+  "max_gross_speed",   # Maximum gross speed (highest speed achieved)
+  "min_gross_speed")    # Minimum gross speed (lowest speed detected)
 ```
 
-Parameters related to resource flows.
+```{r resource-flow-parameters}
 
-```{r}
+# --- SET PARAMETERS RELATED TO RESOURCE FLOWS --- #
+
 resource_flow_days = c(5, 9, 13, 17, 21, 25)
-size_effect_types = c("fixed", "decreasing_with_size")
 fixed_label = "Disturbance percentage FIXED"
 relative_label = "Disturbance percentage DECREASING WITH SIZE"
 ```
 
-Parameters related to protists.
+```{r protists-parameters}
 
-```{r}
+# --- SET PARAMETERS RELATED TO PROTISTS --- #
+
 protist_species = c("Ble", "Cep", "Col", "Eug", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
 protist_species_indiv_per_ml = paste0(protist_species, "_indiv_per_ml")
 protist_species_bioarea_mm2_per_ml = paste0(protist_species, "_bioarea_mm2_per_ml")
 protist_species_dominance = paste0(protist_species_bioarea_mm2_per_ml, "_dominance")
-species_IDD_with_13_threshold = c("Col", "Cep", "Eup", "Lox", "Pau", "Pca", "Spi_te", "Tet")
-species_IDD_with_40_threshold = c("Ble", "Spi")
 ```
 
-Parameters related to ecosystems.
+```{r individuals-parameters}
 
-```{r}
-ds_ecosystems = NULL
-ds_ecosystems_effect_size = NULL
+# --- SET PARAMETERS RELATED TO INDIVIDUALS --- #
+
+# Initialise the dataset "ds_individuals" and "training_individuals"
+
+ds_individuals = list()
+training_individuals = list()
+```
+
+```{r ecosystems-parameters}
+
+# --- SET PARAMETERS RELATED TO ECOSYSTEMS --- #
+
+# Initialise the dataset "ds_ecosystems_effect_size"
+
+ds_ecosystems_effect_size = list()
+
+# Define ecosystems to take off because of problems in the experiment
+
 ecosystems_to_take_off = NA
+
+# Define the variables you want to calculate for each ecosystem
+
+variables_ecosystems = c("bioarea_mm2_per_ml",
+                        "indiv_per_ml",
+                        "species_richness",
+                        "shannon",
+                        "evenness_pielou",
+                        protist_species_indiv_per_ml,
+                        protist_species_dominance)
+
+# Define the levels of variables
 
 connection_ordered = c("unconnected", "connected")
 ecosystem_sizes_ml = c(6.43, 9.00, 15.00, 45.00)
+
+# Import the information about ecosystems
 
 ecosystem_info = read.csv(here("1_data", "ecosystem_info.csv"), header = TRUE) %>%
   rename(ecosystem_ID = culture_ID,
@@ -115,22 +150,27 @@ ecosystem_info = read.csv(here("1_data", "ecosystem_info.csv"), header = TRUE) %
          connection,
          disturbance_percentage)
 
-n_ecosystems = max(ecosystem_info$ecosystem_ID)
+# Find the number of ecosystems in the experiment
 
-variables_ecosystems = c("bioarea_mm2_per_ml",
-                        "indiv_per_ml",
-                        "species_richness",
-                        "shannon",
-                        "evenness_pielou",
-                        protist_species_indiv_per_ml,
-                        protist_species_dominance)
+n_ecosystems = max(ecosystem_info$ecosystem_ID)
 ```
 
-Parameters related to meta-ecosystems.
+```{r metaecosystems-parameters}
 
-```{r experiment}
-ds_metaecosystems = NULL
+# --- SET PARAMETERS RELATED TO META-ECOSYSTEMS --- #
+
+# Initialise the "ds_metaecosystems" dataset
+ds_metaecosystems = list()
+
+# Define meta-ecosystems to take off because of problems in the experiment
+
 metaecosystems_to_take_off = NA
+
+# Define the variables you want to calculate for each meta-ecosystem
+
+variables_metaecos = c("total_metaecosystem_bioarea_mm2")
+
+# Find the number of meta-ecosystems in the experiment
 
 system_nr_metaecosystems = ecosystem_info %>%
   filter(connection == "connected") %>%
@@ -139,27 +179,8 @@ system_nr_metaecosystems = ecosystem_info %>%
 
 n_metaecosystems = length(system_nr_metaecosystems)
 
-variables_metaecos = c("total_metaecosystem_bioarea_mm2")
+# Select which unconnected meta-ecosystems should be linked to form unconnected meta-ecosystems
 
-unconnected_metaecosystems = data.frame(system_type = as.character(NA),
-                                        autotrophic_ecosystem_IDs = as.character(NA),
-                                        heterotrophic_ecosystem_IDs = as.character(NA)) %>%
-  slice(-1)
-
-# for(row in 1:nrow(names)) {
-#   
-#   unconnected_metaecosystems = unconnected_metaecosystems %>%
-#     add_row(system_type = names$system_type[row],
-#             autotrophic_ecosystem_IDs = ecosystem_info %>%
-#               filter(eco_metaeco_type == names$autotrophic_ecosystem[row]) %>%
-#               pull(ecosystem_ID) %>%
-#               paste(., collapse = ", "),
-#             heterotrophic_ecosystem_IDs = ecosystem_info %>%
-#               filter(eco_metaeco_type == names$heterotrophic_ecosystem[row]) %>%
-#               pull(ecosystem_ID) %>%
-#               paste(., collapse = ", "))
-# }
-# 
 unconnected_metaecosystems_selected = c("1|7",
                                         "2|8",
                                         "3|9",
@@ -217,26 +238,137 @@ unconnected_metaecosystems_selected = c("1|7",
                                         "138|144")
 ```
 
-Name of the axes per response variable.
+```{r plotting-parameters}
 
-```{r}
+# --- SET PARAMETERS FOR PLOTTING --- #
+
+# Set line colours 
+
+treatment_colours_metaecosystems = c("6.43 ml" = "#ffeda0",
+                                     "9.00 ml" = "#fecc5c",
+                                     "15.00 ml" = "#fd8d3c",
+                                     "45.00 ml" = "#e31a1c")
+
+treatment_colours_autotrophic = c("6.43 ml" = "#e5f5e0",
+                                  "9.00 ml" = "#b2e2e2",
+                                  "15.00 ml" = "#66c2a4",
+                                  "45.00 ml" = "#238b45")
+
+treatment_colours_heterotrophic = c("6.43 ml" = "#deebf7",
+                                    "9.00 ml" = "#bdd7e7",
+                                    "15.00 ml" = "#6baed6",
+                                    "45.00 ml" = "#2171b5")
+
+# Set line types
+
+treatment_linetypes = c("connected" = "solid",
+                        "unconnected" = "longdash")
+
+# Set figure height and width in the RMD output
+
+figures_width_rmd_output = 10
+figures_height_rmd_output = 8
+
+# Set parameters legend
+
+legend_position = "top"
+legend_width_cm = 2
+size_legend = 12
+
+# Set parameters axes
+
+size_x_axis = 16
+size_y_axis = 14
+
+# Set parameters boxplots
+
+boxplot_width = 2
+
+# Set parameters points & error bars
+
+treatment_points_size = 2.5
+width_errorbar = 2
+dodging_error_bar = 0.5
+dodging = 0.5
+
+# Set parameters lines
+
+treatment_lines_linewidth = 1
+
+# Set parameters resource flow line (vertical line indicating the days of the resource flow)
+
+resource_flow_line_type = "solid"
+resource_flow_line_colour = "#d9d9d9"
+resource_flow_line_width = 0.3
+
+# Set parameters of the horizontal line crossing zero
+
+zero_line_colour = "grey"
+zero_line_line_type = "dotted"
+zero_line_line_width = 0.5
+zero_line_ES_line_type = "dotted"
+zero_line_ES_colour = "grey"
+zero_line_ES_line_width = 1
+
+# Set parameters of the package "ggarrange" which combines multiple ggplots
+
+ggarrange_margin_top = 0
+ggarrange_margin_bottom = 0
+ggarrange_margin_left = 0
+ggarrange_margin_right = 0
+
+# Set parameters of the figures saved for the paper
+
+paper_labels_size = 12
+paper_width = 17.3
+paper_height = 20
+paper_units = "cm"
+paper_res = 600
+
+# Set parameters of the figures saved for presentations
+
+presentation_figure_size = 15
+presentation_figure_width = 30
+presentation_figure_height = 22
+presentation_legend_size = 20
+presentation_x_axis_size = 20
+presentation_y_axis_size = presentation_x_axis_size
+presentation_treatment_points_size = 5
+presentation_treatment_linewidth = 2
+presentation_figure_units = "cm"
+presentation_figure_res = 600
+
+# Set parameters for the grey background used to show the time points excluded from the analysis
+
+grey_background_xmin = -Inf
+grey_background_xmax = 7.5
+grey_background_ymin = -Inf
+grey_background_ymax = Inf
+grey_background_fill = "#f0f0f0"
+grey_background_alpha = 0.03
+grey_background_color = "transparent"
+
+# Set axis names
+
 axis_names = data.frame(variable = NA,
                         axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Time (day)") %>%
   add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem Size (ml)") %>%
+  add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Total Biomass (mm²)") %>%
+  add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Total Biomass ES (Hedge's d)") %>%
+  add_row(variable = "bioarea_tot", axis_name = "Total Biomass (mm²)") %>%
   add_row(variable = "bioarea_mm2_per_ml", axis_name = "Biomass Density (mm²/ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Biomass Density ES (Hedge's d)") %>%
-  add_row(variable = "bioarea_tot", axis_name = "Total Biomass (mm²)") %>%
-  add_row(variable = "species_richness", axis_name = "Species Richness") %>%
-  add_row(variable = "species_richness_d", axis_name = "Species Richness ES") %>%
-  add_row(variable = "shannon", axis_name = "Shannon Index") %>%
-  add_row(variable = "shannon_d", axis_name = "Shannon Index ES") %>%
-  add_row(variable = "evenness_pielou", axis_name = "Evenness (Pielou's Index)") %>%
-  add_row(variable = "evenness_pielou_d", axis_name = "Evenness ES") %>%
-  add_row(variable = "log_abundance", axis_name = "Log Abundance + 1 (ind/mm²)") %>%
-  add_row(variable = "abundance_hedges_d", axis_name = "Density ES") %>%
   add_row(variable = "indiv_per_ml", axis_name = "Abundance (ind/ml)") %>%
   add_row(variable = "indiv_per_ml_d", axis_name = "Abundance ES") %>%
+  add_row(variable = "shannon", axis_name = "Shannon Index") %>%
+  add_row(variable = "shannon_d", axis_name = "Shannon Index ES") %>%
+  add_row(variable = "species_richness", axis_name = "Species Richness") %>%
+  add_row(variable = "species_richness_d", axis_name = "Species Richness ES") %>%
+  add_row(variable = "evenness_pielou", axis_name = "Evenness (Pielou's Index)") %>%
+  add_row(variable = "evenness_pielou_d", axis_name = "Evenness ES") %>%
+  add_row(variable = "median_body_area_µm2", axis_name = "Median Body Size (µm²)") %>%
+  add_row(variable = "median_body_area_µm2_d", axis_name = "Median Body Size ES") %>%
   add_row(variable = "Ble_indiv_per_ml", axis_name = "Ble Density (ind/ml)") %>% 
   add_row(variable = "Cep_indiv_per_ml", axis_name = "Cep Density (ind/ml)") %>%
   add_row(variable = "Col_indiv_per_ml", axis_name = "Col Density (ind/ml)") %>%
@@ -259,7 +391,6 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "Spi_indiv_per_ml_d", axis_name = "Spi Density ES") %>%
   add_row(variable = "Spi_te_indiv_per_ml_d", axis_name = "Spi te Density ES") %>%
   add_row(variable = "Tet_indiv_per_ml_d", axis_name = "Tet Density ES") %>%
-  add_row(variable = "dominance", axis_name = "Dominance (%)") %>%
   add_row(variable = "Ble_indiv_per_ml_dominance", axis_name = "Ble Dominance (%)") %>%
   add_row(variable = "Cep_indiv_per_ml_dominance", axis_name = "Cep Dominance (%)") %>%
   add_row(variable = "Col_indiv_per_ml_dominance", axis_name = "Col Dominance (%)") %>%
@@ -282,128 +413,18 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "Sp_indiv_per_mli_dominance_d", axis_name = "Spi Dominance ES") %>%
   add_row(variable = "Spi_te_indiv_per_ml_dominance_d", axis_name = "Spi te Dominance ES") %>%
   add_row(variable = "Tet_indiv_per_ml_dominance_d", axis_name = "Tet Dominance ES") %>%
+  add_row(variable = "dominance", axis_name = "Dominance (%)") %>%
+  add_row(variable = "abundance_hedges_d", axis_name = "Density ES") %>%
   add_row(variable = "log_size_class", axis_name = "Log Size (μm2)") %>%
   add_row(variable = "class_indiv_per_µl", axis_name = "Density (ind/ml)") %>%
-  add_row(variable = "median_body_area_µm2", axis_name = "Median Body Size (µm²)") %>%
-  add_row(variable = "median_body_area_µm2_d", axis_name = "Median Body Size ES") %>%
   add_row(variable = "beta_diversity_from_unconnected", axis_name = "Divergence from unconnected") %>%
-  
-  add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Total Biomass (mm²)") %>%
-  add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Total Biomass ES (Hedge's d)") %>%
-  
   slice(-1)
 ```
 
-```{r}
-treatment_colours_metaecosystems = c("6.43 ml" = "#ffeda0",
-                                     "9.00 ml" = "#fecc5c",
-                                     "15.00 ml" = "#fd8d3c",
-                                     "45.00 ml" = "#e31a1c")
+```{r modelling-parameters}
 
-treatment_colours_autotrophic = c("6.43 ml" = "#e5f5e0",
-                                  "9.00 ml" = "#b2e2e2",
-                                  "15.00 ml" = "#66c2a4",
-                                  "45.00 ml" = "#238b45")
+# --- SET PARAMETERS FOR MODELLING --- #
 
-treatment_colours_heterotrophic = c("6.43 ml" = "#deebf7",
-                                    "9.00 ml" = "#bdd7e7",
-                                    "15.00 ml" = "#6baed6",
-                                    "45.00 ml" = "#2171b5")
-
-treatment_linetypes = c("connected" = "solid",
-                        "unconnected" = "longdash")
-```
-
-Parameters for plotting.
-
-```{r}
-figures_width_rmd_output = 10
-figures_height_rmd_output = 8
-
-legend_position = "top"
-legend_width_cm = 2
-size_legend = 12
-size_x_axis = 16
-size_y_axis = 14
-boxplot_width = 2
-dodging = 0.5 
-width_errorbar = 2
-dodging_error_bar = 0.5
-
-treatment_lines_linewidth = 1
-treatment_points_size = 2.5
-
-resource_flow_line_type = "solid"
-resource_flow_line_colour = "#d9d9d9"
-resource_flow_line_width = 0.3
-
-zero_line_colour = "grey"
-zero_line_line_type = "dotted"
-zero_line_line_width = 0.5
-zero_line_ES_line_type = "dotted"
-zero_line_ES_colour = "grey"
-zero_line_ES_line_width = 1
-
-ggarrange_margin_top = 0
-ggarrange_margin_bottom = 0
-ggarrange_margin_left = 0
-ggarrange_margin_right = 0
-
-paper_labels_size = 12
-paper_width = 17.3
-paper_height = 20
-paper_units = "cm"
-paper_res = 600
-
-presentation_figure_size = 15
-presentation_figure_width = 30
-presentation_figure_height = 22
-presentation_legend_size = 20
-presentation_x_axis_size = 20
-presentation_y_axis_size = presentation_x_axis_size
-presentation_treatment_points_size = 5
-presentation_treatment_linewidth = 2
-presentation_figure_units = "cm"
-presentation_figure_res = 600
-
-grey_background_xmin = -Inf
-grey_background_xmax = 7.5
-grey_background_ymin = -Inf
-grey_background_ymax = Inf
-grey_background_fill = "#f0f0f0"
-grey_background_alpha = 0.03
-grey_background_color = "transparent"
-```
-
-Parameters for modelling.
-
-```{r}
-first_time_point_model = 2 #Time point 2 is the first after disturbance
-last_time_point_model = time_points[length(time_points)]
-iterated_results_table = NULL
 time_point_of_baselines = 1
-
-optimizer_input = 'Nelder_Mead'
-method_input = ''
-
-results_table = data.frame(Response = as.character(NA),
-                           Levels = as.character(NA),
-                           ΔAIC_full = NA,
-                           p_full = NA,
-                           ΔR2_full = NA,
-                           ΔAIC_fix = NA,
-                           p_fix = NA,
-                           ΔR2_fix = NA) %>%
-  slice(-1)
-
-iterated_results_table = data.frame(Response = as.character(NA),
-                                    Levels = as.character(NA),
-                                    ΔAIC_full = NA,
-                                    p_full = NA,
-                                    ΔR2_full = NA,
-                                    ΔAIC_fix = NA,
-                                    p_fix = NA,
-                                    ΔR2_fix = NA,
-                                    combination_set = NA) %>%
-  slice(-1)
+time_points_model = 2:7 # Time point 2 is the first after disturbance
 ```

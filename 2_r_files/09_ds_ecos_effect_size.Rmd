@@ -30,18 +30,24 @@ $$
 
 ```{r}
 
-## - (1) Calculate means, standard deviations and sample sizes - ##
+# --- CALCULATE MEANS, STANDARD DEVIATIONS, AND SAMPLE SIZES FOR EACH ECOSYSTEM VARIABLE --- #
+# These information will be useful to calculate effect sizes
 
-for (variable_i in 1:length(variables_ecosystems)) {
+## Loop through each variable in the 'variables_ecosystems' vector to calculate 
+# means, standard deviations, and sample sizes for each ecosystem variable.
+
+for (i in 1:length(variables_ecosystems)) {
   
-  ds_ecosystems_effect_size[[variable_i]] = ds_ecosystems %>%
-    filter(
-      
-      # To have a cleaner dataset filter out ecosystems in which this variable could not be computed (e.g., species richness of a crashed culture). 
-      
-      !is.na(!!sym(variables_ecosystems[variable_i]))) %>%
+  # Create a new dataset for each ecosystem variable
+  
+  ds_ecosystems_effect_size[[i]] = ds_ecosystems %>%
     
-    # To afterwards calculate effect sizes, get the mean, sd, and sample size of treatments at each time point 
+    # Filter out rows where the current ecosystem variable is NA.
+    
+    filter(!is.na(!!sym(variables_ecosystems[i]))) %>%
+    
+    # For each treatment at each time point calculate the mean , 
+    #standard deviation, and sample size of the current variable
     
     group_by(across(all_of(c("time_point",
                              "day",
@@ -49,19 +55,23 @@ for (variable_i in 1:length(variables_ecosystems)) {
                              "trophic_type",
                              "connection",
                              "disturbance_percentage")))) %>%
-    summarise(across(all_of(variables_ecosystems[variable_i]),
-                     list(mean = mean,
-                          sd = sd)),
+    summarise(across(all_of(variables_ecosystems[i]),
+                     list(mean = mean,   
+                          sd = sd)),     
               sample_size = n()) %>%
     
-    # To know of which variable the sample size is when you afterwards bind columns, add the name of the variable to the name of the sample size column. 
+    # Rename the sample size column to include the variable name 
+    # for clarity in future operations.
     
-    rename_with( ~ paste0(variables_ecosystems[variable_i], 
+    rename_with( ~ paste0(variables_ecosystems[i], 
                           "_sample_size"),
                  matches("sample_size"))
 }
 
-# To have in the rows treatment and in the columns means, sd, and sample size, bind columns together. 
+# After processing each variable, combine the results into a single dataset.
+# The full_join() function merges the datasets by the key grouping columns,
+# so that each treatment has its means, standard deviations, and sample sizes 
+# in separate columns.
 
 ds_ecosystems_effect_size <- reduce(ds_ecosystems_effect_size,
                                     full_join,
@@ -73,22 +83,17 @@ ds_ecosystems_effect_size <- reduce(ds_ecosystems_effect_size,
                                            "disturbance_percentage"))
 ```
 
-```{r echo=FALSE, eval=FALSE}
-expect_equal(nrow(ds_ecosystems_effect_size),
-             (n_controls + n_treatments) * (length(time_points)))
-```
-
 ```{r}
 
-## - (2) Calculate Hedge's d - ##
+# --- CALCULATE HEDGE'S D --- #
 
 # Initialise the effect size columns 
 
-for (variable_i in length(variables_ecosystems)) {
+for (i in length(variables_ecosystems)) {
   ds_ecosystems_effect_size <- ds_ecosystems_effect_size %>%
-    mutate(!!paste0(variables_ecosystems[variable_i], "_d") := NA,
-           !!paste0(variables_ecosystems[variable_i], "_d_upper") := NA,
-           !!paste0(variables_ecosystems[variable_i], "_d_lower") := NA)
+    mutate(!!paste0(variables_ecosystems[i], "_d") := NA,
+           !!paste0(variables_ecosystems[i], "_d_upper") := NA,
+           !!paste0(variables_ecosystems[i], "_d_lower") := NA)
 }
 
 ds_ecosystems_effect_size = ds_ecosystems_effect_size %>%

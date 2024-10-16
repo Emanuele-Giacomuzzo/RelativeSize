@@ -1,0 +1,165 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-10-15"
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r}
+
+# --- CREATE MODEL --- #
+
+# Prepare data
+
+data_for_analysis = data_for_analysis %>% 
+  rename(dis_per = disturbance_percentage)
+
+# Model
+
+model <- glmmTMB(bioarea_mm2_per_ml ~
+                   trophic_type * size * conn * dis_per + 
+                   (1 | ecosystem_ID) +
+                   (1 | day) +
+                   (1 | baseline),
+                 data = data_for_analysis,
+                 family = tweedie(link = "log"),
+                 dispformula = ~ day + trophic_type + dis_per)
+```
+
+<details>
+<summary>Model summary</summary>
+```{r}
+
+# --- SHOW MODEL SUMMARY --- #
+
+print(summary(model), digits = 3)
+```
+</details>
+
+<details open="open">
+<summary>Model ANOVA</summary>
+```{r eval = FALSE}
+
+# --- SHOW MODEL ANOVA --- #
+
+car::Anova(model, type = "III") 
+```
+</details>
+
+<details>
+<summary>Model residuals coding</summary>
+```{r}
+
+# --- CODE MODEL RESIDUALS --- #
+
+emmeans_output = emmeans(model,
+                         specs = ~  conn * dis_per * size * trophic_type,
+                         adjust = "sidak",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite") 
+
+emmeans_output
+
+aut_uncon_decr_6_43 = c(1, rep(0,31)) 
+aut_con_decr_6_43 = c(rep(0,1), 1, rep(0,30)) 
+aut_uncon_fix_6_43 = c(rep(0,2), 1, rep(0,29)) 
+aut_con_fix_6_43 = c(rep(0,3), 1, rep(0,28)) 
+aut_uncon_decr_9 = c(rep(0,4), 1, rep(0,27))
+aut_con_decr_9 = c(rep(0,5), 1, rep(0,26)) 
+aut_uncon_fix_9 = c(rep(0,6), 1, rep(0,25)) 
+aut_con_fix_9 = c(rep(0,7), 1, rep(0,24)) 
+aut_uncon_decr_15 = c(rep(0,8), 1, rep(0,23))
+aut_con_decr_15 = c(rep(0,9), 1, rep(0,22))
+aut_uncon_fix_15 = c(rep(0,10), 1, rep(0,21))
+aut_con_fix_15 = c(rep(0,11), 1, rep(0,20))
+aut_uncon_decr_45 = c(rep(0,12), 1, rep(0,19))
+aut_con_decr_45 = c(rep(0,13), 1, rep(0,18))
+aut_uncon_fix_45 = c(rep(0,14), 1, rep(0,17))
+aut_con_fix_45 = c(rep(0,15), 1, rep(0,16))
+
+het_uncon_decr_6_43 = c(rep(0,16), 1, rep(0,15)) 
+het_con_decr_6_43 = c(rep(0,17), 1, rep(0,14)) 
+het_uncon_fix_6_43 = c(rep(0,18), 1, rep(0,13)) 
+het_con_fix_6_43 = c(rep(0,19), 1, rep(0,12)) 
+het_uncon_decr_9 = c(rep(0,20), 1, rep(0,11)) 
+het_con_decr_9 = c(rep(0,21), 1, rep(0,10)) 
+het_uncon_fix_9 = c(rep(0,22), 1, rep(0,9)) 
+het_con_fix_9 = c(rep(0,23), 1, rep(0,8)) 
+het_uncon_decr_15 = c(rep(0,24), 1, rep(0,7))
+het_con_decr_15 = c(rep(0,25), 1, rep(0,6))
+het_uncon_fix_15 = c(rep(0,26), 1, rep(0,5))
+het_con_fix_15 = c(rep(0,27), 1, rep(0,4))
+het_uncon_decr_45 = c(rep(0,28), 1, rep(0,3))
+het_con_decr_45 = c(rep(0,29), 1, rep(0,2))
+het_uncon_fix_45 = c(rep(0,30), 1, rep(0,1))
+het_con_fix_45 = c(rep(0,31), 1)
+
+n_of_digits = 3
+contrasts = contrast(emmeans_output, 
+                     method = list("Aut 6.43 ml decrease % with size" = aut_con_decr_6_43 - aut_uncon_decr_6_43,
+                                   "Aut 9.00 ml decrease % with size" = aut_con_decr_9 - aut_uncon_decr_9,
+                                   "Aut 15.00 ml decrease % with size" = aut_con_decr_15 - aut_uncon_decr_15,
+                                   "Aut 45.00 ml decrease % with size" = aut_con_decr_45 - aut_uncon_decr_45,
+                                   "Aut 6.43 ml fixed % with size" = aut_con_fix_6_43 - aut_uncon_fix_6_43,
+                                   "Aut 9.00 ml fixed % with size" = aut_con_fix_9 - aut_uncon_fix_9,
+                                   "Aut 15.00 ml fixed % with size" = aut_con_fix_15 - aut_uncon_fix_15,
+                                   "Aut 45.00 ml fixed % with size" = aut_con_fix_45 - aut_uncon_fix_45,
+                                   
+                                   "Het 6.43 ml decrease % with size" = het_con_decr_6_43 - het_uncon_decr_6_43,
+                                   "Het 9.00 ml decrease % with size" = het_con_decr_9 - het_uncon_decr_9,
+                                   "Het 15.00 ml decrease % with size" = het_con_decr_15 - het_uncon_decr_15,
+                                   "Het 45.00 ml decrease % with size" = het_con_decr_45 - het_uncon_decr_45,
+                                   "Het 6.43 ml fixed % with size" = het_con_fix_6_43 - het_uncon_fix_6_43,
+                                   "Het 9.00 ml fixed % with size" = het_con_fix_9 - het_uncon_fix_9,
+                                   "Het 15.00 ml fixed % with size" = het_con_fix_15 - het_uncon_fix_15,
+                                   "Het 45.00 ml fixed % with size" = het_con_fix_45 - het_uncon_fix_45)) %>% 
+  as.data.frame() %>%
+  mutate(p.value = round(p.value, digits = n_of_digits),
+         estimate = round(estimate, digits = n_of_digits),
+         SE = round(SE, digits = n_of_digits),
+         df = round(df, digits = n_of_digits),
+         t.ratio = round(z.ratio, digits = n_of_digits),
+         e = "",
+         e = ifelse(p.value > 0.1, 
+                           "",
+                           e),
+         e = ifelse(p.value < 0.05, 
+                           "*",
+                           e),
+         e = ifelse(p.value < 0.01, 
+                           "**",
+                           e),
+         e = ifelse(p.value < 0.001, 
+                           "***",
+                           e)) %>%
+  rename(" " = e)
+```
+</details>
+
+```{r}
+contrasts
+```
+
+<details open="open">
+<summary>Model residuals</summary>
+```{r fig.width = figures_height_rmd_output}
+
+# --- PLOT MODEL RESIDUALS --- #
+
+simulationOutput <- simulateResiduals(fittedModel = model, n = 1000)
+testDispersion(simulationOutput)
+plot(simulationOutput)
+
+plotResiduals(simulationOutput, form = data_for_analysis$day)
+plotResiduals(simulationOutput, form = data_for_analysis$size)
+plotResiduals(simulationOutput, form = data_for_analysis$conn)
+plotResiduals(simulationOutput, form = data_for_analysis$dis_per)
+if(response_variable_selected == "bioarea_mm2_per_ml") {
+  plotResiduals(simulationOutput, form = data_for_analysis$trophic_type)
+  }
+
+testOutliers(simulationOutput)
+testZeroInflation(simulationOutput)
+```
+</details>

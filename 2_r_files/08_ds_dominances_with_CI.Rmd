@@ -6,14 +6,33 @@ editor_options:
   chunk_output_type: console
 ---
 
-Get ds_dominances_with_CI with all the mean and 95 % CI dominance of all the species. 
+This R script calculates the mean dominance and confidence intervals for different species in an ecosystem study. The goal is to prepare the data for visualization, where each species' dominance values, along with their upper and lower boundaries, will be plotted.
+
+Mean Dominance Calculation: The dominances_mean variable groups the data by various experimental conditions (e.g., day, time point, ecosystem size, trophic type) and calculates the mean dominance for each species. Missing values are ignored with na.rm = TRUE. The data is then pivoted to a long format, where each species is represented in a species column, and the corresponding dominance value is in the mean_dominance column.
+
+Lower Confidence Interval (95% CI): The dominances_lower variable calculates the lower boundary (2.5th percentile) of the dominance values for each species, again grouped by experimental conditions. This step ensures that you can visualize the uncertainty around the mean values. The resulting data is also reshaped into a long format with a lower_95_CI column.
+
+Upper Confidence Interval (95% CI): The dominances_upper variable calculates the upper boundary (97.5th percentile) of the dominance values for each species, grouped similarly to the previous steps. The data is reshaped with an upper_95_CI column.
+
+Combining Mean and CI Data: The final step involves merging the mean dominance data with the calculated lower and upper confidence intervals (dominances_mean, dominances_lower, and dominances_upper) using full_join(). The result is a comprehensive dataset (ds_dominances_with_CI) that contains the mean, lower, and upper confidence intervals for each species across the experimental conditions. This dataset is ready for visualization.
 
 ```{r}
 
-# To be able to plot dominance for multiple species, get their mean, upper boundary, and lower boundary in a long format. 
+# --- GET SPECIES DOMINANCE MEAN +- 95 % CI IN A LONG FORMAT --- #
+
+# Calculate mean dominance for each species, grouped by day, time point, 
+# ecosystem size, trophic type, connection, and disturbance percentage
 
 dominances_mean = ds_ecosystems %>%
-  group_by(day, time_point, ecosystem_size_ml, trophic_type, connection, disturbance_percentage) %>%
+  group_by(day, 
+           time_point, 
+           ecosystem_size_ml, 
+           trophic_type, 
+           connection, 
+           disturbance_percentage) %>%
+  
+  # Calculate the mean dominance for each species, ignoring missing values
+  
   reframe(Ble = mean(Ble_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Cep = mean(Cep_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Col = mean(Col_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
@@ -25,12 +44,31 @@ dominances_mean = ds_ecosystems %>%
           Spi = mean(Spi_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Spi_te = mean(Spi_te_bioarea_mm2_per_ml_dominance, na.rm = TRUE),
           Tet = mean(Tet_bioarea_mm2_per_ml_dominance, na.rm = TRUE)) %>%
-  pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
+  
+  # Convert the data from wide to long format, with 'species' as a new column 
+  # and their respective 'mean_dominance'
+  
+  pivot_longer(cols = -c("day", 
+                         "time_point", 
+                         "ecosystem_size_ml", 
+                         "trophic_type", 
+                         "connection", 
+                         "disturbance_percentage"), 
                names_to = "species", 
                values_to = "mean_dominance")
 
+# Calculate lower 95% confidence interval for each species
+
 dominances_lower = ds_ecosystems %>%
-  group_by(day, time_point, ecosystem_size_ml, trophic_type, connection, disturbance_percentage) %>%
+  group_by(day, 
+           time_point, 
+           ecosystem_size_ml, 
+           trophic_type, 
+           connection, 
+           disturbance_percentage) %>%
+  
+  # Calculate the 2.5th percentile (lower bound of the 95% CI) for each species
+  
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
@@ -42,12 +80,20 @@ dominances_lower = ds_ecosystems %>%
           Spi = quantile(Spi_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Spi_te = quantile(Spi_te_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Tet = quantile(Tet_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE)) %>%
+  
+  # Convert to long format with 'species' and their respective 'lower_95_CI' values
+  
   pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
                names_to = "species", 
                values_to = "lower_95_CI")
 
+# Calculate upper 95% confidence interval for each species
+
 dominances_upper = ds_ecosystems %>%
   group_by(day, time_point, ecosystem_size_ml, trophic_type, connection, disturbance_percentage) %>%
+  
+  # Calculate the 97.5th percentile (upper bound of the 95% CI) for each species
+  
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
@@ -59,13 +105,18 @@ dominances_upper = ds_ecosystems %>%
           Spi = quantile(Spi_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Spi_te = quantile(Spi_te_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Tet = quantile(Tet_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE)) %>%
+  
+  # Convert to long format with 'species' and their respective 'upper_95_CI' values
+  
   pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
                names_to = "species", 
                values_to = "upper_95_CI")
 
+# Combine the mean dominance, lower 95% CI, and upper 95% CI into one dataset
+
 ds_dominances_with_CI = reduce(list(dominances_mean, 
-                                 dominances_lower,
-                                 dominances_upper),
-                            full_join,
-                            by = NULL)
+                                    dominances_lower,
+                                    dominances_upper),
+                               full_join, # Join all datasets by common columns (implicitly by species and conditions)
+                               by = NULL)
 ```

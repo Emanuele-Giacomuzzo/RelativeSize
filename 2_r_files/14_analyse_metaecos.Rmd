@@ -104,8 +104,7 @@ data_for_analysis = ds_metaecosystems %>%
 # Filter and mutate
 
 data_for_analysis = data_for_analysis %>%
-  filter(time_point >= first_time_point_model,
-         time_point <= last_time_point_model,
+  filter(time_point %in% time_points_model,
          !is.na(!!sym(response_variable_selected)),
          connection == "connected" | 
           ecosystems_combined %in% unconnected_metaecosystems_selected) %>%
