@@ -1,12 +1,69 @@
 ---
-title: "Untitled"
+title: "Analyse Ecosystem Shannon"
 output: html_document
 date: "2024-10-15"
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r}
+```{r define-parameters-eco-shannon}
+
+# --- DEFINE PARAMETERS --- #
+
+response_variable_selected = "shannon"
+```
+
+```{r plot-original-data-one-size-per-plot-ecos-shannon, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
+
+# Plot heterotrophic ecosystems
+
+print("Heterotrophic ecosystems")
+plot.ecos.sizes.one.by.one.means(ds_ecosystems,
+                                 "heterotrophic",
+                                 response_variable_selected,
+                                 light_colour_hetero,
+                                 dark_colour_hetero,
+                                 y_upper_limit = 2.4)
+```
+
+ <br>
+
+```{r prepared-data-for-analysis-ecos-shannon}
+
+# --- PREPARE DATA FOR ANALYSIS --- #
+
+# Add baselines
+
+baseline = ds_ecosystems %>%
+  filter(time_point == time_point_of_baselines) %>%
+  select(ecosystem_ID,
+         all_of(response_variable_selected)) %>%
+  rename(baseline = all_of(response_variable_selected))
+
+data_for_analysis = ds_ecosystems %>%
+  left_join(baseline)
+
+# Filter and mutate
+
+data_for_analysis = data_for_analysis %>%
+  filter(time_point %in% time_points_model,
+         !is.na(!!sym(response_variable_selected))) %>%
+  mutate(trophic_type = as.factor(trophic_type),
+         size = as.factor(ecosystem_size_ml),
+         conn = factor(x = ifelse(connection == "connected", 
+                                  "con", 
+                                  "unconnected"),
+                       levels = c("unconnected", "con")),
+         disturbance_percentage = as.factor(disturbance_percentage),
+         day = as.double(day),
+         ecosystem_ID = as.factor(ecosystem_ID))
+```
+
+<br>
+
+```{r create-model-ecos-shannon}
 
 # --- CREATE MODEL --- #
 
@@ -32,92 +89,140 @@ model = glmmTMB(shannon ~
 ```
 
 <details>
-<summary>Model residuals coding</summary>
-```{r eval = (response_variable_selected == "shannon" | response_variable_selected == "evenness_pielou")}
+<summary>Model summary</summary>
+```{r show-model-summary-ecos-shannon}
 
-# --- CODE MODEL RESIDUALS --- #
+# --- SHOW MODEL SUMMARY --- #
 
-emmeans_output = emmeans(model,
-                         specs = ~  conn * dis_per * size,
-                         adjust = "sidak",
-                         bias.adj = TRUE,
-                         lmer.df = "satterthwaite") 
-
-emmeans_output
-
-uncon_decr_6_43 = c(1, rep(0,15)) 
-con_decr_6_43 = c(rep(0,1), 1, rep(0,14)) 
-uncon_fix_6_43 = c(rep(0,2), 1, rep(0,13)) 
-con_fix_6_43 = c(rep(0,3), 1, rep(0,12)) 
-uncon_decr_9 = c(rep(0,4), 1, rep(0,11)) 
-con_decr_9 = c(rep(0,5), 1, rep(0,10)) 
-uncon_fix_9 = c(rep(0,6), 1, rep(0,9)) 
-con_fix_9 = c(rep(0,7), 1, rep(0,8)) 
-uncon_decr_15 = c(rep(0,8), 1, rep(0,7))
-con_decr_15 = c(rep(0,9), 1, rep(0,6))
-uncon_fix_15 = c(rep(0,10), 1, rep(0,5))
-con_fix_15 = c(rep(0,11), 1, rep(0,4))
-uncon_decr_45 = c(rep(0,12), 1, rep(0,3))
-con_decr_45 = c(rep(0,13), 1, rep(0,2))
-uncon_fix_45 = c(rep(0,14), 1, rep(0,1))
-con_fix_45 = c(rep(0,15), 1)
-
-n_of_digits = 3
-contrasts = contrast(emmeans_output, 
-                     method = list("6.43 ml decrease % with size" = con_decr_6_43 - uncon_decr_6_43,
-                                   "9.00 ml decrease % with size" = con_decr_9 - uncon_decr_9,
-                                   "15.00 ml decrease % with size" = con_decr_15 - uncon_decr_15,
-                                   "45.00 ml decrease % with size" = con_decr_45 - uncon_decr_45,
-                                   "6.43 ml fixed % with size" = con_fix_6_43 - uncon_fix_6_43,
-                                   "9.00 ml fixed % with size" = con_fix_9 - uncon_fix_9,
-                                   "15.00 ml fixed % with size" = con_fix_15 - uncon_fix_15,
-                                   "45.00 ml fixed % with size" = con_fix_45 - uncon_fix_45)) %>% 
-  as.data.frame() %>%
-  mutate(p.value = round(p.value, digits = n_of_digits),
-         estimate = round(estimate, digits = n_of_digits),
-         SE = round(SE, digits = n_of_digits),
-         df = round(df, digits = n_of_digits),
-         z.ratio = round(z.ratio, digits = n_of_digits),
-         e = "",
-         e = ifelse(p.value > 0.1, 
-                           "",
-                           e),
-         e = ifelse(p.value < 0.05, 
-                           "*",
-                           e),
-         e = ifelse(p.value < 0.01, 
-                           "**",
-                           e),
-         e = ifelse(p.value < 0.001, 
-                           "***",
-                           e)) %>%
-  rename(" " = e)
+print(summary(model), digits = 3)
 ```
 </details>
 
-```{r}
+<details open="open">
+<summary>Model ANOVA</summary>
+```{r show-model-anova-ecos-shannon}
+
+# --- SHOW MODEL ANOVA --- #
+
+car::Anova(model, type = "III") 
+```
+</details>
+
+<details>
+<summary>Model residuals coding</summary>
+```{r code-model-contrasts-ecos-shannon}
+
+# --- CODE MODEL CONSTRASTS --- #
+
+# Estimate marginal means (Least-squares means)
+
+emmeans_output = emmeans(model,
+                         specs = ~  conn * dis_per * size,  # Calculate emmeans for the interaction of conn, dis_per, and size
+                         adjust = "sidak",  # Use Sidak adjustment for multiple comparisons
+                         bias.adj = TRUE,  # Apply bias adjustment
+                         lmer.df = "satterthwaite")  # Use Satterthwaite approximation for degrees of freedom
+
+emmeans_output
+
+# Define contrast vectors for each group
+
+uncon_decr_6_43 = c(1, rep(0,15)) # Autotrophic, unconnected, 6.43 ml decrease
+con_decr_6_43 = c(rep(0,1), 1, rep(0,14)) # Autotrophic, connected, 6.43 ml decrease
+uncon_fix_6_43 = c(rep(0,2), 1, rep(0,13)) # Autotrophic, unconnected, 6.43 ml fixed
+con_fix_6_43 = c(rep(0,3), 1, rep(0,12)) # Autotrophic, connected, 6.43 ml fixed
+uncon_decr_9 = c(rep(0,4), 1, rep(0,11)) # Autotrophic, unconnected, 9.00 ml decrease
+con_decr_9 = c(rep(0,5), 1, rep(0,10)) # Autotrophic, connected, 9.00 ml decrease
+uncon_fix_9 = c(rep(0,6), 1, rep(0,9)) # Autotrophic, unconnected, 9.00 ml fixed
+con_fix_9 = c(rep(0,7), 1, rep(0,8)) # Autotrophic, connected, 9.00 ml fixed
+uncon_decr_15 = c(rep(0,8), 1, rep(0,7)) # Autotrophic, unconnected, 15.00 ml decrease
+con_decr_15 = c(rep(0,9), 1, rep(0,6)) # Autotrophic, connected, 15.00 ml decrease
+uncon_fix_15 = c(rep(0,10), 1, rep(0,5)) # Autotrophic, unconnected, 15.00 ml fixed
+con_fix_15 = c(rep(0,11), 1, rep(0,4)) # Autotrophic, connected, 15.00 ml fixed
+uncon_decr_45 = c(rep(0,12), 1, rep(0,3)) # Autotrophic, unconnected, 45.00 ml decrease
+con_decr_45 = c(rep(0,13), 1, rep(0,2)) # Autotrophic, connected, 45.00 ml decrease
+uncon_fix_45 = c(rep(0,14), 1, rep(0,1)) # Autotrophic, unconnected, 45.00 ml fixed
+con_fix_45 = c(rep(0,15), 1) # Autotrophic, connected, 45.00 ml fixed
+
+n_of_digits = 3 # Set number of digits for rounding
+
+# Calculate contrasts using the defined vectors
+
+contrasts = contrast(emmeans_output, 
+                     method = list("6.43 ml no interact" = con_fix_6_43 - uncon_fix_6_43,
+                                   "6.43 ml with interact" = con_decr_6_43 - uncon_decr_6_43,
+                                   "9.00 ml no interact" = con_fix_9 - uncon_fix_9,
+                                   "9.00 ml with interact" = con_decr_9 - uncon_decr_9,
+                                   "15.00 ml no interact" = con_fix_15 - uncon_fix_15,
+                                   "15.00 ml with interact" = con_decr_15 - uncon_decr_15,
+                                   "45.00 ml no interact" = con_fix_45 - uncon_fix_45,
+                                   "45.00 ml with interact" = con_decr_45 - uncon_decr_45)) %>% 
+  as.data.frame() %>%  # Convert the contrast output to a data frame
+  mutate(p.value = round(p.value, digits = n_of_digits),  # Round p-value to specified digits
+         estimate = round(estimate, digits = n_of_digits),  # Round estimate
+         SE = round(SE, digits = n_of_digits),  # Round standard error
+         df = round(df, digits = n_of_digits),  # Round degrees of freedom
+         t.ratio = round(z.ratio, digits = n_of_digits),  # Round t-ratio (z.ratio)
+         e = "",  # Initialize a column for significance indicators
+         e = ifelse(p.value > 0.1, 
+                           "",  # No symbol if p-value > 0.1
+                           e),
+         e = ifelse(p.value < 0.05, 
+                           "*",  # Add * if p-value < 0.05
+                           e),
+         e = ifelse(p.value < 0.01, 
+                           "**",  # Add ** if p-value < 0.01
+                           e),
+         e = ifelse(p.value < 0.001, 
+                           "***",  # Add *** if p-value < 0.001
+                           e)) %>%
+  rename(" " = e)  # Rename column to show significance markers
+```
+</details>
+
+```{r how-model-contrasts-ecos-shannon}
+
+# --- SHOW MODEL CONTRASTS --- #
+
 contrasts
 ```
 
 <details open="open">
 <summary>Model residuals</summary>
-```{r fig.width = figures_height_rmd_output}
+```{r plot-model-residuals-ecos-shannon, fig.width = figures_height_rmd_output}
 
 # --- PLOT MODEL RESIDUALS --- #
 
-simulationOutput <- simulateResiduals(fittedModel = model, n = 1000)
+# Simulate residuals from the fitted model
+
+simulationOutput <- simulateResiduals(fittedModel = model, 
+                                      n = 1000) 
+
+# Test for overdispersion in the model to check if variance exceeds mean
+
 testDispersion(simulationOutput)
+
+# Plot Q-Q and Residuals vs Fitted plots
+
 plot(simulationOutput)
 
-plotResiduals(simulationOutput, form = data_for_analysis$day)
-plotResiduals(simulationOutput, form = data_for_analysis$size)
-plotResiduals(simulationOutput, form = data_for_analysis$conn)
-plotResiduals(simulationOutput, form = data_for_analysis$dis_per)
-if(response_variable_selected == "bioarea_mm2_per_ml") {
-  plotResiduals(simulationOutput, form = data_for_analysis$trophic_type)
-  }
+# Plot residuals against specific predictors to check if residuals are 
+# independent of these variables
+
+plotResiduals(simulationOutput, 
+              form = data_for_analysis$day) 
+plotResiduals(simulationOutput, 
+              form = data_for_analysis$size)
+plotResiduals(simulationOutput, 
+              form = data_for_analysis$conn)
+plotResiduals(simulationOutput, 
+              form = data_for_analysis$dis_per)
+
+# Test for outliers 
 
 testOutliers(simulationOutput)
+
+# Test for zero inflation not accounted for
+
 testZeroInflation(simulationOutput)
 ```
 </details>

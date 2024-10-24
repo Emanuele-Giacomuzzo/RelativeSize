@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Create Dataset with the Means and 95% CI of Species Dominances"
 output: html_document
 date: "2024-04-26"
 editor_options: 
@@ -16,7 +16,7 @@ Upper Confidence Interval (95% CI): The dominances_upper variable calculates the
 
 Combining Mean and CI Data: The final step involves merging the mean dominance data with the calculated lower and upper confidence intervals (dominances_mean, dominances_lower, and dominances_upper) using full_join(). The result is a comprehensive dataset (ds_dominances_with_CI) that contains the mean, lower, and upper confidence intervals for each species across the experimental conditions. This dataset is ready for visualization.
 
-```{r}
+```{r create-ds_dominances_with_CI}
 
 # --- GET SPECIES DOMINANCE MEAN +- 95 % CI IN A LONG FORMAT --- #
 

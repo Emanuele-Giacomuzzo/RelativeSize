@@ -19,11 +19,7 @@ editor_options:
 
 #  {.tabset}
 
-```{r echo=FALSE, message=FALSE}
-library("here")
-```
-
-```{r child = here("2_r_files", "01_set_packages.Rmd"), echo=FALSE}
+```{r child = here::here("2_r_files", "01_set_packages.Rmd"), echo=FALSE}
 ```
 
 ```{r child = here("2_r_files", "02_set_functions.Rmd"), echo=FALSE}
@@ -31,7 +27,7 @@ library("here")
 
 ## Design
 
-```{r child = here("2_r_files", "03_design.Rmd"), echo=FALSE}
+```{r child = here("2_r_files", "03_show_design.Rmd"), echo=FALSE}
 ```
 
 ## Parameters {.tabset .tabset-dropdown}
@@ -40,6 +36,11 @@ library("here")
 ```
 
 ## Data {.tabset .tabset-dropdown}
+
+### Produce data from videos
+
+```{r child = here("2_r_files", "??_analyse_videos.Rmd"), class.source = 'fold-show', eval = FALSE}
+```
 
 ### Individuals (`ds_individuals`)
 
@@ -70,7 +71,6 @@ library("here")
 ```
 
 ### Species effect sizes LRR (`ds_species_effect_sizes_LRR`)
-
 ```{r child = here("2_r_files", "11_ds_species_effect_sizes_LRR.Rmd"), class.source = 'fold-show'}
 ```
 
@@ -86,10 +86,6 @@ library("here")
 
 ## Meta-ecosystems {.tabset .tabset-pills}
 
-```{r}
-response_variable_selected = "bioarea_mm2_per_ml"
-```
-
 ```{r child = here("2_r_files", "14_analyse_metaecos.Rmd")}
 ```
 
@@ -97,114 +93,12 @@ response_variable_selected = "bioarea_mm2_per_ml"
 
 ### Biomass {.tabset .tabset-dropdown}
 
-```{r}
-response_variable_selected = "bioarea_mm2_per_ml"
-trophy_selected = c("heterotrophic", "autotrophic")
-```
-
-```{r child = here("2_r_files", "15.1_analyse_ecos_prepare.Rmd")}
-```
-
 ```{r child = here("2_r_files", "15.2_analyse_ecos_biomass.Rmd")}
 ```
 
 ### Shannon {.tabset .tabset-dropdown}
 
-```{r}
-response_variable_selected = "shannon"
-trophy_selected = "heterotrophic"
-```
-
-```{r child = here("2_r_files", "15.1_analyse_ecos_prepare.Rmd")}
-```
-
 ```{r child = here("2_r_files", "15.2_analyse_ecos_shannon.Rmd")}
-```
-
-### Dominance {.tabset .tabset-pills}
-
-#### Fixed disturbance {.tabset .tabset-pills}
-
-```{r}
-disturbance_percentage_selected = "fixed"
-```
-
-##### 6.43 ml
-
-```{r}
-ecosystem_size_i = 6.43
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
-```
-
-##### 9.00 ml
-
-```{r}
-ecosystem_size_i = 9.00
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
-```
-
-##### 15.00 ml
-
-```{r}
-ecosystem_size_i = 15.00
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
-```
-
-##### 45.00 ml
-
-```{r}
-ecosystem_size_i = 45.00
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
-```
-
-#### Disturbance relative to size {.tabset .tabset-pills}
-
-```{r}
-disturbance_percentage_selected = "decreasing_with_size"
-```
-
-###### 6.43 ml
-
-```{r}
-ecosystem_size_i = 6.43
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
-```
-
-###### 9.00 ml
-
-```{r}
-ecosystem_size_i = 9.00
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
-```
-
-###### 15.00 ml
-
-```{r}
-ecosystem_size_i = 15.00
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
-```
-
-###### 45.00 ml
-
-```{r}
-ecosystem_size_i = 45.00
-```
-
-```{r child = here("2_r_files", "16_analyse_ecos_dominance.Rmd")}
 ```
 
 ### BEF

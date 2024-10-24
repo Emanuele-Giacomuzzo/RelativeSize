@@ -1,12 +1,12 @@
 ---
-title: "Biomass of meta-ecosystems"
+title: "Create the Dataset with Individuals"
 output: html_document
 date: "2022-11-08"
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r}
+```{r create-ds-individuals}
 
 # --- IMPORT DATASETS --- #
 
@@ -18,13 +18,24 @@ for(time_point in time_points){
   
   ds_individuals[[time_point + 1]] = read.csv(here("1_data",
                                                    "13_threshold_analysis",
-                                                   paste0("t", time_point, ".csv"))) %>%
+                                                   paste0("t", 
+                                                          time_point, 
+                                                          ".csv"))) %>%
+    
+    # Rename columns
+    
     rename(ecosystem_ID = culture_ID) %>%
+    
+    # Mutate columns
+    
     mutate(comment = NULL,
            bioarea_µm2 = mean_area,
            bioarea_mm2 = bioarea_µm2 * 10^-6,
            bioarea_mm2_per_ml = bioarea_mm2 / volume_recorded_ml,
            bioarea_mm2_per_frame_per_ml = bioarea_mm2_per_ml * N_frames / total_frames) %>%
+    
+    # Join columns with information about ecosystems
+    
     left_join(ecosystem_info,
               by = "ecosystem_ID") %>% # Add information about ecosystems
     select(time_point,

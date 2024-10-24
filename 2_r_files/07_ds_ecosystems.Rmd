@@ -1,12 +1,12 @@
 ---
-  title: "Untitled"
+title: "Create the Dataset with Ecosystems"
 output: html_document
 date: "2024-02-29"
 editor_options: 
   chunk_output_type: console
 ---
   
-```{r}
+```{r summarise-ecosystem-level-metrics}
 
 # --- SUMMARISE ECOSYSTEM-LEVEL METRICS --- #
 
@@ -138,7 +138,7 @@ ds_ecosystems = ds_individuals %>%
          any_of(protist_species_dominance))
 ```
 
-```{r}
+```{r add-crashed-ecosystems-rows}
 
 # --- ADD ROWS THAT CRASHED AS BIOMASS (AND NUMBER OF INDIVIDUALS) AS ZERO AND THE REST AS NA --- #
 

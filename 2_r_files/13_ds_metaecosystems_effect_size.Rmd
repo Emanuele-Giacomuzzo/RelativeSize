@@ -1,5 +1,5 @@
 ---
-title: "Effect Size Meta-Ecosystems"
+title: "Create the Dataset with the Effect Size LRR d of Meta-Ecosystems"
 output: html_document
 date: "2023-08-23"
 editor_options: 
@@ -7,8 +7,20 @@ editor_options:
 ---
 
 
-```{r eval = FALSE}
-# Here I want to get the effect size of the meta-ecosystem biomass. I run this code on 2023.11.24. I should redo it as I would like in this case to use the log response ratio, as there is no zero in the total biomass (the lowest biomass in the experiment was `r min(ds_metaecosystems$total_metaecosystem_bioarea_mm2)`. I run this code on 2023.11.24
+```{r create-ds_metaecos_es, eval = FALSE}
+
+# --- CREATED DATASET WITH META-ECOSYSTEM EFFECT SIZES --- #
+
+# Here I want to get the effect size of the meta-ecosystem biomass. 
+# I run this code on 2023.11.24. I should redo it as I would like in this case 
+# to use the log response ratio, as there is no zero in the total biomass 
+# (the lowest biomass in the experiment was 
+# `r min(ds_metaecosystems$total_metaecosystem_bioarea_mm2)`. 
+# I run this code on 2023.11.24
+
+# Create a function to calculate the effect size of meta-ecosystems.
+# I'm creating a function so that I can run this code on another machine.
+
 calculate.effect.sizes.metaecos = function() {
   
   for (metaeco_type in 1:length(treatments_and_controls_metaecos$treatment) {
@@ -23,10 +35,15 @@ calculate.effect.sizes.metaecos = function() {
       max()
     
     for (set_i in 1 : nr_of_sets) {
+      
       variable_count = 0
+      
       for (variable_i in variables_metaecos) {
+        
         variable_count = variable_count + 1
+        
         for (time_point_i in time_points) {
+          
           if(time_point_i == 0) next
           
           #Parameters
@@ -92,8 +109,16 @@ calculate.effect.sizes.metaecos = function() {
 }
 ```
 
-```{r}
+```{r import-ds_metaecos_es}
+
+# --- IMPORT DATASET WITH META-ECOSYSTEM EFFECT SIZES --- #
+
+# Import dataset
+
 ds_metaecos_es = read.csv(file = here("3_results", "calculations", "ds_metaecos_es.csv")) %>%
+  
+  # Modify dataset
+  
   rename(size = patch_size_ml) %>%
   mutate(size = case_when(size == 6.43 ~ "S",
                           size == 9.00 ~ "SM",

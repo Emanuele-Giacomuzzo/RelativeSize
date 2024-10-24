@@ -1,5 +1,5 @@
 ---
-title: "AHSizePilot: data_manipulation_ecosystems_averaged"
+title: "Create Dataset with Effect Sizes of Ecosystem-Level Metrics"
 output: html_document
 date: "2022-11-15"
 editor_options: 
@@ -28,10 +28,10 @@ $$
 
 <br>
 
-```{r}
+```{r calculate-means-sd-and-sample-sizes}
 
 # --- CALCULATE MEANS, STANDARD DEVIATIONS, AND SAMPLE SIZES FOR EACH ECOSYSTEM VARIABLE --- #
-# These information will be useful to calculate effect sizes
+# We'll use these information to calculate effect sizes
 
 ## Loop through each variable in the 'variables_ecosystems' vector to calculate 
 # means, standard deviations, and sample sizes for each ecosystem variable.
@@ -83,89 +83,98 @@ ds_ecosystems_effect_size <- reduce(ds_ecosystems_effect_size,
                                            "disturbance_percentage"))
 ```
 
-```{r}
+```{r calculate-effect-sizes-using-Hedges-d}
 
-# --- CALCULATE HEDGE'S D --- #
+# --- CALCULATE EFFECT SIZE USING THE METRIC HEDGE'S D --- #
 
-# Initialise the effect size columns 
+# Initialize the effect size columns (Hedge's d and its confidence intervals for each variable)
 
 for (i in length(variables_ecosystems)) {
   ds_ecosystems_effect_size <- ds_ecosystems_effect_size %>%
-    mutate(!!paste0(variables_ecosystems[i], "_d") := NA,
-           !!paste0(variables_ecosystems[i], "_d_upper") := NA,
-           !!paste0(variables_ecosystems[i], "_d_lower") := NA)
+    mutate(!!paste0(variables_ecosystems[i], "_d") := NA,          # Column for Hedge's d
+           !!paste0(variables_ecosystems[i], "_d_upper") := NA,    # Column for upper CI of d
+           !!paste0(variables_ecosystems[i], "_d_lower") := NA)    # Column for lower CI of d
 }
+
+# Add a new column 'ecosystem_type' that combines multiple variables (ecosystem size, 
+# trophic type, disturbance percentage) to define the ecosystem's identity.
 
 ds_ecosystems_effect_size = ds_ecosystems_effect_size %>%
   mutate(ecosystem_type = paste(ecosystem_size_ml, "ml", trophic_type, disturbance_percentage))
-  
-row_n = 0
 
-# For each treatment at each time point, calculate effect size and 95% 
+# Initialize a row counter to track the iteration number
+
+row_n = 0  
+
+# Store the unique ecosystem types in 'ecosystem_treatments'
 
 ecosystem_treatments = unique(ds_ecosystems_effect_size$ecosystem_type)
 
+# For each treatment, time point, and variable calculate Hedge's d and 95% CI
+
 for (treatment_i in 1:length(ecosystem_treatments)) {
-    
+
   for (time_point_i in 0:(length(time_points)-1)) {
+
+    row_n = row_n + 1  # Increment the row counter for each iteration
     
-    row_n = row_n + 1
+    # Filter the data for the current treatment (connected ecosystems)
     
     treatment_row = ds_ecosystems_effect_size %>%
       filter(ecosystem_type == ecosystem_treatments[treatment_i],
-             connection == "connected",
-             time_point == time_points[time_point_i+1])
-      
+             connection == "connected",               
+             time_point == time_points[time_point_i+1]) 
+
+    # Filter the data for the current control (unconnected ecosystems)
+    
     control_row = ds_ecosystems_effect_size %>%
       filter(ecosystem_type == ecosystem_treatments[treatment_i],
-             connection == "unconnected",
-             time_point == time_points[time_point_i+1])
+             connection == "unconnected",             
+             time_point == time_points[time_point_i+1]) 
+
+    # Loop through each variable in the ecosystem data (variables_ecosystems)
+    
+    for (variable_i in 1:length(variables_ecosystems)) {
+
+      # Calculate Hedge's d effect size
+      # This requires mean, standard deviation, and sample size for both 
+      # treatment and control groups
       
-      for (variable_i in 1:length(variables_ecosystems)) {
-        
-        hedges_d = calculate.hedges_d(
-          treatment_row[[paste0(variables_ecosystems[variable_i], "_mean")]],
-          treatment_row[[paste0(variables_ecosystems[variable_i], "_sd")]],
-          treatment_row[[paste0(variables_ecosystems[variable_i], "_sample_size")]],
-          control_row[[paste0(variables_ecosystems[variable_i], "_mean")]],
-          control_row[[paste0(variables_ecosystems[variable_i], "_sd")]],
-          control_row[[paste0(variables_ecosystems[variable_i], "_sample_size")]])
-        
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d")]][
-          ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments[treatment_i] &
-          ds_ecosystems_effect_size$time_point == 
-           time_points[time_point_i+1]] =
-          hedges_d$d
-        
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d_upper")]][
-          ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments[treatment_i] &
-          ds_ecosystems_effect_size$time_point == 
-           time_points[time_point_i+1]] =
-          hedges_d$upper_CI
-        
-        ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d_lower")]][
-          ds_ecosystems_effect_size$ecosystem_type ==
-           ecosystem_treatments[treatment_i] &
-          ds_ecosystems_effect_size$time_point == 
-           time_points[time_point_i+1]] =
-          hedges_d$lower_CI
-        
-      }
+      hedges_d = calculate.hedges_d(
+        treatment_row[[paste0(variables_ecosystems[variable_i], "_mean")]],  # Mean of treatment group
+        treatment_row[[paste0(variables_ecosystems[variable_i], "_sd")]],    # SD of treatment group
+        treatment_row[[paste0(variables_ecosystems[variable_i], "_sample_size")]], # Sample size of treatment group
+        control_row[[paste0(variables_ecosystems[variable_i], "_mean")]],    # Mean of control group
+        control_row[[paste0(variables_ecosystems[variable_i], "_sd")]],      # SD of control group
+        control_row[[paste0(variables_ecosystems[variable_i], "_sample_size")]])  # Sample size of control group
+
+      # Store the calculated Hedge's d effect size in the appropriate column
+      
+      ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d")]][
+        ds_ecosystems_effect_size$ecosystem_type == ecosystem_treatments[treatment_i] &
+        ds_ecosystems_effect_size$time_point == time_points[time_point_i+1]] =
+        hedges_d$d  # Store Hedge's d
+
+      # Store the upper confidence interval of Hedge's d in the appropriate 
+      # column
+      
+      ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d_upper")]][
+        ds_ecosystems_effect_size$ecosystem_type == ecosystem_treatments[treatment_i] &
+        ds_ecosystems_effect_size$time_point == time_points[time_point_i+1]] =
+        hedges_d$upper_CI  # Store upper CI
+
+      # Store the lower confidence interval of Hedge's d in the appropriate 
+      # column
+      
+      ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_d_lower")]][
+        ds_ecosystems_effect_size$ecosystem_type == ecosystem_treatments[treatment_i] &
+        ds_ecosystems_effect_size$time_point == time_points[time_point_i+1]] =
+        hedges_d$lower_CI  # Store lower CI
     }
   }
-```
+}
 
-```{r echo=FALSE, eval = FALSE}
-
-expect_equal(nrow(ds_ecosystems_effect_size), 
-             (n_treatments + n_controls) * (length(time_points))
-```
-
-```{r}
-
-## - (3) Retain only the connected ecosystems, discarding the controls (unconnected) - ##
+# Retain only the connected ecosystems
 
 ds_ecosystems_effect_size = ds_ecosystems_effect_size %>%
   filter(connection == "connected")
@@ -173,9 +182,9 @@ ds_ecosystems_effect_size = ds_ecosystems_effect_size %>%
 
 However, Hedge's d because of how much it depends on the pooled spread of the treatment and control might be harder to interpret than the log response ratio. Therefore, even though the log response ratio might not be calculated for all the protist species, we also decide to calculate it as well. To calculate the log response ratio of the dominance of protist species I use here the package `SingleCaseES` (see [this link](https://cran.r-project.org/web/packages/SingleCaseES/vignettes/Using-SingleCaseES.html)). This package. The package provides the function `LRRi` which calculates effect sizes for a single study case. It also adjust for small sample sizes by default.
 
-```{r}
+```{r calculate-effect-sizes-using-LRR}
 
-## - Calculate the effect size (Log Response Ratio). - ##
+# --- CACLCULATE THE EFFECT SIZE USING THE METRIC LRR --- #
 
 # Initialise the effect size columns 
 
@@ -198,6 +207,8 @@ for (treatment_i in 1:length(ecosystem_treatments)) {
         
         row_n = row_n + 1
         
+        # Filter the data for the current treatment (connected ecosystems)
+        
         treatment_values = ds_ecosystems %>%
           mutate(ecosystem_type = paste(ecosystem_size_ml, "ml", trophic_type, disturbance_percentage)) %>%
           filter(ecosystem_type == ecosystem_treatments[treatment_i],
@@ -205,6 +216,8 @@ for (treatment_i in 1:length(ecosystem_treatments)) {
                  time_point == time_points[time_point_i+1],
                  !is.na(!!sym(variables_ecosystems[variable_i]))) %>%
           pull(!!sym(variables_ecosystems[variable_i]))
+        
+        # Filter the data for the current control (unconnected ecosystems)
         
         control_values = ds_ecosystems %>%
           mutate(ecosystem_type = paste(ecosystem_size_ml, "ml", trophic_type, disturbance_percentage)) %>%
@@ -220,6 +233,8 @@ for (treatment_i in 1:length(ecosystem_treatments)) {
                           B_data = treatment_values, 
                           scale = "proportion")
         
+        # Store the calculated LRR effect size in the appropriate column
+        
         ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_LRR")]][
           ds_ecosystems_effect_size$ecosystem_type ==
            ecosystem_treatments[treatment_i] &
@@ -227,12 +242,18 @@ for (treatment_i in 1:length(ecosystem_treatments)) {
            time_points[time_point_i+1]] =
           LRR_output$Est
         
+        # Store the upper confidence interval of LRR in the appropriate 
+        # column
+        
         ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_LRR_upper")]][
           ds_ecosystems_effect_size$ecosystem_type ==
            ecosystem_treatments[treatment_i] &
           ds_ecosystems_effect_size$time_point == 
            time_points[time_point_i+1]] =
           LRR_output$CI_upper
+        
+        # Store the lower confidence interval of LRR in the appropriate 
+        # column
         
         ds_ecosystems_effect_size[[paste0(variables_ecosystems[variable_i], "_LRR_lower")]][
           ds_ecosystems_effect_size$ecosystem_type ==

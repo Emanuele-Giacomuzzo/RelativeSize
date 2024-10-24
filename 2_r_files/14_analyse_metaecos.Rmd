@@ -1,92 +1,32 @@
 ---
-title: "Isolated Autotrophic Relative - Biomass"
+title: "Analyse meta-ecosystem biomass"
 output: html_document
 date: "2023-02-07"
 editor_options: 
   chunk_output_type: console
 ---
 
-#### Biomass {.tabset .tabset-dropdown}
+```{r define-parameters-metaecos-biomass}
 
-In the experiment we studied two-patch meta-ecosystems in which we manipulated the size of their patches and their connection (unconnected vs connected). Now, we want to know whether meta-ecosystem size influenced the effects of connection on this response variable. Therefore, we start by looking at how this response variable changed across time for all meta-ecosystems through its mean ± 95 confidence interval:
+# --- DEFINE PARAMETERS --- #
 
-```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
-
-# --- PLOT ORIGINAL DATA MEAN ± 95 % CI --- #
-
-ggarrange(plot.metaecos.legend(ds_metaecosystems %>% filter(disturbance_percentage == "fixed"),
-                              response_variable_selected),
-          plot.metaecos.points(ds_metaecosystems %>% filter(disturbance_percentage == "fixed"),
-                               response_variable_selected)  +
-            rremove("xlab") +
-            theme(axis.text.x = element_blank(),
-                  axis.ticks.x = element_blank(),
-                  legend.position = "none") +
-            font("legend.text", size = size_legend) +
-            font("ylab", size = size_y_axis) + 
-            ggtitle(fixed_label),
-          plot.metaecos.points(ds_metaecosystems %>% 
-                                 filter(disturbance_percentage == "decreasing_with_size"),
-                               response_variable_selected)  +
-            font("xlab", size = size_y_axis) +
-            font("ylab", size = size_y_axis) +
-            scale_x_continuous(breaks = unique(ds_metaecosystems$day)) +
-            theme(legend.position = "none") +
-            ggtitle(relative_label),
-          heights = c(0.25, 0.6, 0.6),
-          nrow = 3,
-          align = "v")
+response_variable_selected = "bioarea_mm2_per_ml"
 ```
 
-<details>
-<summary>A plot per ecosystem size - means </summary>
-```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output, message=FALSE}
+```{r plot-original-data-one-size-per-plot-metaeecos-biomass, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
-# --- PLOT ORIGINAL DATA MEAN ± 95 % CI WITH ONE PLOT PER ECOSYSTEM SIZE --- #
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
 
-sizes = unique(ds_metaecosystems$ecosystem_size_ml)
-p = NULL
-
-"Disturbance percentage FIXED"
-for(ecosystem_size_ml_i in 1:length(sizes)){
-  
-  p[[ecosystem_size_ml_i]] = plot.metaecos.points(ds_metaecosystems %>% 
-                                                    filter(disturbance_percentage == "fixed",
-                                                           ecosystem_size_ml == sizes[ecosystem_size_ml_i]),
-                                                  response_variable_selected) + 
-    theme(legend.position = "none")
-    
-}
-
-gridExtra::grid.arrange(p[[1]], 
-                        p[[2]], 
-                        p[[3]], 
-                        p[[4]], 
-                        nrow = 2, 
-                        ncol = 2)
-
-"Disturbance percentage DECREASING WITH SIZE"
-for(ecosystem_size_ml_i in 1:length(sizes)){
-  
-  p[[ecosystem_size_ml_i]] = plot.metaecos.points(ds_metaecosystems %>% 
-                                                    filter(disturbance_percentage == "decreasing_with_size",
-                                                           ecosystem_size_ml == sizes[ecosystem_size_ml_i]),
-                                                  response_variable_selected) + 
-    theme(legend.position = "none")
-}
-
-gridExtra::grid.arrange(p[[1]], 
-                        p[[2]], 
-                        p[[3]], 
-                        p[[4]], 
-                        nrow = 2, 
-                        ncol = 2)
+plot.metaecos.sizes.one.by.one.means(ds_metaecosystems,
+                                     response_variable_selected,
+                                     light_colour_metaecos,
+                                     dark_colour_metaecos,
+                                     y_upper_limit = 25)
 ```
-</details>
 
 <br>
 
-```{r}
+```{r prepare-data-for-analysis-metaecos}
 
 # --- PREPARE DATA FOR ANALYSIS --- #
 
@@ -116,13 +56,15 @@ data_for_analysis = data_for_analysis %>%
 
 <details>
 <summary>Filtered data</summary>
-```{r fig.height = figures_height_rmd_output, fig.width = figures_height_rmd_output}
+```{r plot-data-for-analysis-metaecos, fig.height = figures_height_rmd_output, fig.width = figures_height_rmd_output}
 
 # --- PLOT DATA FOR ANALYSIS --- #
 
-ggarrange(plot.metaecos.legend(data_for_analysis %>% filter(disturbance_percentage == "fixed"),
+ggarrange(plot.metaecos.legend(data_for_analysis %>% 
+                                 filter(disturbance_percentage == "fixed"),
                               response_variable_selected),
-          plot.metaecos.points(data_for_analysis %>% filter(disturbance_percentage == "fixed"),
+          plot.metaecos.points(data_for_analysis %>% 
+                                 filter(disturbance_percentage == "fixed"),
                                response_variable_selected)  +
             rremove("xlab") +
             theme(axis.text.x = element_blank(),
@@ -131,7 +73,8 @@ ggarrange(plot.metaecos.legend(data_for_analysis %>% filter(disturbance_percenta
             font("legend.text", size = size_legend) +
             font("ylab", size = size_y_axis) + 
             ggtitle(fixed_label),
-          plot.metaecos.points(data_for_analysis %>% filter(disturbance_percentage == "decreasing_with_size"),
+          plot.metaecos.points(data_for_analysis %>% 
+                                 filter(disturbance_percentage == "decreasing_with_size"),
                                response_variable_selected)  +
             font("xlab", size = size_y_axis) +
             font("ylab", size = size_y_axis) +
@@ -144,7 +87,7 @@ ggarrange(plot.metaecos.legend(data_for_analysis %>% filter(disturbance_percenta
 ```
 </details>
 
-```{r}
+```{r create-model-metaecos}
 
 # --- CREATE MODEL --- #
 
@@ -156,40 +99,7 @@ data_for_analysis = data_for_analysis %>%
   mutate(size = as.factor(size),
          day = as.factor(day))
 
-# In the ouput lmerModLmerTest which means that it's a Linear Mixed Model from the lmerTest package
-
-basic_model = lmer(get(response_variable_selected) ~
-               size * conn * dis_per +
-               (1 | system_nr) +
-               (1 | baseline) + 
-               (1 | day),
-             data = data_for_analysis,
-             REML = FALSE,
-             control = lmerControl(optimizer = "Nelder_Mead"))
-
-# Extract residuals from the basic model
-
-data_for_analysis$residuals <- resid(basic_model)
-
-# Fit a new model with varIdent
-
-model <- gls(residuals ~ 
-               size * conn * dis_per,
-             data = data_for_analysis,
-             weights = varIdent(form = ~ 1 | day))
-
-# model <-gls(bioarea_mm2_per_ml ~ size * conn * dis_per, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | day * system_nr * baseline)) #Best size * dis_per * day + system_nr + 
-
-# model <- lme(fixed = bioarea_mm2_per_ml ~ 
-#                size * conn * dis_per,
-#              random = list(day = ~ 1, system_nr = ~ 1, baseline = ~ 1),  # Crossed random effects
-#              weights = varIdent(form = ~ 1 | size * dis_per * day),  # Variance differs across predictor1 levels
-#              data = data_for_analysis,
-#              control = lmeControl(opt = "optim", maxIter = 1000, msMaxIter = 1000))
-
-#This works well but doesn't have random effects
+# Create model 
 
 model <- gls(bioarea_mm2_per_ml ~ size * conn * dis_per, 
              weights = varIdent(form = ~ 1 | day),  # Allow variance heterogeneity across days
@@ -198,86 +108,9 @@ model <- gls(bioarea_mm2_per_ml ~ size * conn * dis_per,
              control = glsControl(opt = "optim", maxIter = 1000))
 ```
 
-```{r}
-
-# --- SELECT WHICH VARIABLE IS THE ONE THAT EXPLAINS HETEROSCEDISTICITY --- #
-# 
-# library(nlme)
-# 
-# f1 <- formula(bioarea_mm2_per_ml ~ size * conn * dis_per)
-# 
-# M0 <- gls(f1, 
-#           data = data_for_analysis)
-# 
-# M1A <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | size * dis_per * conn))
-# 
-# M1B <-gls(f1, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | size * dis_per)) #This
-# 
-# M1C <-gls(f1, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | dis_per * conn))
-# 
-# M1D <-gls(f1, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | size * conn))
-# 
-# M1E <-gls(f1, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | size))
-# 
-# M1F <-gls(f1, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | dis_per))
-# 
-# M1G <-gls(f1, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | conn))
-# 
-# M1H <-gls(f1, 
-#           data = data_for_analysis,
-#           weights = varIdent(form =~ 1 | day))
-# 
-# M1I <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | size * dis_per * conn * day))
-# 
-# M1L <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | size * dis_per * day)) #Best
-# 
-# M1M <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | size * conn * day))
-# 
-# M1N <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | dis_per * conn * day))
-# 
-# M1O <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | size * day))
-# 
-# M1P <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | dis_per * day))
-# 
-# M1Q <-gls(f1, 
-#           data = data_for_analysis, 
-#           weights = varIdent(form =~ 1 | conn * day))
-# 
-# anova(M0, M1A, M1B, M1C, M1D, M1E, M1F, M1G, M1H, M1I, M1L, M1M, M1N, M1O, M1P, M1Q)
-# 
-# plot(M1L)
-```
-
-
 <details>
 <summary>Model summary</summary>
-```{r}
+```{r show-model-summary}
 
 # --- SHOW MODEL SUMMARY --- #
 
@@ -287,7 +120,7 @@ print(summary(model), digits = 3)
 
 <details open="open">
 <summary>Model ANOVA</summary>
-```{r}
+```{r show-model-anova}
 
 # --- SHOW MODEL ANOVA --- #
 
@@ -296,10 +129,12 @@ car::Anova(model, type = "III")
 </details>
 
 <details>
-<summary>Model residuals coding</summary>
-```{r}
+<summary>Model contrasts coding</summary>
+```{r code-model-contrasts-metaecos}
 
-# --- CODE MODEL RESIDUALS --- #
+# --- CODE MODEL CONSTRASTS --- #
+
+# Estimate marginal means (least-squares means)
 
 emmeans_output = emmeans(model,
                          specs = ~  conn * dis_per * size,
@@ -308,6 +143,8 @@ emmeans_output = emmeans(model,
                          lmer.df = "satterthwaite") 
 
 emmeans_output
+
+# Give a name for each level which you want to compare
 
 uncon_decr_6_43 = c(1, rep(0,15)) 
 con_decr_6_43 = c(rep(0,1), 1, rep(0,14)) 
@@ -326,16 +163,18 @@ con_decr_45 = c(rep(0,13), 1, rep(0,2))
 uncon_fix_45 = c(rep(0,14), 1, rep(0,1))
 con_fix_45 = c(rep(0,15), 1)
 
+# Compute the contrasts
+
 n_of_digits = 3
 contrasts = contrast(emmeans_output, 
-                     method = list("6.43 ml - decreasing % with size" = con_decr_6_43 - uncon_decr_6_43,
-                                   "9.00 ml - decreasing % with size" = con_decr_9 - uncon_decr_9,
-                                   "15.00 ml - decreasing % with size" = con_decr_15 - uncon_decr_15,
-                                   "45.00 ml - decreasing % with size" = con_decr_45 - uncon_decr_45,
-                                   "6.43 ml - fixed % with size" = con_fix_6_43 - uncon_fix_6_43,
-                                   "9.00 ml - fixed % with size" = con_fix_9 - uncon_fix_9,
-                                   "15.00 ml - fixed % with size" = con_fix_15 - uncon_fix_15,
-                                   "45.00 ml - fixed % with size" = con_fix_45 - uncon_fix_45)) %>% 
+                     method = list("6.43 ml no interact" = con_fix_6_43 - uncon_fix_6_43,
+                                   "6.43 ml with interact" = con_decr_6_43 - uncon_decr_6_43,
+                                   "9.00 ml no interact" = con_fix_9 - uncon_fix_9,
+                                   "9.00 ml with interact" = con_decr_9 - uncon_decr_9,
+                                   "15.00 ml no interact" = con_fix_15 - uncon_fix_15,
+                                   "15.00 ml with interact" = con_decr_15 - uncon_decr_15,
+                                   "45.00 ml no interact" = con_fix_45 - uncon_fix_45,
+                                   "45.00 ml with interact" = con_decr_45 - uncon_decr_45)) %>% 
   as.data.frame() %>%
   mutate(p.value = round(p.value, digits = n_of_digits),
          estimate = round(estimate, digits = n_of_digits),
@@ -359,138 +198,20 @@ contrasts = contrast(emmeans_output,
 ```
 </details>
 
-```{r}
+```{r show-model-contrasts}
+
+# --- SHOW MODEL CONTRASTS --- #
+
 contrasts
 ```
 
 <details open="open">
 <summary>Model residuals</summary>
-```{r fig.width = figures_height_rmd_output}
+```{r plot-model-residuals-metaecos, fig.width = figures_height_rmd_output}
 
 # --- PLOT MODEL RESIDUALS --- #
 
-# Show Q-Q plot
 
-qqnorm(resid(model))
-qqline(resid(model))
-
-# Show Residuals vs Fitted plot
-
-fitted_values <- fitted(model)
-residuals_values <- resid(model)
-
-plot(fitted_values, residuals_values,
-     xlab = "Fitted Values",
-     ylab = "Residuals",
-     main = "Residuals vs. Fitted Values")
-
-abline(h = 0, col = "red", lty = 2)
-
-loess_fit <- loess(residuals_values ~ fitted_values)
-lines(fitted_values[order(fitted_values)],
-      predict(loess_fit)[order(fitted_values)],
-      col = "blue",
-      lwd = 2)
-
-#Second way of doing it
-create.res.vs.fit.metaecos(model,
-                           data_for_analysis)
-
-# # Show Scale-Location Plot
-# 
-# sqrt_residuals <- sqrt(abs(residuals_values))
-# plot(fitted_values, sqrt_residuals,
-#      xlab = "Fitted Values",
-#      ylab = "Sqrt(|Residuals|)",
-#      main = "Scale-Location Plot")
-# loess_fit_sqrt <- loess(sqrt_residuals ~ fitted_values)
-# lines(fitted_values[order(fitted_values)], predict(loess_fit_sqrt)[order(fitted_values)], col = "blue", lwd = 2)
-# abline(h = 0, col = "red", lty = 2)
-# 
-# # Cook's Distance Plot
-# # cook_distances <- cooks.distance(model)
-# # plot(cook_distances,
-# #      type = "h",  # Histogram-style
-# #      ylab = "Cook's Distance",
-# #      xlab = "Observation Index",
-# #      main = "Cook's Distance Plot")
-# # abline(h = 4/(nrow(data_for_analysis) - length(fitted_values)), col = "red", lty = 2)
-# 
-# # Show Histogram of Residuals
-# 
-# hist(residuals_values,
-#      breaks = 30,  # Adjust number of bins as needed
-#      main = "Histogram of Residuals",
-#      xlab = "Residuals",
-#      col = "lightblue",
-#      border = "black")
-# 
-# # Residuals vs. categorical predictor 'conn'
-# 
-# boxplot(residuals_values ~ data_for_analysis$conn,
-#         xlab = "conn", ylab = "Residuals",
-#         main = "Residuals by conn")
-# abline(h = 0, col = "red", lty = 2)
-# 
-# # Autocorrelation of residuals (ACF)
-# acf(residuals_values, main = "ACF of Residuals")
-# 
-# # Cleveland Dot Plot
-# dotchart(residuals_values, main = "Cleveland Dot Plot of Residuals",
-#          xlab = "Residuals")
-# 
-# # Residuals vs. Time (if you have a time variable, e.g., 'day')
-# plot(data_for_analysis$day, residuals_values,
-#      xlab = "Day", ylab = "Residuals",
-#      main = "Residuals vs. Time (Day)")
-# abline(h = 0, col = "red", lty = 2)
-# loess_fit <- loess(residuals_values ~ data_for_analysis$day)
-# lines(data_for_analysis$day[order(data_for_analysis$day)], 
-#       predict(loess_fit)[order(data_for_analysis$day)], 
-#       col = "blue", lwd = 2)
-# 
-# # Leverage Plot (optional, use only if relevant)
-# plot(hatvalues(model), residuals_values, 
-#      xlab = "Leverage", ylab = "Residuals",
-#      main = "Leverage vs. Residuals")
-# abline(h = 0, col = "red", lty = 2)
-# 
-# # Load the necessary library
-# library(nlme)
-# 
-# # Fit the GLS model
-# model <- gls(bioarea_mm2_per_ml ~ size * conn * dis_per, 
-#              data = data_for_analysis,
-#              correlation = corAR1(form = ~ 1 | day),
-#              weights = varIdent(form = ~ 1 | size * dis_per * day))
-# 
-# # Initialize vectors to store Cook's distance
-# n <- nrow(data_for_analysis)
-# cooks_distance <- numeric(n)
-# 
-# # Loop through each observation, leave one out, and refit the model
-# for (i in 1:n) {
-#   # Subset the data leaving out the ith observation
-#   data_subset <- data_for_analysis[-i, ]
-#   
-#   # Refit the model to the subset data
-#   model_subset <- gls(bioarea_mm2_per_ml ~ size * conn * dis_per, 
-#                       data = data_subset,
-#                       correlation = corAR1(form = ~ 1 | day),
-#                       weights = varIdent(form = ~ 1 | size * dis_per * day))
-#   
-#   # Calculate the difference in coefficients
-#   coef_diff <- coef(model) - coef(model_subset)
-#   
-#   # Calculate Cook's distance (simplified for GLS, based on coefficient differences)
-#   cooks_distance[i] <- sum((coef_diff)^2)
-# }
-# 
-# # Plot Cook's Distance
-# plot(cooks_distance, type = "h", 
-#      xlab = "Observation", ylab = "Cook's Distance", 
-#      main = "Cook's Distance for GLS Model")
-# abline(h = 4/(n - length(coef(model))), col = "red", lty = 2)  # Threshold line
 ```
 </details>
 

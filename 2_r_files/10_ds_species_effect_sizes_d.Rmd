@@ -1,22 +1,30 @@
 ---
-title: "Untitled"
+title: "Create the Dataset with the Effect Size Hedge's d of Species"
 output: html_document
 date: "2024-04-26"
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r}
+```{r create-ds_species_effect_sizes_d}
 
-# To be able to plot dominance for multiple species, get the effect sizes, their upper boundary, and their lower boundary in a long format. 
+# --- CREATE DATASET WITH THE EFFECT SIZE HEDGE'S D OF SPECIES DOMINANCES --- #
+
+# Prepare the data 
 
 filtered_data = ds_ecosystems_effect_size %>%
   ungroup() %>%
-  filter(trophic_type == "heterotrophic",
-         connection == "connected") %>%
+  
+  # Keep only heterotrophic ecosystems as autotrophic ecosystems were
+  # monocultures. Also, keep only connected ecosystems because we are 
+  # calculating effect sizes for connected ecosystems compared to unconnected
+  # ecosystems.
+  
+  filter(trophic_type == "heterotrophic", 
+         connection == "connected") %>% 
   filter(time_point > 1) %>%
 
-# To have a cleaner dataset that is easier to look at, select only the columns of the time point, ecosystem type, and protist species dominance (w/ CI). 
+  # Select useful columns
 
   select(time_point, 
          ecosystem_size_ml,
@@ -26,6 +34,8 @@ filtered_data = ds_ecosystems_effect_size %>%
          paste0(protist_species_dominance, "_d"),
          paste0(protist_species_dominance, "_d_upper"),
          paste0(protist_species_dominance, "_d_lower")) 
+
+# Create the dataset with the effect size means
 
 ds_species_effect_sizes_d = filtered_data %>%
   pivot_longer(cols = ends_with("dominance_d"), 
@@ -39,11 +49,15 @@ ds_species_effect_sizes_d = filtered_data %>%
          species,
          effect_size)
 
+# Create the dataset with the effect size upper 95 % CI
+
 ds_species_effect_sizes_d_upper = filtered_data %>%
   pivot_longer(cols = ends_with("dominance_d_upper"), 
                names_to = "species", 
                values_to = "upper_95_CI") %>%
   select(upper_95_CI)
+
+# Create the dataset with the effect size lower 95 % CI
 
 ds_species_effect_sizes_d_lower = filtered_data %>%
   pivot_longer(cols = ends_with("dominance_d_lower"), 
@@ -51,11 +65,12 @@ ds_species_effect_sizes_d_lower = filtered_data %>%
                values_to = "lower_95_CI") %>%
   select(lower_95_CI)
 
-ds_species_effect_sizes_d = cbind(ds_species_effect_sizes_d, ds_species_effect_sizes_d_upper, ds_species_effect_sizes_d_lower) %>%
+# Bind mean, and 95 % CIs
+
+ds_species_effect_sizes_d = cbind(ds_species_effect_sizes_d, 
+                                  ds_species_effect_sizes_d_upper, 
+                                  ds_species_effect_sizes_d_lower) %>%
   mutate(species = str_remove(species, "_bioarea_mm2_per_ml_dominance_d")) %>%
-
-# To understand if there is an effect on size distribution, plot the effects of connection on dominance by disposing species smallest to largest. 
-
   mutate(species = factor(x = species, 
-                          levels = c("Tet", "Col", "Eup", "Pau", "Cep", "Lox", "Pca", "Spi_te", "Ble", "Spi")))
+                          levels = protist_sepcies_ordered_by_size))
 ```

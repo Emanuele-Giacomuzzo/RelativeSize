@@ -1,15 +1,14 @@
 ---
-title: "Untitled"
+title: "Perform Species Identification"
 output: html_document
 date: "2024-02-29"
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r}
+```{r create-training-dataset}
 
 # --- CREATE TRAINING DATASET --- #
-
 
 # Loop through each threshold level to import and process datasets.
 
@@ -55,7 +54,7 @@ training_individuals = rbind(ds_individuals_13,
                              ds_individuals_40)
 ```
 
-```{r}
+```{r create-predictive-model}
 
 # --- CREATE PREDICTIVE MODEL --- #
 # See where we previously set the parameters for a description of these variables. 
@@ -91,7 +90,7 @@ species_ID_model = svm(factor(species) ~
                        na.action = na.pass)
 ```
 
-```{r}
+```{r show-confusion-matrix}
 
 # --- SHOW CONFUSION MATRIX --- #
 
@@ -125,18 +124,22 @@ confusion_matrix = cbind(
 confusion_matrix
 ```
 
-```{r}
+```{r perform-species-identification}
 
 # --- ID SPECIES --- #
 
 ds_individuals = ds_individuals %>% 
   filter(complete.cases(.)) %>%
-  mutate(
-    species = as.character(predict(object = species_ID_model, 
-                                    ., 
-                                    type = "response")),  # Predict species based on features in 'ds_individuals'.
-    species = ifelse(trophic_type == "autotrophic", 
-                     "Eug", 
-                     species)) # Assign species "Eug" for autotrophic trophic types, overriding the model's prediction.
+  mutate(species = as.character(predict(object = species_ID_model, 
+                                        ., 
+                                        type = "response")),
+         
+         # Given that autotrophic ecosystems are exclusively composed of 
+         # Euglena gracilis (Eug), we can simply designate Eug as the species 
+         # for each individual in autotrophic ecosystems.
+         
+         species = ifelse(trophic_type == "autotrophic", 
+                          "Eug", 
+                          species)) 
     
 ```

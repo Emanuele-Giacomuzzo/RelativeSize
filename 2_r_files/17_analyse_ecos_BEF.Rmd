@@ -5,9 +5,21 @@ date: "`r format(Sys.time(), '%Y-%m-%d %H:%M')`"
 editor_options: 
   chunk_output_type: console
 ---
+
 ```{r}
-ds_ecosystems %>%
-  filter(trophic_type == "heterotrophic") %>%
+
+# --- PREPARE DATA FOR PLOTTING --- #
+
+data_for_plotting = ds_ecosystems %>%
+  filter(trophic_type == "heterotrophic",
+         species_richness != 0)
+```
+
+```{r}
+
+# --- PLOT ECOSYSTEM BIOMASS VS SPECIES RICHNESS --- #
+
+data_for_plotting %>%
   ggplot(aes(x = species_richness,
              y = bioarea_mm2_per_ml)) +
   geom_point() +
@@ -22,8 +34,10 @@ ds_ecosystems %>%
 ```
 
 ```{r}
-ds_ecosystems %>%
-  filter(trophic_type == "heterotrophic") %>%
+
+# --- PLOT ECOSYSTEM BIOMASS VS SHANNON INDEX --- #
+
+data_for_plotting %>%
   ggplot(aes(x = shannon,
              y = bioarea_mm2_per_ml)) +
   geom_point() +
@@ -37,9 +51,11 @@ ds_ecosystems %>%
 ```
 
 ```{r}
-ds_ecosystems %>%
-  filter(trophic_type == "heterotrophic",
-         is.na(evenness_pielou) != TRUE) %>%
+
+# --- PLOT ECOSYSTEM BIOMASS VS EVENNESS --- #
+
+data_for_plotting %>%
+  filter(!is.na(evenness_pielou)) %>%
   ggplot(aes(x = evenness_pielou,
              y = bioarea_mm2_per_ml)) +
   geom_point() +

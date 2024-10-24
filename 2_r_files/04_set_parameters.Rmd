@@ -1,5 +1,5 @@
 ---
-title: "Parameter setting"
+title: "Set Parameters"
 output: html_document
 date: "2023-02-07"
 editor_options: 
@@ -87,7 +87,27 @@ relative_label = "Disturbance percentage DECREASING WITH SIZE"
 
 # --- SET PARAMETERS RELATED TO PROTISTS --- #
 
-protist_species = c("Ble", "Cep", "Col", "Eug", "Eup", "Lox", "Pau", "Pca", "Spi", "Spi_te", "Tet")
+protist_species = c("Ble", 
+                    "Cep", 
+                    "Col", 
+                    "Eug", 
+                    "Eup", 
+                    "Lox", 
+                    "Pau", 
+                    "Pca", 
+                    "Spi", 
+                    "Spi_te", 
+                    "Tet")
+protist_sepcies_ordered_by_size = c("Tet", 
+                                     "Col", 
+                                     "Eup", 
+                                     "Pau", 
+                                     "Cep", 
+                                     "Lox", 
+                                     "Pca", 
+                                     "Spi_te", 
+                                     "Ble", 
+                                     "Spi")
 protist_species_indiv_per_ml = paste0(protist_species, "_indiv_per_ml")
 protist_species_bioarea_mm2_per_ml = paste0(protist_species, "_bioarea_mm2_per_ml")
 protist_species_dominance = paste0(protist_species_bioarea_mm2_per_ml, "_dominance")
@@ -259,10 +279,22 @@ treatment_colours_heterotrophic = c("6.43 ml" = "#deebf7",
                                     "15.00 ml" = "#6baed6",
                                     "45.00 ml" = "#2171b5")
 
+light_colour_metaecos = "#fecc5c"
+dark_colour_metaecos = "#e31a1c"
+light_colour_auto = "#66c2a4"
+dark_colour_auto = "#00441b"
+light_colour_hetero = "#08306b"
+dark_colour_hetero = "#9ecae1"
+
 # Set line types
 
 treatment_linetypes = c("connected" = "solid",
                         "unconnected" = "longdash")
+
+# Set line labels
+
+disturbance_labels = c("fixed" = "no interaction",
+                       "decreasing_with_size" = "interaction size * disturbance")
 
 # Set figure height and width in the RMD output
 
@@ -275,11 +307,6 @@ legend_position = "top"
 legend_width_cm = 2
 size_legend = 12
 
-# Set parameters axes
-
-size_x_axis = 16
-size_y_axis = 14
-
 # Set parameters boxplots
 
 boxplot_width = 2
@@ -287,6 +314,7 @@ boxplot_width = 2
 # Set parameters points & error bars
 
 treatment_points_size = 2.5
+treatment_points_size_small = 1.5
 width_errorbar = 2
 dodging_error_bar = 0.5
 dodging = 0.5
@@ -348,7 +376,10 @@ grey_background_fill = "#f0f0f0"
 grey_background_alpha = 0.03
 grey_background_color = "transparent"
 
-# Set axis names
+# Set parameters axes
+
+size_x_axis = 16
+size_y_axis = 14
 
 axis_names = data.frame(variable = NA,
                         axis_name= NA) %>%
