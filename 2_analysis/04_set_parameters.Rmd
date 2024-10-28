@@ -385,8 +385,10 @@ axis_names = data.frame(variable = NA,
                         axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Time (day)") %>%
   add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem Size (ml)") %>%
+
   add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Total Biomass (mm²)") %>%
   add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Total Biomass ES (Hedge's d)") %>%
+
   add_row(variable = "bioarea_tot", axis_name = "Total Biomass (mm²)") %>%
   add_row(variable = "bioarea_mm2_per_ml", axis_name = "Biomass Density (mm²/ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Biomass Density ES (Hedge's d)") %>%

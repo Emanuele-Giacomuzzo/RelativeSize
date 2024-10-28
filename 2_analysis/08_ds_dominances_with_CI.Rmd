@@ -60,15 +60,15 @@ dominances_mean = ds_ecosystems %>%
 # Calculate lower 95% confidence interval for each species
 
 dominances_lower = ds_ecosystems %>%
+  
+  # Calculate the 2.5th percentile (lower bound of the 95% CI) for each species
+  
   group_by(day, 
            time_point, 
            ecosystem_size_ml, 
            trophic_type, 
            connection, 
            disturbance_percentage) %>%
-  
-  # Calculate the 2.5th percentile (lower bound of the 95% CI) for each species
-  
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
@@ -90,10 +90,15 @@ dominances_lower = ds_ecosystems %>%
 # Calculate upper 95% confidence interval for each species
 
 dominances_upper = ds_ecosystems %>%
-  group_by(day, time_point, ecosystem_size_ml, trophic_type, connection, disturbance_percentage) %>%
   
   # Calculate the 97.5th percentile (upper bound of the 95% CI) for each species
   
+  group_by(day, 
+           time_point, 
+           ecosystem_size_ml, 
+           trophic_type, 
+           connection, 
+           disturbance_percentage) %>%
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
@@ -108,7 +113,12 @@ dominances_upper = ds_ecosystems %>%
   
   # Convert to long format with 'species' and their respective 'upper_95_CI' values
   
-  pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
+  pivot_longer(cols = -c("day", 
+                         "time_point", 
+                         "ecosystem_size_ml", 
+                         "trophic_type", 
+                         "connection", 
+                         "disturbance_percentage"), 
                names_to = "species", 
                values_to = "upper_95_CI")
 
