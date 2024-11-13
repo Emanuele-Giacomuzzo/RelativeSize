@@ -115,7 +115,10 @@ calculate.effect.sizes.metaecos = function() {
 
 # Import dataset
 
-ds_metaecos_es = read.csv(file = here("3_results", "calculations", "ds_metaecos_es.csv")) %>%
+ds_metaecos_es = read.csv(file = here("..",
+                                      "3_results", 
+                                      "calculations", 
+                                      "ds_metaecos_es.csv")) %>%
   
   # Modify dataset
   

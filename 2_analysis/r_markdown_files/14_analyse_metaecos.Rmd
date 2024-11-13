@@ -13,6 +13,8 @@ editor_options:
 response_variable_selected = "bioarea_mm2_per_ml"
 ```
 
+<details>
+<summary>Plot original data</summary>
 ```{r plot-original-data-one-size-per-plot-metaeecos-biomass, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
 # --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
@@ -23,9 +25,10 @@ plot.metaecos.sizes.one.by.one.means(ds_metaecosystems,
                                      dark_colour_metaecos,
                                      y_upper_limit = 25)
 ```
+</details>
 
-<br>
-
+<details open = "open">
+<summary>Prepare & plot data for analysis</summary>
 ```{r prepare-data-for-analysis-metaecos}
 
 # --- PREPARE DATA FOR ANALYSIS --- #
@@ -54,39 +57,20 @@ data_for_analysis = data_for_analysis %>%
                        levels = c("unconnected", "con")))
 ```
 
-<details>
-<summary>Filtered data</summary>
 ```{r plot-data-for-analysis-metaecos, fig.height = figures_height_rmd_output, fig.width = figures_height_rmd_output}
 
-# --- PLOT DATA FOR ANALYSIS --- #
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
 
-ggarrange(plot.metaecos.legend(data_for_analysis %>% 
-                                 filter(disturbance_percentage == "fixed"),
-                              response_variable_selected),
-          plot.metaecos.points(data_for_analysis %>% 
-                                 filter(disturbance_percentage == "fixed"),
-                               response_variable_selected)  +
-            rremove("xlab") +
-            theme(axis.text.x = element_blank(),
-                  axis.ticks.x = element_blank(),
-                  legend.position = "none") +
-            font("legend.text", size = size_legend) +
-            font("ylab", size = size_y_axis) + 
-            ggtitle(fixed_label),
-          plot.metaecos.points(data_for_analysis %>% 
-                                 filter(disturbance_percentage == "decreasing_with_size"),
-                               response_variable_selected)  +
-            font("xlab", size = size_y_axis) +
-            font("ylab", size = size_y_axis) +
-            scale_x_continuous(breaks = unique(data_for_analysis$day)) +
-            theme(legend.position = "none") +
-            ggtitle(relative_label),
-          heights = c(0.25, 0.6, 0.6),
-          nrow = 3,
-          align = "v")
+plot.metaecos.sizes.one.by.one.means(data_for_analysis,
+                                     response_variable_selected,
+                                     light_colour_metaecos,
+                                     dark_colour_metaecos,
+                                     y_upper_limit = 25)
 ```
 </details>
 
+<details>
+<summary>Create model</summary>
 ```{r create-model-metaecos}
 
 # --- CREATE MODEL --- #
@@ -99,37 +83,29 @@ data_for_analysis = data_for_analysis %>%
   mutate(size = as.factor(size),
          day = as.factor(day))
 
+# Define formula
+
+formula = as.formula(paste("bioarea_mm2_per_ml ~",
+                           "size * conn * dis_per +",
+                           "(1 | system_nr) +",
+                           "(1 | time_point) +",
+                           "(1 | baseline)")) %>%
+  print()
+
 # Create model 
 
-model <- gls(bioarea_mm2_per_ml ~ size * conn * dis_per, 
-             weights = varIdent(form = ~ 1 | day),  # Allow variance heterogeneity across days
-             correlation = corAR1(form = ~ 1 | day),  # Model autocorrelation if needed
-             data = data_for_analysis,
-             control = glsControl(opt = "optim", maxIter = 1000))
+model <- glmmTMB(formula,
+                 family = Gamma(link = "log"), # Or try other distributions
+                 data = data_for_analysis)
 ```
 
-<details>
-<summary>Model summary</summary>
 ```{r show-model-summary}
 
 # --- SHOW MODEL SUMMARY --- #
 
 print(summary(model), digits = 3)
 ```
-</details>
 
-<details open="open">
-<summary>Model ANOVA</summary>
-```{r show-model-anova}
-
-# --- SHOW MODEL ANOVA --- #
-
-car::Anova(model, type = "III")
-```
-</details>
-
-<details>
-<summary>Model contrasts coding</summary>
 ```{r code-model-contrasts-metaecos}
 
 # --- CODE MODEL CONSTRASTS --- #
@@ -180,7 +156,7 @@ contrasts = contrast(emmeans_output,
          estimate = round(estimate, digits = n_of_digits),
          SE = round(SE, digits = n_of_digits),
          df = round(df, digits = n_of_digits),
-         t.ratio = round(t.ratio, digits = n_of_digits),
+         z.ratio = round(z.ratio, digits = n_of_digits),
          e = "",
          e = ifelse(p.value > 0.1, 
                            "",
@@ -198,12 +174,25 @@ contrasts = contrast(emmeans_output,
 ```
 </details>
 
+<details open="open">
+<summary>Model ANOVA</summary>
+```{r show-model-anova}
+
+# --- SHOW MODEL ANOVA --- #
+
+car::Anova(model, type = "III")
+```
+</details>
+
+<details open = "open">
+<summary>Model contrasts</summary>
 ```{r show-model-contrasts}
 
 # --- SHOW MODEL CONTRASTS --- #
 
 contrasts
 ```
+</details>
 
 <details open="open">
 <summary>Model residuals</summary>
@@ -211,7 +200,46 @@ contrasts
 
 # --- PLOT MODEL RESIDUALS --- #
 
+# Simulate residuals from the fitted model
 
+simulationOutput <- simulateResiduals(fittedModel = model, 
+                                      n = 1000) 
+
+# Test for overdispersion in the model to check if variance exceeds mean
+
+testDispersion(simulationOutput)
+
+# Plot Q-Q and Residuals vs Fitted plots
+
+plot(simulationOutput)
+
+# Plot residuals against specific predictors to check if residuals are 
+# independent of these variables - fixed variables
+
+plotResiduals(simulationOutput,
+              form = data_for_analysis$size)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$conn)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$dis_per)
+
+# Plot residuals against specific predictors to check if residuals are 
+# independent of these variables - random variables
+
+plotResiduals(simulationOutput,
+              form = data_for_analysis$system_nr)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$time_point)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$baseline)
+
+# Test for outliers 
+
+testOutliers(simulationOutput)
+
+# Test for zero inflation not accounted for
+ 
+testZeroInflation(simulationOutput)
 ```
 </details>
 

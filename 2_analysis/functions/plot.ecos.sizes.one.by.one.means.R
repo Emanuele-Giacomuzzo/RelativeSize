@@ -1,12 +1,13 @@
-plot.ecos.sizes.one.by.one.means = function(data,
-                                            trophy_selected,
-                                            response_variable_selected,
-                                            light_colour,
-                                            dark_colour,
-                                            y_upper_limit,
+plot.ecos.sizes.one.by.one.means = function(data = ds_ecosystems,
+                                            trophy_selected = "heterotrophic",
+                                            response_variable_selected = "simpson",
+                                            light_colour = light_colour_hetero,
+                                            dark_colour = dark_colour_hetero,
+                                            y_upper_limit = 2.4,
                                             legend_row_n_selected = 1) {
   
-  # Set parameters
+  # Set parameters & initialise list to store plots
+  
   if (trophy_selected == "autotrophic") {
     treatment_colours = treatment_colours_autotrophic
   } 
@@ -17,17 +18,23 @@ plot.ecos.sizes.one.by.one.means = function(data,
   p = list()
   
   # Plot ecosystems size by size
+  
   # Inside the loop where plots are created
-for (i in 1:length(ecosystem_sizes_ml)) {
+  
+  for (i in 1:length(ecosystem_sizes_ml)) {
   
   # Prepare data
+    
   data_for_plotting = data %>%
     filter(ecosystem_size_ml == ecosystem_sizes_ml[i],
            trophic_type == trophy_selected) %>%
     mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", ecosystem_size_ml), "ml"),
                                       levels = c("45.00 ml", "15.00 ml", "9.00 ml", "6.43 ml"))) %>%
     summarySE(measurevar = response_variable_selected,
-              groupvars = c("day", "ecosystem_size_ml", "connection", "disturbance_percentage")) %>%
+              groupvars = c("day",
+                            "ecosystem_size_ml", 
+                            "connection", 
+                            "disturbance_percentage")) %>%
     filter(complete.cases(.)) 
   
   # Plot data

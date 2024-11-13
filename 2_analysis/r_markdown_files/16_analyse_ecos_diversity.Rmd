@@ -1,36 +1,30 @@
 ---
-title: "Analyse Ecosystem Shannon"
+title: "Untitled"
 output: html_document
-date: "2024-10-15"
+date: "2024-11-12"
 editor_options: 
   chunk_output_type: console
 ---
 
-```{r define-parameters-eco-shannon}
-
-# --- DEFINE PARAMETERS --- #
-
-response_variable_selected = "shannon"
-```
-
-```{r plot-original-data-one-size-per-plot-ecos-shannon, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+<details>
+<summary>Plot original data</summary>
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
 # --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
 
-# Plot heterotrophic ecosystems
-
-print("Heterotrophic ecosystems")
+print("Heterotrophic ecosystems");
 plot.ecos.sizes.one.by.one.means(ds_ecosystems,
                                  "heterotrophic",
                                  response_variable_selected,
                                  light_colour_hetero,
                                  dark_colour_hetero,
-                                 y_upper_limit = 2.4)
+                                 y_upper_limit_selected)
 ```
+</details>
 
- <br>
-
-```{r prepared-data-for-analysis-ecos-shannon}
+<details open = "open">
+<summary>Prepare & plot data for analysis</summary>
+```{r}
 
 # --- PREPARE DATA FOR ANALYSIS --- #
 
@@ -61,9 +55,23 @@ data_for_analysis = data_for_analysis %>%
          ecosystem_ID = as.factor(ecosystem_ID))
 ```
 
-<br>
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
-```{r create-model-ecos-shannon}
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
+
+print("Heterotrophic ecosystems")
+plot.ecos.sizes.one.by.one.means(data_for_analysis,
+                                 "heterotrophic",
+                                 response_variable_selected,
+                                 light_colour_hetero,
+                                 dark_colour_hetero,
+                                 y_upper_limit_selected)
+```
+</details>
+
+<details>
+<summary>Create model</summary>
+```{r}
 
 # --- CREATE MODEL --- #
 
@@ -71,46 +79,36 @@ data_for_analysis = data_for_analysis %>%
 
 data_for_analysis = data_for_analysis %>% 
   rename(dis_per = disturbance_percentage) %>%
-  filter(trophic_type == "heterotrophic")
+  filter(trophic_type == "heterotrophic") %>%
+  mutate(day = as.factor(day))
 
-# Model
+# Create formula
 
-model = glmmTMB(shannon ~
-                  size * conn * dis_per +
-                  (1 | ecosystem_ID) +
-                  (1 | day) +
-                  (1 | baseline),
+formula = as.formula(paste("get(response_variable_selected) ~",
+                           "conn * size * dis_per +",
+                           "(1 | ecosystem_ID) +",
+                           "(1 | day) +",
+                           "(1 | baseline)")) %>%
+  print()
+
+# Create model
+
+model = glmmTMB(formula,
                 data = data_for_analysis,
-                family = tweedie(link = "log"),
-                ziformula = ~ size * conn * dis_per,
-                dispformula = ~ size + conn + dis_per + day,
-                control=glmmTMBControl(optimizer=nlminb,
+                dispformula = ~ size + conn + dis_per + day, # Overdispersion
+                ziformula = ~ size + conn + dis_per, # Zero inflation
+                control=glmmTMBControl(optimizer=optim,
                                        optArgs=list(method="BFGS")))
 ```
 
-<details>
-<summary>Model summary</summary>
-```{r show-model-summary-ecos-shannon}
+```{r}
 
 # --- SHOW MODEL SUMMARY --- #
 
 print(summary(model), digits = 3)
 ```
-</details>
 
-<details open="open">
-<summary>Model ANOVA</summary>
-```{r show-model-anova-ecos-shannon}
-
-# --- SHOW MODEL ANOVA --- #
-
-car::Anova(model, type = "III") 
-```
-</details>
-
-<details>
-<summary>Model residuals coding</summary>
-```{r code-model-contrasts-ecos-shannon}
+```{r}
 
 # --- CODE MODEL CONSTRASTS --- #
 
@@ -161,7 +159,7 @@ contrasts = contrast(emmeans_output,
          estimate = round(estimate, digits = n_of_digits),  # Round estimate
          SE = round(SE, digits = n_of_digits),  # Round standard error
          df = round(df, digits = n_of_digits),  # Round degrees of freedom
-         t.ratio = round(z.ratio, digits = n_of_digits),  # Round t-ratio (z.ratio)
+         t.ratio = round(t.ratio, digits = n_of_digits),  # Round t-ratio (t.ratio)
          e = "",  # Initialize a column for significance indicators
          e = ifelse(p.value > 0.1, 
                            "",  # No symbol if p-value > 0.1
@@ -179,16 +177,29 @@ contrasts = contrast(emmeans_output,
 ```
 </details>
 
-```{r how-model-contrasts-ecos-shannon}
+<details open="open">
+<summary>Show model ANOVA</summary>
+```{r}
+
+# --- SHOW MODEL ANOVA --- #
+
+car::Anova(model, type = "III") 
+```
+</details>
+
+<details open="open">
+<summary>Model contrasts</summary>
+```{r}
 
 # --- SHOW MODEL CONTRASTS --- #
 
 contrasts
 ```
+</details>
 
-<details open="open">
+<details open = "open">
 <summary>Model residuals</summary>
-```{r plot-model-residuals-ecos-shannon, fig.width = figures_height_rmd_output}
+```{r fig.width = figures_height_rmd_output}
 
 # --- PLOT MODEL RESIDUALS --- #
 
@@ -221,8 +232,16 @@ plotResiduals(simulationOutput,
 
 testOutliers(simulationOutput)
 
-# Test for zero inflation not accounted for
+# Test for zero inflation not accounted for. From the vignette:
+# "This test is likely better suited for detecting zero-inflation than the 
+# standard plot, but note that also overdispersion will lead to excess zeros, 
+# so only seeing too many zeros is not a reliable diagnostics for moving towards 
+# a zero-inflated model. A reliable differentiation between overdispersion and 
+# zero-inflation will usually only be possible when directly comparing 
+# alternative models, e.g. through residual comparison / model selection of a 
+# model with / without zero-inflation, or by simply fitting a model with 
+# zero-inflation and looking at the parameter estimate for the zero-inflation. 
+# A good option is the R package glmmTMB, which is also supported by DHARMa."
 
 testZeroInflation(simulationOutput)
 ```
-</details>

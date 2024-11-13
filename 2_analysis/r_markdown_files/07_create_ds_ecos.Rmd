@@ -50,15 +50,12 @@ ds_ecosystems = ds_individuals %>%
          Spi_te_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Spi_te,
          Tet_bioarea_mm2_per_ml = bioarea_mm2_per_ml_Tet) %>%
   
-  # Average video values. 
+  # Replace the NAs of species with 0 
   
-  group_by_at(vars(time_point:disturbance_percentage)) %>%
-  summarise(across(contains("bioarea_mm2_per_ml"), 
-                   sum, 
-                   na.rm = TRUE),
-            across(contains("indiv_per_ml"), 
-                   sum, 
-                   na.rm = TRUE)) %>% 
+  mutate(across(all_of(protist_species_bioarea_mm2_per_ml), 
+                ~ replace_na(., 0)),
+         across(all_of(protist_species_indiv_per_ml), 
+                ~ replace_na(., 0))) %>%
   
   # Calculate ecosystem-level metrics
   
@@ -66,8 +63,8 @@ ds_ecosystems = ds_individuals %>%
     
     # Calculate bioarea and individuals of ecosystems
     
-    indiv_per_ml = sum(across(contains("indiv_per_ml"))),
-    bioarea_mm2_per_ml = sum(across(contains("bioarea_mm2_per_ml"))),
+    indiv_per_ml = sum(across(all_of(protist_species_indiv_per_ml))),
+    bioarea_mm2_per_ml = sum(across(all_of(protist_species_bioarea_mm2_per_ml))),
     log10_bioarea_mm2_per_ml = log10(bioarea_mm2_per_ml),
     ln_bioarea_mm2_per_ml = log(bioarea_mm2_per_ml),
     sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
@@ -76,38 +73,28 @@ ds_ecosystems = ds_individuals %>%
     
     # Calculate biodiversity of ecosystems
     
-    species_richness = specnumber(across(ends_with("_indiv_per_ml"))),
-    shannon = diversity(across(ends_with("_indiv_per_ml")),
+    species_richness = specnumber(across(all_of(protist_species_bioarea_mm2_per_ml))),
+    shannon = diversity(across(all_of(protist_species_bioarea_mm2_per_ml)),
                         index = "shannon"),
+    simpson = diversity(across(all_of(protist_species_bioarea_mm2_per_ml)),
+                        index = "simpson"),
+    evenness_pielou = shannon / log(species_richness),
+    
+    # Adjust Shannon and Simpson index to be undefined when the whole community
+    # has crashed
+    
     shannon = ifelse(species_richness == 0,
                      yes = NA,
                      no = shannon),
-    evenness_pielou = shannon / log(species_richness),
+    simpson = ifelse(species_richness == 0,
+                     yes = NA,
+                     no = simpson),
     
-    # Calculate species dominance
+    # Calculate species dominance based on biomass
     
-    across(all_of(protist_species_indiv_per_ml), 
-           ~ (.x / indiv_per_ml) * 100, .names = "{.col}_dominance"),
     across(all_of(protist_species_bioarea_mm2_per_ml), 
-           ~ (.x / indiv_per_ml) * 100, .names = "{.col}_dominance")) %>%
-  
-  # To have a single value for each ecosystem at a time point, average video 
-  # replicates.
-  
-  group_by(across(all_of(c("time_point", 
-                           "day",
-                           "system_nr",
-                           "ecosystem_ID",
-                           "trophic_type",
-                           "ecosystem_size_ml",
-                           "connection",
-                           "disturbance_percentage")))) %>%
-  summarise(across(contains("_dominance"), mean),
-            across(contains("_per_ml"), mean),
-            across(contains("tot"), mean),
-            species_richness = mean(species_richness),
-            shannon = mean(shannon),
-            evenness_pielou = mean(evenness_pielou)) %>%
+           ~ (.x / bioarea_mm2_per_ml) * 100, 
+           .names = "{.col}_dominance")) %>%
   
   # Ungroup to ... 
   
@@ -132,9 +119,9 @@ ds_ecosystems = ds_individuals %>%
          indiv_per_ml,
          species_richness,
          shannon,
+         simpson,
          evenness_pielou,
          any_of(protist_species_bioarea_mm2_per_ml),
-         any_of(protist_species_indiv_per_ml),
          any_of(protist_species_dominance))
 ```
 
@@ -170,7 +157,18 @@ for(ecosystem_ID_i in 1:max(ds_ecosystems$ecosystem_ID)){
                 bioarea_tot_mm2 = 0,
                 indiv_per_ml = 0,
                 sqrt_bioarea_mm2_per_ml = 0,
-                cbrt_bioarea_mm2_per_ml = 0)
+                cbrt_bioarea_mm2_per_ml = 0,
+                Ble_bioarea_mm2_per_ml = 0,
+                Cep_bioarea_mm2_per_ml = 0,
+                Col_bioarea_mm2_per_ml = 0,
+                Eug_bioarea_mm2_per_ml = 0,
+                Eup_bioarea_mm2_per_ml = 0,
+                Lox_bioarea_mm2_per_ml = 0,
+                Pau_bioarea_mm2_per_ml = 0,
+                Pca_bioarea_mm2_per_ml = 0,
+                Spi_bioarea_mm2_per_ml = 0,
+                Spi_te_bioarea_mm2_per_ml = 0,
+                Tet_bioarea_mm2_per_ml = 0)
     }
   }
 } 

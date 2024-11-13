@@ -1,0 +1,74 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-11-13"
+editor_options: 
+  chunk_output_type: console
+---
+
+<details>
+<summary>Plot original data</summary>
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
+
+# Plot heterotrophic ecosystems
+
+print("Heterotrophic ecosystems")
+plot.ecos.sizes.one.by.one.means(ds_ecosystems,
+                                 "heterotrophic",
+                                 response_variable_selected,
+                                 light_colour_hetero,
+                                 dark_colour_hetero,
+                                 y_upper_limit_selected)
+```
+</details>
+
+<details open = "open">
+<summary>Prepare & plot data for analysis</summary>
+```{r}
+
+# --- PREPARE DATA FOR ANALYSIS --- #
+
+# Add baselines
+
+baseline = ds_ecosystems %>%
+  filter(time_point == time_point_of_baselines) %>%
+  select(ecosystem_ID,
+         all_of(response_variable_selected)) %>%
+  rename(baseline = all_of(response_variable_selected))
+
+data_for_analysis = ds_ecosystems %>%
+  left_join(baseline)
+
+# Filter and mutate
+
+data_for_analysis = data_for_analysis %>%
+  filter(time_point %in% time_points_model,
+         !is.na(!!sym(response_variable_selected))) %>%
+  mutate(trophic_type = as.factor(trophic_type),
+         size = as.factor(ecosystem_size_ml),
+         conn = factor(x = ifelse(connection == "connected", 
+                                  "con", 
+                                  "unconnected"),
+                       levels = c("unconnected", "con")),
+         disturbance_percentage = as.factor(disturbance_percentage),
+         day = as.double(day),
+         ecosystem_ID = as.factor(ecosystem_ID))
+```
+
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
+
+# Plot heterotrophic ecosystems
+
+print("Heterotrophic ecosystems")
+plot.ecos.sizes.one.by.one.means(data_for_analysis,
+                                 "heterotrophic",
+                                 response_variable_selected,
+                                 light_colour_hetero,
+                                 dark_colour_hetero,
+                                 y_upper_limit_selected)
+```
+</details>

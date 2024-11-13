@@ -13,6 +13,8 @@ editor_options:
 response_variable_selected = "bioarea_mm2_per_ml"
 ```
 
+<details>
+<summary>Plot original data</summary>
 ```{r plot-original-data-one-size-per-plot-ecos-biomass, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
 # --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
@@ -37,9 +39,10 @@ plot.ecos.sizes.one.by.one.means(ds_ecosystems,
                                  dark_colour_auto,
                                  y_upper_limit = 48)
 ```
+</details>
 
- <br>
-
+<details open = "open">
+<summary>Prepare & plot data for analysis</summary>
 ```{r prepared-data-for-analysis-ecos-biomass}
 
 # --- PREPARE DATA FOR ANALYSIS --- #
@@ -71,8 +74,34 @@ data_for_analysis = data_for_analysis %>%
          ecosystem_ID = as.factor(ecosystem_ID))
 ```
 
-<br>
+```{r plot-data-for-analysis-one-size-per-plot-ecos-biomass, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
+
+# Plot heterotrophic ecosystems
+
+print("Heterotrophic ecosystems")
+plot.ecos.sizes.one.by.one.means(data_for_analysis,
+                                 "heterotrophic",
+                                 response_variable_selected,
+                                 light_colour_hetero,
+                                 dark_colour_hetero,
+                                 y_upper_limit = 6.2)
+
+# Plot autotrophic ecosystems
+
+print("Autotrophic ecosystems")
+plot.ecos.sizes.one.by.one.means(data_for_analysis,
+                                 "autotrophic",
+                                 response_variable_selected,
+                                 light_colour_auto,
+                                 dark_colour_auto,
+                                 y_upper_limit = 48)
+```
+</details>
+
+<details>
+<summary>Create model</summary>
 ```{r create-model-ecos-biomass}
 
 # --- CREATE MODEL --- #
@@ -82,40 +111,30 @@ data_for_analysis = data_for_analysis %>%
 data_for_analysis = data_for_analysis %>% 
   rename(dis_per = disturbance_percentage)
 
+# Create formula
+
+formula = as.formula(paste("bioarea_mm2_per_ml ~",
+                           "trophic_type * size * conn * dis_per +",
+                           "(1 | ecosystem_ID) +",
+                           "(1 | day) +",
+                           "(1 | baseline)")) %>%
+  print()
+
 # Model
 
-model <- glmmTMB(bioarea_mm2_per_ml ~
-                   trophic_type * size * conn * dis_per + 
-                   (1 | ecosystem_ID) +
-                   (1 | day) +
-                   (1 | baseline),
+model <- glmmTMB(formula,
                  data = data_for_analysis,
                  family = tweedie(link = "log"),
                  dispformula = ~ day + trophic_type + dis_per)
 ```
 
-<details>
-<summary>Model summary</summary>
 ```{r show-model-summary-ecos-biomass}
 
 # --- SHOW MODEL SUMMARY --- #
 
 print(summary(model), digits = 3)
 ```
-</details>
 
-<details open="open">
-<summary>Model ANOVA</summary>
-```{r show-model-anova-ecos-biomass}
-
-# --- SHOW MODEL ANOVA --- #
-
-car::Anova(model, type = "III") 
-```
-</details>
-
-<details>
-<summary>Model residuals coding</summary>
 ```{r code-model-contrasts-ecos-biomass}
 
 # --- CODE MODEL CONSTRASTS --- #
@@ -213,12 +232,26 @@ contrasts = contrast(emmeans_output,
 ```
 </details>
 
+<details open="open">
+<summary>Model ANOVA</summary>
+```{r show-model-anova-ecos-biomass}
+
+# --- SHOW MODEL ANOVA --- #
+
+car::Anova(model, type = "III") 
+```
+</details>
+
+<details open="open">
+<summary>Model contrasts</summary>
 ```{r show-model-contrasts-ecos-biomass}
 
 # --- SHOW MODEL CONTRASTS --- #
 
 contrasts
 ```
+</details>
+
 
 <details open="open">
 <summary>Model residuals</summary>
@@ -240,16 +273,24 @@ testDispersion(simulationOutput)
 plot(simulationOutput)
 
 # Plot residuals against specific predictors to check if residuals are 
-# independent of these variables
+# independent of these variables - fixed variables
 
-plotResiduals(simulationOutput, 
-              form = data_for_analysis$day) 
-plotResiduals(simulationOutput, 
+plotResiduals(simulationOutput,
               form = data_for_analysis$size)
-plotResiduals(simulationOutput, 
+plotResiduals(simulationOutput,
               form = data_for_analysis$conn)
-plotResiduals(simulationOutput, 
+plotResiduals(simulationOutput,
               form = data_for_analysis$dis_per)
+
+# Plot residuals against specific predictors to check if residuals are 
+# independent of these variables - random variables
+
+plotResiduals(simulationOutput,
+              form = data_for_analysis$system_nr)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$time_point)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$baseline)
 
 # Test for outliers 
 

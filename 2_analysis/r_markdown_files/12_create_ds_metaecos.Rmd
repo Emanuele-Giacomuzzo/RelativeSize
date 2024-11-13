@@ -25,6 +25,9 @@ combinations_connected = ds_ecosystems %>%
          # we filter the combinations of only connected ecosystems
          
          connection == "connected") %>%
+  
+  # Select relevant columns
+  
   select(system_nr,
          ecosystem_size_ml,
          connection,
@@ -42,9 +45,15 @@ combinations_connected = ds_ecosystems %>%
            disturbance_percentage) %>%
   summarise(ID_first_ecosystem = (mean(ecosystem_ID) - 0.5),
             ID_second_ecosystem = (mean(ecosystem_ID) + 0.5)) %>%
+  
+  # Add ecosystem combinations
+  
   mutate(ecosystems_combined = paste0(ID_first_ecosystem, 
                                       "|", 
                                       ID_second_ecosystem)) %>%
+  
+  # Make into a data frame
+  
   as.data.frame()
 ```
 
@@ -52,7 +61,7 @@ combinations_connected = ds_ecosystems %>%
 
 # --- IDENTIFY THE COMBINATIONS OF ECOSYSTEMS THAT CONSTITUTE UNCONNECTED META-ECOSYSTEMS --- #
 
-# Determine ecosystems IDs of unconnected autotrophic ecosystems
+# Determine ecosystems IDs of unconnected ecosystems
 
 ID_unconnected_6.43_ml_autotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 6.43,
@@ -118,8 +127,6 @@ ID_unconnected_45.00_ml_autotrophic_relative = ds_ecosystems %>%
   pull(ecosystem_ID) %>%
   unique()
 
-# Determine ecosystems IDs of unconnected heterotrophic ecosystems
-
 ID_unconnected_6.43_ml_heterotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 6.43,
          trophic_type == "heterotrophic",
@@ -184,7 +191,7 @@ ID_unconnected_45.00_ml_heterotrophic_relative = ds_ecosystems %>%
   pull(ecosystem_ID) %>%
   unique()
 
-# Find combinations
+# Find combinations of unconnected ecosystems
 
 combinations_6.43_ml_fixed = crossing(ID_unconnected_6.43_ml_autotrophic_fixed,
                                       ID_unconnected_6.43_ml_heterotrophic_fixed) %>%
@@ -308,6 +315,9 @@ combinations_unconnected = rbind(combinations_6.43_ml_fixed,
   mutate(system_nr = 1001:(1000 + nrow(.)),
          ecosystems_combined = paste0(ID_first_ecosystem, "|", 
                                       ID_second_ecosystem)) %>%
+  
+  # Select relevant columns
+  
   select(system_nr,
          ecosystem_size_ml,
          connection,
@@ -327,7 +337,7 @@ ecosystem_combinations = rbind(combinations_connected,
 
 ```{r create-ds_metaecosystems}
 
-# --- USE ECOSYSTEM COMBINATIONS TO CREATE DS_METAECOSYSTEMS --- #
+# --- CREATE DS_METAECOSYSTEMS FROM ECOSYSTEM COMBINATIONS --- #
 
 # Set parameters
 
@@ -335,7 +345,7 @@ row_i = 0
 
 # Create ds_metaecosystems
 
-for (combination_i in 1 : nrow(ecosystem_combinations)) {
+for (combination_i in 1:nrow(ecosystem_combinations)) {
   
   for (time_point_i in 1:length(time_points)) {
     
@@ -359,23 +369,42 @@ for (combination_i in 1 : nrow(ecosystem_combinations)) {
                ecosystem_size_ml,
                connection,
                disturbance_percentage) %>%
-      summarise(total_metaecosystem_bioarea_mm2 = sum(bioarea_tot_mm2)) %>%
-      mutate(bioarea_mm2_per_ml = total_metaecosystem_bioarea_mm2 / (ecosystem_size_ml * 2),
-             sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
+      summarise(total_metaecosystem_bioarea_mm2 = sum(bioarea_tot_mm2),
+                bioarea_mm2_per_ml = mean(bioarea_mm2_per_ml)) %>%
+      
+      # Transform meta-ecosystem metrics
+      
+      mutate(sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
              log_bioarea_mm2_per_ml = log(bioarea_mm2_per_ml),
              inv_bioarea_mm2_per_ml = 1 / bioarea_mm2_per_ml,
-             exp_bioarea_mm2_per_ml = exp(bioarea_mm2_per_ml),
-             system_nr = ecosystem_combinations[combination_i, ]$system_nr,
+             exp_bioarea_mm2_per_ml = exp(bioarea_mm2_per_ml)) %>%
+      
+      # Add meta-ecosystem information
+      
+      mutate(system_nr = ecosystem_combinations[combination_i, ]$system_nr,
              ecosystems_combined = ecosystem_combinations[combination_i, ]$ecosystems_combined) %>%
-      ungroup()
+      
+      # Take off the meta-ecosystems that are problematic
+      
+      filter(!system_nr %in% metaecosystems_to_take_off) %>%
+      
+      # Keep only the connected meta-ecosystems and the unconnected
+      # meta-ecosystems that we selected when we defined the parameters at 
+      # the beginning of the analysis.
+      
+      filter(connection == "connected" | 
+             ecosystems_combined %in% unconnected_metaecosystems_selected)%>%
+      
+      # Ungroup the dataset and transform into a data frame
+      
+      ungroup() %>%
+      as.data.frame()
+      
   }
 }
 
-# Finish up ds_metaecosystems
+# Bind rows together
 
 ds_metaecosystems = ds_metaecosystems %>%
-  bind_rows() %>%
-  as.data.frame() %>%
-  filter(!system_nr %in% metaecosystems_to_take_off,
-         connection == "connected" | ecosystems_combined %in% unconnected_metaecosystems_selected)
+  bind_rows()
 ```

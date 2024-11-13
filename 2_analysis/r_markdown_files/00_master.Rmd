@@ -1,0 +1,249 @@
+---
+title: "PhD Chapter 3 - RelativeSize"
+author: "Emanuele Giacomuzzo"
+date: "`r format(Sys.time(), '%Y-%m-%d %H:%M')`"
+output: 
+  html_document:
+    code_folding: hide
+html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    number_sections: true
+    includes:
+      after_body: tabset-dropdown.html
+editor_options: 
+  chunk_output_type: console
+---
+
+#  {.tabset}
+
+## Design
+
+```{r child = here::here("r_markdown_files", "01_show_design.Rmd"), echo=FALSE}
+```
+
+## Parameters {.tabset .tabset-dropdown}
+
+```{r child = here::here("r_markdown_files", "02_set_packages.Rmd"), echo=FALSE}
+```
+
+```{r child = here("r_markdown_files", "03_set_functions.Rmd"), echo=FALSE}
+```
+
+```{r child = here("r_markdown_files", "04_set_parameters.Rmd"), class.source = 'fold-show'}
+```
+
+## Data {.tabset .tabset-dropdown}
+
+### Produce data from videos
+
+```{r child = here("r_markdown_files", "??_analyse_videos.Rmd"), class.source = 'fold-show', eval = FALSE}
+```
+
+### Individuals (`ds_individuals`)
+
+```{r child = here("r_markdown_files", "05_create_ds_individuals.Rmd"), class.source = 'fold-show'}
+```
+
+```{r child = here("r_markdown_files", "06_identify_species.Rmd"), class.source = 'fold-show'}
+```
+
+### Ecosystems (`ds_ecosystems`)
+
+```{r child = here("r_markdown_files", "07_create_ds_ecos.Rmd"), class.source = 'fold-show'}
+```
+
+### Ecosystems effect sizes (`ds_ecosystems_effect_size`)
+
+```{r child = here("r_markdown_files", "08_create_ds_ecos_es.Rmd"), class.source = 'fold-show', eval = FALSE}
+```
+
+### Species dominances with CI (`ds_dominances_with_CI`)
+
+```{r child = here("r_markdown_files", "09_create_ds_species.Rmd"), class.source = 'fold-show'}
+```
+
+### Species effect sizes d (`ds_species_effect_sizes_d`)
+
+```{r child = here("r_markdown_files", "10_create_ds_species_es_d.Rmd"), class.source = 'fold-show', eval = FALSE}
+```
+
+### Species effect sizes LRR (`ds_species_effect_sizes_LRR`)
+```{r child = here("r_markdown_files", "11_create_ds_species_es_LRR.Rmd"), class.source = 'fold-show', eval = FALSE}
+```
+
+### Meta-ecosystems (`ds_metaecosystems`)
+
+```{r child = here("r_markdown_files", "12_create_ds_metaecos.Rmd"), class.source = 'fold-show'}
+```
+
+### Meta-ecosystems effect sizes (`ds_metaecos_es`)
+
+```{r child = here("r_markdown_files", "13_create_ds_metaecos_es.Rmd"), class.source = 'fold-show', eval = FALSE}
+```
+
+
+```{r echo=FALSE, message=FALSE}
+
+# Save environment
+
+save.image(file = here("..",
+                       "3_results", 
+                       "environments", 
+                       "at_the_end_of_producing_datasets.RData"))
+```
+
+## Meta-ecosystems {.tabset .tabset-pills}
+
+```{r child = here("r_markdown_files", "14_analyse_metaecos.Rmd")}
+```
+
+## Ecosystems {.tabset .tabset-pills}
+
+### Biomass {.tabset .tabset-dropdown}
+
+```{r child = here("r_markdown_files", "15_analyse_ecos_biomass.Rmd")}
+```
+
+### Shannon {.tabset .tabset-dropdown}
+
+```{r}
+response_variable_selected = "shannon"
+y_upper_limit_selected = 2
+```
+
+```{r child = here("r_markdown_files", "16_analyse_ecos_diversity.Rmd")}
+```
+
+### Simpson {.tabset .tabset-dropdown}
+
+```{r}
+response_variable_selected = "simpson"
+y_upper_limit_selected = 1
+```
+
+```{r child = here("r_markdown_files", "16_analyse_ecos_diversity.Rmd")}
+```
+
+### Species Richness {.tabset .tabset-dropdown}
+
+```{r}
+response_variable_selected = "species_richness"
+y_upper_limit_selected = 12
+```
+
+```{r child = here("r_markdown_files", "16_analyse_ecos_diversity.Rmd")}
+```
+
+### Dominances {.tabset .tabset-pills}
+
+#### Ble
+
+```{r}
+response_variable_selected = "Ble_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Cep
+
+```{r}
+response_variable_selected = "Cep_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Col
+
+```{r}
+response_variable_selected = "Col_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Eup
+
+```{r}
+response_variable_selected = "Eup_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Lox
+
+```{r}
+response_variable_selected = "Lox_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Pau
+
+```{r}
+response_variable_selected = "Pau_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Pca
+
+```{r}
+response_variable_selected = "Pca_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Spi
+
+```{r}
+response_variable_selected = "Spi_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Spi te
+
+```{r}
+response_variable_selected = "Spi_te_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+#### Tet
+
+```{r}
+response_variable_selected = "Tet_bioarea_mm2_per_ml_dominance"
+y_upper_limit_selected = 100
+```
+
+```{r child = here("r_markdown_files", "17_analyse_ecos_species.Rmd")}
+```
+
+### BEF
+
+```{r child = here("r_markdown_files", "18_analyse_ecos_BEF.Rmd")}
+```
+
+## Other
+
+```{r child = here("r_markdown_files", "19_show_other.Rmd")}
+```

@@ -8,7 +8,7 @@ editor_options:
 
 ```{r create-ds-individuals}
 
-# --- IMPORT DATASETS --- #
+# --- IMPORT DATASETS WITH INDIVIDUALS --- #
 
 # Loop through time points to import them and modify them
 
@@ -16,7 +16,8 @@ for(time_point in time_points){
   
   # Note: We use time_point + 1 for 1-based indexing in R.
   
-  ds_individuals[[time_point + 1]] = read.csv(here("1_data",
+  ds_individuals[[time_point + 1]] = read.csv(here("..",
+                                                   "1_data",
                                                    "13_threshold_analysis",
                                                    paste0("t", 
                                                           time_point, 

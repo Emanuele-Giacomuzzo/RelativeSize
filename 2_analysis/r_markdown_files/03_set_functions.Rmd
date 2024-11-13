@@ -12,7 +12,9 @@ editor_options:
 
 # Find the name of the files containing the functions
 
-functions_paths = list.files(here("2_r_files", "functions"), pattern = ".R$", full.names = TRUE)
+functions_paths = list.files(here("functions"), 
+                             pattern = ".R$", 
+                             full.names = TRUE)
 
 # Import the functions
 

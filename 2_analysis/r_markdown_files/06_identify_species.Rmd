@@ -8,22 +8,39 @@ editor_options:
 
 ```{r create-training-dataset}
 
-# --- CREATE TRAINING DATASET --- #
+# --- CREATE TRAINING DATASET FOR TRAINING SPECIES ID MODEL --- #
 
 # Loop through each threshold level to import and process datasets.
 
 for(i in 1:length(threshold_levels)){
   
-  training_individuals[[i]] = read.csv(here("1_data",
+  # Import training dataset 
+  
+  training_individuals[[i]] = read.csv(here("..",
+                                            "1_data",
                                             paste0(threshold_levels[i],
                                                    "_threshold_analysis"),
                                             "training.csv")) %>%
-  filter(species != "Eug") %>% # Exclude Euglena from training monocultures to prevent misidentification (Eug was only in autotrophic ecosystems).
+    
+  # Exclude Euglena from training monocultures to prevent misidentification 
+  # (Eug was only in autotrophic ecosystems).
+    
+  filter(species != "Eug") %>%
+    
+  # Transform Spi te into Spi_te, get rid of the comments, and extract numeric 
+  # file identifier from the file name.
+    
   mutate(species = case_when(species == "Spi te" ~ "Spi_te",
                              TRUE ~ species),
          comment = NULL,
-         file = as.numeric(str_extract(file, "\\d+"))) %>% # Extract numeric file identifier from the file name.
-  filter(complete.cases(.)) %>% # Remove rows with any NA values to ensure complete cases.
+         file = as.numeric(str_extract(file, "\\d+"))) %>% 
+  
+  # Remove rows with any NA values to ensure complete cases.
+    
+  filter(complete.cases(.)) %>% 
+  
+  # Reoder columns to make it easier to inspect  
+  
   select(file,
          id,
          species,
@@ -44,7 +61,6 @@ ds_individuals_13 = training_individuals[[1]] %>%
 # At threshold 40, we successfully eliminated the food source (Chi) 
 # for "Ble", allowing for its inclusion in the analysis.
 
-
 ds_individuals_40 = training_individuals[[2]] %>% 
   filter(species == "Ble")  # Filter for "Ble" species only
 
@@ -56,8 +72,8 @@ training_individuals = rbind(ds_individuals_13,
 
 ```{r create-predictive-model}
 
-# --- CREATE PREDICTIVE MODEL --- #
-# See where we previously set the parameters for a description of these variables. 
+# --- CREATE PREDICTIVE MODEL FOR SPECIES ID --- #
+# See the file '04_set_paramaters.Rmd' for a description of these variables. 
 
 species_ID_model = svm(factor(species) ~
                          mean_grey +
@@ -92,10 +108,10 @@ species_ID_model = svm(factor(species) ~
 
 ```{r show-confusion-matrix}
 
-# --- SHOW CONFUSION MATRIX --- #
+# --- SHOW CONFUSION MATRIX FOR SPECIES ID --- #
 
-# Create a confusion matrix comparing the fitted species predictions from the SVM model 
-# with the actual species labels from the training dataset.
+# Create a confusion matrix comparing the fitted species predictions from the 
+# SVM model with the actual species labels from the training dataset.
 
 confusion_matrix = table(species_ID_model$fitted, training_individuals$species)
 
@@ -104,22 +120,31 @@ confusion_matrix = table(species_ID_model$fitted, training_individuals$species)
 confusion_matrix_with_diagonal_zeros = confusion_matrix
 
 # Set the diagonal elements (true positives) to zero for error calculation.
-# This allows us to compute the misclassification errors without counting the correct classifications.
+# This allows us to compute the misclassification errors without counting the 
+# correct classifications.
 
 diag(confusion_matrix_with_diagonal_zeros) = 0 
 
 # Calculate the class error for each species.
-# Class error is defined as the ratio of misclassified samples to the total samples for each species.
+# Class error is defined as the ratio of misclassified samples to the total 
+# samples for each species.
 
 confusion_matrix = cbind(
   confusion_matrix,
-  class_error = rowSums(confusion_matrix_with_diagonal_zeros) / rowSums(confusion_matrix)
-) %>%
+  class_error = rowSums(confusion_matrix_with_diagonal_zeros) / 
+                rowSums(confusion_matrix)) %>%
+  
+  # Transform into data frame
+  
   as.data.frame() %>%
-  mutate(class_error_percentage = class_error * 100, # Convert class error to percentage
-         class_error = NULL)  # Remove the original class_error column for clarity.
+  
+  # Convert class error to percentage and remove the original class_error 
+  # column for clarity.
+  
+  mutate(class_error_percentage = class_error * 100, 
+         class_error = NULL)
 
-# Display the final confusion matrix with class errors as a data frame.
+# Display the confusion matrix
 
 confusion_matrix
 ```
