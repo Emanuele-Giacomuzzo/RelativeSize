@@ -37,7 +37,7 @@ plot.metaecos.sizes.one.by.one.means(ds_metaecosystems,
 
 baseline = ds_metaecosystems %>%
   filter(time_point == time_point_of_baselines) %>%
-  select(system_nr,
+  select(metaecosystem_ID,
          all_of(response_variable_selected)) %>%
   rename(baseline = all_of(response_variable_selected))
 
@@ -87,7 +87,7 @@ data_for_analysis = data_for_analysis %>%
 
 formula = as.formula(paste("bioarea_mm2_per_ml ~",
                            "size * conn * dis_per +",
-                           "(1 | system_nr) +",
+                           "(1 | metaecosystem_ID) +",
                            "(1 | time_point) +",
                            "(1 | baseline)")) %>%
   print()
@@ -95,7 +95,7 @@ formula = as.formula(paste("bioarea_mm2_per_ml ~",
 # Create model 
 
 model <- glmmTMB(formula,
-                 family = Gamma(link = "log"), # Or try other distributions
+                 family = Gamma(link = "log"), 
                  data = data_for_analysis)
 ```
 
@@ -227,7 +227,7 @@ plotResiduals(simulationOutput,
 # independent of these variables - random variables
 
 plotResiduals(simulationOutput,
-              form = data_for_analysis$system_nr)
+              form = data_for_analysis$metaecosystem_ID)
 plotResiduals(simulationOutput,
               form = data_for_analysis$time_point)
 plotResiduals(simulationOutput,

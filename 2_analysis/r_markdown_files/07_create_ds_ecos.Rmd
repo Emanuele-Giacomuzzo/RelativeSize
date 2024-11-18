@@ -57,6 +57,17 @@ ds_ecosystems = ds_individuals %>%
          across(all_of(protist_species_indiv_per_ml), 
                 ~ replace_na(., 0))) %>%
   
+  # Bind the rows which contain different protist species for the same 
+  # ecosystem ID and time point
+  
+  group_by_at(vars(time_point:disturbance_percentage)) %>%
+  summarise(across(.cols = all_of(protist_species_bioarea_mm2_per_ml), 
+                   .fns = ~mean(.), 
+                   .names = "{.col}"),
+            across(.cols = all_of(protist_species_indiv_per_ml), 
+                   .fns = ~mean(.), 
+                   .names = "{.col}")) %>% 
+  
   # Calculate ecosystem-level metrics
   
   mutate(
@@ -104,7 +115,7 @@ ds_ecosystems = ds_individuals %>%
   
   select(time_point,
          day,
-         system_nr,
+         metaecosystem_ID,
          ecosystem_ID,
          trophic_type,
          ecosystem_size_ml,
@@ -147,7 +158,7 @@ for(ecosystem_ID_i in 1:max(ds_ecosystems$ecosystem_ID)){
       ds_ecosystems = ds_ecosystems %>%
         add_row(time_point = time_point_i,
                 day = unique(ds_ecosystems$day[ds_ecosystems$time_point == time_point_i]),
-                system_nr = unique(ds_ecosystems$system_nr[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
+                metaecosystem_ID = unique(ds_ecosystems$metaecosystem_ID[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
                 ecosystem_ID = ecosystem_ID_i,
                 trophic_type = unique(ds_ecosystems$trophic_type[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
                 ecosystem_size_ml = unique(ds_ecosystems$ecosystem_size_ml[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
@@ -172,4 +183,9 @@ for(ecosystem_ID_i in 1:max(ds_ecosystems$ecosystem_ID)){
     }
   }
 } 
+
+# Test: check number of rows
+
+expect_equal(nrow(ds_ecosystems),
+             n_ecosystems * length(time_points))
 ```

@@ -41,7 +41,7 @@ plot.ecos.sizes.one.by.one.means(ds_ecosystems,
 ```
 </details>
 
-<details open = "open">
+<details>
 <summary>Prepare & plot data for analysis</summary>
 ```{r prepared-data-for-analysis-ecos-biomass}
 
@@ -99,6 +99,13 @@ plot.ecos.sizes.one.by.one.means(data_for_analysis,
                                  y_upper_limit = 48)
 ```
 </details>
+
+<details>
+<summary>Plot data with significance level</summary>
+![](../../4_other/biomass_significance_H.png)
+![](../../4_other/biomass_significance_A.png)
+</details>
+
 
 <details>
 <summary>Create model</summary>

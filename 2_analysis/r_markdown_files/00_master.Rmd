@@ -91,7 +91,7 @@ editor_options:
 save.image(file = here("..",
                        "3_results", 
                        "environments", 
-                       "at_the_end_of_producing_datasets.RData"))
+                       "working_on_it.RData"))
 ```
 
 ## Meta-ecosystems {.tabset .tabset-pills}

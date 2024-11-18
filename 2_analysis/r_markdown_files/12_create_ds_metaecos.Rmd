@@ -28,7 +28,7 @@ combinations_connected = ds_ecosystems %>%
   
   # Select relevant columns
   
-  select(system_nr,
+  select(metaecosystem_ID,
          ecosystem_size_ml,
          connection,
          disturbance_percentage,
@@ -39,7 +39,7 @@ combinations_connected = ds_ecosystems %>%
   # ecosystems as mean ± 0.5. This is because the two ecosystems of a 
   # meta-ecosystem are two integers next to each other (e.g., 31 and 32). 
   
-  group_by(system_nr,
+  group_by(metaecosystem_ID,
            ecosystem_size_ml,
            connection,
            disturbance_percentage) %>%
@@ -312,13 +312,13 @@ combinations_unconnected = rbind(combinations_6.43_ml_fixed,
   # nr that starts from 1000, so that they can be distinguished 
   # from the connected meta-ecosystems. 
   
-  mutate(system_nr = 1001:(1000 + nrow(.)),
+  mutate(metaecosystem_ID = 1001:(1000 + nrow(.)),
          ecosystems_combined = paste0(ID_first_ecosystem, "|", 
                                       ID_second_ecosystem)) %>%
   
   # Select relevant columns
   
-  select(system_nr,
+  select(metaecosystem_ID,
          ecosystem_size_ml,
          connection,
          disturbance_percentage,
@@ -381,12 +381,12 @@ for (combination_i in 1:nrow(ecosystem_combinations)) {
       
       # Add meta-ecosystem information
       
-      mutate(system_nr = ecosystem_combinations[combination_i, ]$system_nr,
+      mutate(metaecosystem_ID = ecosystem_combinations[combination_i, ]$metaecosystem_ID,
              ecosystems_combined = ecosystem_combinations[combination_i, ]$ecosystems_combined) %>%
       
       # Take off the meta-ecosystems that are problematic
       
-      filter(!system_nr %in% metaecosystems_to_take_off) %>%
+      filter(!metaecosystem_ID %in% metaecosystems_to_take_off) %>%
       
       # Keep only the connected meta-ecosystems and the unconnected
       # meta-ecosystems that we selected when we defined the parameters at 

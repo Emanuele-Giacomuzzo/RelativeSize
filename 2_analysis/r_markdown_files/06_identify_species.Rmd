@@ -166,5 +166,17 @@ ds_individuals = ds_individuals %>%
          species = ifelse(trophic_type == "autotrophic", 
                           "Eug", 
                           species)) 
-    
+
+# Test: check number of rows
+
+ecosystems_at_time_points = ds_individuals %>%
+              select(ecosystem_ID,
+                     time_point) %>%
+              unique() %>%
+              nrow()
+
+n_ecosystem_at_time_points_missing = 
+  (n_ecosystems * length(time_points)) - ecosystems_at_time_points
+
+expect_true(n_ecosystem_at_time_points_missing >= 0)
 ```

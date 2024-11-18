@@ -41,7 +41,7 @@ for(time_point in time_points){
               by = "ecosystem_ID") %>% # Add information about ecosystems
     select(time_point,
            day,
-           system_nr,
+           metaecosystem_ID,
            ecosystem_ID,
            ecosystem_size_ml,
            trophic_type,
@@ -57,4 +57,17 @@ for(time_point in time_points){
 
 ds_individuals = ds_individuals %>%
   bind_rows() 
+
+# Test: check number of rows
+
+ecosystems_at_time_points = ds_individuals %>%
+              select(ecosystem_ID,
+                     time_point) %>%
+              unique() %>%
+              nrow()
+
+n_ecosystem_at_time_points_missing = 
+  (n_ecosystems * length(time_points)) - ecosystems_at_time_points
+
+expect_true(n_ecosystem_at_time_points_missing >= 0)
 ```
