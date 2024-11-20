@@ -50,7 +50,7 @@ data_for_analysis = data_for_analysis %>%
                                   "con", 
                                   "unconnected"),
                        levels = c("unconnected", "con")),
-         disturbance_percentage = as.factor(disturbance_percentage),
+         volume_disturbed_across_sizes = as.factor(volume_disturbed_across_sizes),
          day = as.double(day),
          ecosystem_ID = as.factor(ecosystem_ID))
 ```
@@ -78,25 +78,25 @@ plot.ecos.sizes.one.by.one.means(data_for_analysis,
 # Prepare data
 
 data_for_analysis = data_for_analysis %>% 
-  rename(dis_per = disturbance_percentage) %>%
+  rename(disturb_type = volume_disturbed_across_sizes) %>%
   filter(trophic_type == "heterotrophic") %>%
   mutate(day = as.factor(day))
 
 # Create formula
 
 formula = as.formula(paste("get(response_variable_selected) ~",
-                           "conn * size * dis_per +",
+                           "conn * size * disturb_type +",
                            "(1 | ecosystem_ID) +",
-                           "(1 | day) +",
-                           "(1 | baseline)")) %>%
+                           #"(1 | baseline) +",
+                           "(1 | day)")) %>%
   print()
 
 # Create model
 
 model = glmmTMB(formula,
                 data = data_for_analysis,
-                dispformula = ~ size + conn + dis_per + day, # Overdispersion
-                ziformula = ~ size + conn + dis_per, # Zero inflation
+                dispformula = ~ size + conn + disturb_type + day, # Overdispersion
+                ziformula = ~ size + conn + disturb_type, # Zero inflation
                 control=glmmTMBControl(optimizer=optim,
                                        optArgs=list(method="BFGS")))
 ```
@@ -115,7 +115,7 @@ print(summary(model), digits = 3)
 # Estimate marginal means (Least-squares means)
 
 emmeans_output = emmeans(model,
-                         specs = ~  conn * dis_per * size,  # Calculate emmeans for the interaction of conn, dis_per, and size
+                         specs = ~  conn * disturb_type * size,  # Calculate emmeans for the interaction of conn, disturb_type, and size
                          adjust = "sidak",  # Use Sidak adjustment for multiple comparisons
                          bias.adj = TRUE,  # Apply bias adjustment
                          lmer.df = "satterthwaite")  # Use Satterthwaite approximation for degrees of freedom
@@ -124,36 +124,36 @@ emmeans_output
 
 # Define contrast vectors for each group
 
-uncon_decr_6_43 = c(1, rep(0,15)) # Autotrophic, unconnected, 6.43 ml decrease
-con_decr_6_43 = c(rep(0,1), 1, rep(0,14)) # Autotrophic, connected, 6.43 ml decrease
-uncon_fix_6_43 = c(rep(0,2), 1, rep(0,13)) # Autotrophic, unconnected, 6.43 ml fixed
-con_fix_6_43 = c(rep(0,3), 1, rep(0,12)) # Autotrophic, connected, 6.43 ml fixed
-uncon_decr_9 = c(rep(0,4), 1, rep(0,11)) # Autotrophic, unconnected, 9.00 ml decrease
-con_decr_9 = c(rep(0,5), 1, rep(0,10)) # Autotrophic, connected, 9.00 ml decrease
-uncon_fix_9 = c(rep(0,6), 1, rep(0,9)) # Autotrophic, unconnected, 9.00 ml fixed
-con_fix_9 = c(rep(0,7), 1, rep(0,8)) # Autotrophic, connected, 9.00 ml fixed
-uncon_decr_15 = c(rep(0,8), 1, rep(0,7)) # Autotrophic, unconnected, 15.00 ml decrease
-con_decr_15 = c(rep(0,9), 1, rep(0,6)) # Autotrophic, connected, 15.00 ml decrease
-uncon_fix_15 = c(rep(0,10), 1, rep(0,5)) # Autotrophic, unconnected, 15.00 ml fixed
-con_fix_15 = c(rep(0,11), 1, rep(0,4)) # Autotrophic, connected, 15.00 ml fixed
-uncon_decr_45 = c(rep(0,12), 1, rep(0,3)) # Autotrophic, unconnected, 45.00 ml decrease
-con_decr_45 = c(rep(0,13), 1, rep(0,2)) # Autotrophic, connected, 45.00 ml decrease
-uncon_fix_45 = c(rep(0,14), 1, rep(0,1)) # Autotrophic, unconnected, 45.00 ml fixed
-con_fix_45 = c(rep(0,15), 1) # Autotrophic, connected, 45.00 ml fixed
+uncon_fixed_6_43 = c(1, rep(0,15)) # Autotrophic, unconnected, 6.43 ml decrease
+con_fixed_6_43 = c(rep(0,1), 1, rep(0,14)) # Autotrophic, connected, 6.43 ml decrease
+uncon_relative_6_43 = c(rep(0,2), 1, rep(0,13)) # Autotrophic, unconnected, 6.43 ml fixed
+con_relative_6_43 = c(rep(0,3), 1, rep(0,12)) # Autotrophic, connected, 6.43 ml fixed
+uncon_fixed_9 = c(rep(0,4), 1, rep(0,11)) # Autotrophic, unconnected, 9.00 ml decrease
+con_fixed_9 = c(rep(0,5), 1, rep(0,10)) # Autotrophic, connected, 9.00 ml decrease
+uncon_relative_9 = c(rep(0,6), 1, rep(0,9)) # Autotrophic, unconnected, 9.00 ml fixed
+con_relative_9 = c(rep(0,7), 1, rep(0,8)) # Autotrophic, connected, 9.00 ml fixed
+uncon_fixed_15 = c(rep(0,8), 1, rep(0,7)) # Autotrophic, unconnected, 15.00 ml decrease
+con_fixed_15 = c(rep(0,9), 1, rep(0,6)) # Autotrophic, connected, 15.00 ml decrease
+uncon_relative_15 = c(rep(0,10), 1, rep(0,5)) # Autotrophic, unconnected, 15.00 ml fixed
+con_relative_15 = c(rep(0,11), 1, rep(0,4)) # Autotrophic, connected, 15.00 ml fixed
+uncon_fixed_45 = c(rep(0,12), 1, rep(0,3)) # Autotrophic, unconnected, 45.00 ml decrease
+con_fixed_45 = c(rep(0,13), 1, rep(0,2)) # Autotrophic, connected, 45.00 ml decrease
+uncon_relative_45 = c(rep(0,14), 1, rep(0,1)) # Autotrophic, unconnected, 45.00 ml fixed
+con_relative_45 = c(rep(0,15), 1) # Autotrophic, connected, 45.00 ml fixed
 
 n_of_digits = 3 # Set number of digits for rounding
 
 # Calculate contrasts using the defined vectors
 
 contrasts = contrast(emmeans_output, 
-                     method = list("6.43 ml no interact" = con_fix_6_43 - uncon_fix_6_43,
-                                   "6.43 ml with interact" = con_decr_6_43 - uncon_decr_6_43,
-                                   "9.00 ml no interact" = con_fix_9 - uncon_fix_9,
-                                   "9.00 ml with interact" = con_decr_9 - uncon_decr_9,
-                                   "15.00 ml no interact" = con_fix_15 - uncon_fix_15,
-                                   "15.00 ml with interact" = con_decr_15 - uncon_decr_15,
-                                   "45.00 ml no interact" = con_fix_45 - uncon_fix_45,
-                                   "45.00 ml with interact" = con_decr_45 - uncon_decr_45)) %>% 
+                     method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
+                                   "9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
+                                   "15.00 ml fixed" = con_fixed_15 - uncon_fixed_15,
+                                   "45.00 ml fixed" = con_fixed_45 - uncon_fixed_45,
+                                   "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
+                                   "9.00 ml relative" = con_relative_9 - uncon_relative_9,
+                                   "15.00 ml relative" = con_relative_15 - uncon_relative_15,
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) %>% 
   as.data.frame() %>%  # Convert the contrast output to a data frame
   mutate(p.value = round(p.value, digits = n_of_digits),  # Round p-value to specified digits
          estimate = round(estimate, digits = n_of_digits),  # Round estimate
@@ -226,7 +226,7 @@ plotResiduals(simulationOutput,
 plotResiduals(simulationOutput, 
               form = data_for_analysis$conn)
 plotResiduals(simulationOutput, 
-              form = data_for_analysis$dis_per)
+              form = data_for_analysis$disturb_type)
 
 # Test for outliers 
 

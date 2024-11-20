@@ -52,7 +52,7 @@ data_for_analysis = data_for_analysis %>%
                                   "con", 
                                   "unconnected"),
                        levels = c("unconnected", "con")),
-         disturbance_percentage = as.factor(disturbance_percentage),
+         volume_disturbed_across_sizes = as.factor(volume_disturbed_across_sizes),
          day = as.double(day),
          ecosystem_ID = as.factor(ecosystem_ID))
 ```

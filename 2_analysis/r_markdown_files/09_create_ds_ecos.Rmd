@@ -14,7 +14,7 @@ ds_ecosystems = ds_individuals %>%
   
   #Summarise for each species their bioarea and nr of individuals
   
-  group_by_at(vars(time_point:disturbance_percentage,
+  group_by_at(vars(time_point:volume_disturbed_across_sizes,
                    species)) %>%
   summarise(bioarea_mm2_per_ml = sum(bioarea_mm2_per_frame_per_ml),
             indiv_per_ml = sum(N_frames) / total_frames) %>% 
@@ -60,7 +60,7 @@ ds_ecosystems = ds_individuals %>%
   # Bind the rows which contain different protist species for the same 
   # ecosystem ID and time point
   
-  group_by_at(vars(time_point:disturbance_percentage)) %>%
+  group_by_at(vars(time_point:volume_disturbed_across_sizes)) %>%
   summarise(across(.cols = all_of(protist_species_bioarea_mm2_per_ml), 
                    .fns = ~mean(.), 
                    .names = "{.col}"),
@@ -120,7 +120,7 @@ ds_ecosystems = ds_individuals %>%
          trophic_type,
          ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          bioarea_mm2_per_ml,
          log10_bioarea_mm2_per_ml,
          ln_bioarea_mm2_per_ml,
@@ -163,7 +163,7 @@ for(ecosystem_ID_i in 1:max(ds_ecosystems$ecosystem_ID)){
                 trophic_type = unique(ds_ecosystems$trophic_type[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
                 ecosystem_size_ml = unique(ds_ecosystems$ecosystem_size_ml[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
                 connection = unique(ds_ecosystems$connection[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
-                disturbance_percentage = unique(ds_ecosystems$disturbance_percentage[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
+                volume_disturbed_across_sizes = unique(ds_ecosystems$volume_disturbed_across_sizes[ds_ecosystems$ecosystem_ID == ecosystem_ID_i]),
                 bioarea_mm2_per_ml = 0,
                 bioarea_tot_mm2 = 0,
                 indiv_per_ml = 0,

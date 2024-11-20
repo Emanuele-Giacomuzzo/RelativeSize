@@ -21,13 +21,11 @@ response_variable_selected = "bioarea_mm2_per_ml"
 
 plot.metaecos.sizes.one.by.one.means(ds_metaecosystems,
                                      response_variable_selected,
-                                     light_colour_metaecos,
-                                     dark_colour_metaecos,
                                      y_upper_limit = 25)
 ```
 </details>
 
-<details open = "open">
+<details>
 <summary>Prepare & plot data for analysis</summary>
 ```{r prepare-data-for-analysis-metaecos}
 
@@ -63,10 +61,13 @@ data_for_analysis = data_for_analysis %>%
 
 plot.metaecos.sizes.one.by.one.means(data_for_analysis,
                                      response_variable_selected,
-                                     light_colour_metaecos,
-                                     dark_colour_metaecos,
                                      y_upper_limit = 25)
 ```
+</details>
+
+<details open = "open">
+<summary>Figures with results</summary>
+![](../../4_other/figures_w_significance/1_metaecos_biomass_significance.png)
 </details>
 
 <details>
@@ -79,14 +80,14 @@ plot.metaecos.sizes.one.by.one.means(data_for_analysis,
 
 data_for_analysis = data_for_analysis %>% 
   rename(size = ecosystem_size_ml,
-         dis_per = disturbance_percentage) %>%
+         disturb_type = volume_disturbed_across_sizes) %>%
   mutate(size = as.factor(size),
          day = as.factor(day))
 
 # Define formula
 
 formula = as.formula(paste("bioarea_mm2_per_ml ~",
-                           "size * conn * dis_per +",
+                           "size * conn * disturb_type +",
                            "(1 | metaecosystem_ID) +",
                            "(1 | time_point) +",
                            "(1 | baseline)")) %>%
@@ -113,7 +114,7 @@ print(summary(model), digits = 3)
 # Estimate marginal means (least-squares means)
 
 emmeans_output = emmeans(model,
-                         specs = ~  conn * dis_per * size,
+                         specs = ~  conn * disturb_type * size,
                          adjust = "sidak",
                          bias.adj = TRUE,
                          lmer.df = "satterthwaite") 
@@ -122,35 +123,35 @@ emmeans_output
 
 # Give a name for each level which you want to compare
 
-uncon_decr_6_43 = c(1, rep(0,15)) 
-con_decr_6_43 = c(rep(0,1), 1, rep(0,14)) 
-uncon_fix_6_43 = c(rep(0,2), 1, rep(0,13)) 
-con_fix_6_43 = c(rep(0,3), 1, rep(0,12)) 
-uncon_decr_9 = c(rep(0,4), 1, rep(0,11)) 
-con_decr_9 = c(rep(0,5), 1, rep(0,10)) 
-uncon_fix_9 = c(rep(0,6), 1, rep(0,9)) 
-con_fix_9 = c(rep(0,7), 1, rep(0,8)) 
-uncon_decr_15 = c(rep(0,8), 1, rep(0,7))
-con_decr_15 = c(rep(0,9), 1, rep(0,6))
-uncon_fix_15 = c(rep(0,10), 1, rep(0,5))
-con_fix_15 = c(rep(0,11), 1, rep(0,4))
-uncon_decr_45 = c(rep(0,12), 1, rep(0,3))
-con_decr_45 = c(rep(0,13), 1, rep(0,2))
-uncon_fix_45 = c(rep(0,14), 1, rep(0,1))
-con_fix_45 = c(rep(0,15), 1)
+uncon_fixed_6_43 = c(1, rep(0,15)) 
+con_fixed_6_43 = c(rep(0,1), 1, rep(0,14)) 
+uncon_relative_6_43 = c(rep(0,2), 1, rep(0,13)) 
+con_relative_6_43 = c(rep(0,3), 1, rep(0,12)) 
+uncon_fixed_9 = c(rep(0,4), 1, rep(0,11)) 
+con_fixed_9 = c(rep(0,5), 1, rep(0,10)) 
+uncon_relative_9 = c(rep(0,6), 1, rep(0,9)) 
+con_relative_9 = c(rep(0,7), 1, rep(0,8)) 
+uncon_fixed_15 = c(rep(0,8), 1, rep(0,7))
+con_fixed_15 = c(rep(0,9), 1, rep(0,6))
+uncon_relative_15 = c(rep(0,10), 1, rep(0,5))
+con_relative_15 = c(rep(0,11), 1, rep(0,4))
+uncon_fixed_45 = c(rep(0,12), 1, rep(0,3))
+con_fixed_45 = c(rep(0,13), 1, rep(0,2))
+uncon_relative_45 = c(rep(0,14), 1, rep(0,1))
+con_relative_45 = c(rep(0,15), 1)
 
 # Compute the contrasts
 
 n_of_digits = 3
 contrasts = contrast(emmeans_output, 
-                     method = list("6.43 ml no interact" = con_fix_6_43 - uncon_fix_6_43,
-                                   "6.43 ml with interact" = con_decr_6_43 - uncon_decr_6_43,
-                                   "9.00 ml no interact" = con_fix_9 - uncon_fix_9,
-                                   "9.00 ml with interact" = con_decr_9 - uncon_decr_9,
-                                   "15.00 ml no interact" = con_fix_15 - uncon_fix_15,
-                                   "15.00 ml with interact" = con_decr_15 - uncon_decr_15,
-                                   "45.00 ml no interact" = con_fix_45 - uncon_fix_45,
-                                   "45.00 ml with interact" = con_decr_45 - uncon_decr_45)) %>% 
+                     method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
+                                   "9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
+                                   "15.00 ml fixed" = con_fixed_15 - uncon_fixed_15,
+                                   "45.00 ml fixed" = con_fixed_45 - uncon_fixed_45,
+                                   "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
+                                   "9.00 ml relative" = con_relative_9 - uncon_relative_9,
+                                   "15.00 ml relative" = con_relative_15 - uncon_relative_15,
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) %>% 
   as.data.frame() %>%
   mutate(p.value = round(p.value, digits = n_of_digits),
          estimate = round(estimate, digits = n_of_digits),
@@ -221,7 +222,7 @@ plotResiduals(simulationOutput,
 plotResiduals(simulationOutput,
               form = data_for_analysis$conn)
 plotResiduals(simulationOutput,
-              form = data_for_analysis$dis_per)
+              form = data_for_analysis$disturb_type)
 
 # Plot residuals against specific predictors to check if residuals are 
 # independent of these variables - random variables
@@ -242,5 +243,3 @@ testOutliers(simulationOutput)
 testZeroInflation(simulationOutput)
 ```
 </details>
-
-<br>

@@ -29,7 +29,7 @@ dominances_mean = ds_ecosystems %>%
            ecosystem_size_ml, 
            trophic_type, 
            connection, 
-           disturbance_percentage) %>%
+           volume_disturbed_across_sizes) %>%
   
   # Calculate the mean dominance for each species, ignoring missing values
   
@@ -53,7 +53,7 @@ dominances_mean = ds_ecosystems %>%
                          "ecosystem_size_ml", 
                          "trophic_type", 
                          "connection", 
-                         "disturbance_percentage"), 
+                         "volume_disturbed_across_sizes"), 
                names_to = "species", 
                values_to = "mean_dominance")
 
@@ -68,7 +68,7 @@ dominances_lower = ds_ecosystems %>%
            ecosystem_size_ml, 
            trophic_type, 
            connection, 
-           disturbance_percentage) %>%
+           volume_disturbed_across_sizes) %>%
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.025, na.rm = TRUE),
@@ -83,7 +83,7 @@ dominances_lower = ds_ecosystems %>%
   
   # Convert to long format with 'species' and their respective 'lower_95_CI' values
   
-  pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "disturbance_percentage"), 
+  pivot_longer(cols = -c("day", "time_point", "ecosystem_size_ml", "trophic_type", "connection", "volume_disturbed_across_sizes"), 
                names_to = "species", 
                values_to = "lower_95_CI")
 
@@ -98,7 +98,7 @@ dominances_upper = ds_ecosystems %>%
            ecosystem_size_ml, 
            trophic_type, 
            connection, 
-           disturbance_percentage) %>%
+           volume_disturbed_across_sizes) %>%
   reframe(Ble = quantile(Ble_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Cep = quantile(Cep_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
           Col = quantile(Col_bioarea_mm2_per_ml_dominance, probs = 0.975, na.rm = TRUE),
@@ -118,7 +118,7 @@ dominances_upper = ds_ecosystems %>%
                          "ecosystem_size_ml", 
                          "trophic_type", 
                          "connection", 
-                         "disturbance_percentage"), 
+                         "volume_disturbed_across_sizes"), 
                names_to = "species", 
                values_to = "upper_95_CI")
 

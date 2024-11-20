@@ -21,8 +21,8 @@ if (!requireNamespace("renv", quietly = TRUE)) {
 # Reinstall the specific package versions that were used when writing code for 
 # this project. 
 
-# setwd("..")
-# renv::restore()
+setwd("..")
+renv::restore()
 ```
 
 ```{r load-packages, echo = FALSE, results = FALSE, message = FALSE, cache = FALSE}

@@ -79,8 +79,9 @@ columns_for_species_ID = c(
 # --- SET PARAMETERS RELATED TO RESOURCE FLOWS --- #
 
 resource_flow_days = c(5, 9, 13, 17, 21, 25)
-fixed_label = "Disturbance percentage FIXED"
-relative_label = "Disturbance percentage DECREASING WITH SIZE"
+volume_disturbed_across_sizes_levels = c("fixed", "relative")
+fixed_label = "Volume disturbed FIXED acroos ecosystem sizes"
+relative_label = "Volume disturbed RELATIVE to ecosystem size"
 ```
 
 ```{r protists-parameters}
@@ -172,30 +173,9 @@ ecosystem_sizes_ml = c(6.43, 9.00, 15.00, 45.00)
 
 # Import the information about ecosystems
 
-ecosystem_info = read.csv(here("..",
-                               "1_data", 
-                               "ecosystem_info.csv"), header = TRUE) %>%
-  rename(ecosystem_ID = culture_ID,
-         ecosystem_type = eco_metaeco_type,
-         ecosystem_size_ml = patch_size_ml) %>%
-  mutate(metaecosystem_ID =  metaecosystem_ID_vector,
-         connection = factor(x = ifelse(metaecosystem == "yes",
-                                        "connected",
-                                        "unconnected"),
-                             levels = connection_ordered),
-         disturbance_percentage = factor(x = ifelse(flow == "absolute",
-                                                    "decreasing_with_size",
-                                                    "fixed"))) %>%
-  select(ecosystem_ID,
-         metaecosystem_ID,
-         ecosystem_size_ml,
-         trophic_type,
-         connection,
-         disturbance_percentage)
-
 # Find the number of ecosystems in the experiment
 
-n_ecosystems = max(ecosystem_info$ecosystem_ID)
+n_ecosystems = 192
 ```
 
 ```{r metaecosystems-parameters}
@@ -203,6 +183,7 @@ n_ecosystems = max(ecosystem_info$ecosystem_ID)
 # --- SET PARAMETERS RELATED TO META-ECOSYSTEMS --- #
 
 # Initialise the "ds_metaecosystems" dataset
+
 ds_metaecosystems = list()
 
 # Define meta-ecosystems to take off because of problems in the experiment
@@ -212,15 +193,6 @@ metaecosystems_to_take_off = NA
 # Define the variables you want to calculate for each meta-ecosystem
 
 variables_metaecos = c("total_metaecosystem_bioarea_mm2")
-
-# Find the number of meta-ecosystems in the experiment
-
-# system_nr_metaecosystems = ecosystem_info %>%
-#   filter(connection == "connected") %>%
-#   pull(system_nr) %>%
-#   unique
-
-# n_metaecosystems = length(system_nr_metaecosystems)
 
 # Select which unconnected meta-ecosystems should be linked to form unconnected 
 # meta-ecosystems
@@ -317,9 +289,6 @@ treatment_linetypes = c("connected" = "solid",
 
 # Set line labels
 
-disturbance_labels = c("fixed" = "no interaction",
-                       "decreasing_with_size" = "interaction size * disturbance")
-
 # Set figure height and width in the RMD output
 
 figures_width_rmd_output = 10
@@ -414,7 +383,7 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Total Biomass ES (Hedge's d)") %>%
 
   add_row(variable = "bioarea_tot", axis_name = "Total Biomass (mm²)") %>%
-  add_row(variable = "bioarea_mm2_per_ml", axis_name = "Biomass Density (mm²/ml)") %>%
+  add_row(variable = "bioarea_mm2_per_ml", axis_name = "Biomass (mm²/ml)") %>%
   add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Biomass Density ES (Hedge's d)") %>%
   add_row(variable = "indiv_per_ml", axis_name = "Abundance (ind/ml)") %>%
   add_row(variable = "indiv_per_ml_d", axis_name = "Abundance ES") %>%

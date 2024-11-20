@@ -46,7 +46,7 @@ for(time_point in time_points){
            ecosystem_size_ml,
            trophic_type,
            connection,
-           disturbance_percentage,
+           volume_disturbed_across_sizes,
            bioarea_mm2,
            bioarea_mm2_per_frame_per_ml,
            N_frames,

@@ -31,7 +31,7 @@ combinations_connected = ds_ecosystems %>%
   select(metaecosystem_ID,
          ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ecosystem_ID) %>%
     
   # To know which ecosystems were combined to for the connected 
@@ -42,7 +42,7 @@ combinations_connected = ds_ecosystems %>%
   group_by(metaecosystem_ID,
            ecosystem_size_ml,
            connection,
-           disturbance_percentage) %>%
+           volume_disturbed_across_sizes) %>%
   summarise(ID_first_ecosystem = (mean(ecosystem_ID) - 0.5),
             ID_second_ecosystem = (mean(ecosystem_ID) + 0.5)) %>%
   
@@ -67,7 +67,7 @@ ID_unconnected_6.43_ml_autotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 6.43,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -75,7 +75,7 @@ ID_unconnected_9.00_ml_autotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 9.00,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -83,7 +83,7 @@ ID_unconnected_15.00_ml_autotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 15.00,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -91,7 +91,7 @@ ID_unconnected_45.00_ml_autotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 45.00,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -99,7 +99,7 @@ ID_unconnected_6.43_ml_autotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 6.43,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -107,7 +107,7 @@ ID_unconnected_9.00_ml_autotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 9.00,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -115,7 +115,7 @@ ID_unconnected_15.00_ml_autotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 15.00,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -123,7 +123,7 @@ ID_unconnected_45.00_ml_autotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 45.00,
          trophic_type == "autotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -131,7 +131,7 @@ ID_unconnected_6.43_ml_heterotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 6.43,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -139,7 +139,7 @@ ID_unconnected_9.00_ml_heterotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 9.00,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -147,7 +147,7 @@ ID_unconnected_15.00_ml_heterotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 15.00,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -155,7 +155,7 @@ ID_unconnected_45.00_ml_heterotrophic_fixed = ds_ecosystems %>%
   filter(ecosystem_size_ml == 45.00,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "fixed") %>%
+         volume_disturbed_across_sizes == "fixed") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -163,7 +163,7 @@ ID_unconnected_6.43_ml_heterotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 6.43,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -171,7 +171,7 @@ ID_unconnected_9.00_ml_heterotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 9.00,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -179,7 +179,7 @@ ID_unconnected_15.00_ml_heterotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 15.00,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -187,7 +187,7 @@ ID_unconnected_45.00_ml_heterotrophic_relative = ds_ecosystems %>%
   filter(ecosystem_size_ml == 45.00,
          trophic_type == "heterotrophic",
          connection == "unconnected",
-         disturbance_percentage == "decreasing_with_size") %>%
+         volume_disturbed_across_sizes == "relative") %>%
   pull(ecosystem_ID) %>%
   unique()
 
@@ -197,12 +197,12 @@ combinations_6.43_ml_fixed = crossing(ID_unconnected_6.43_ml_autotrophic_fixed,
                                       ID_unconnected_6.43_ml_heterotrophic_fixed) %>%
   mutate(ecosystem_size_ml = 6.43,
          connection = "unconnected",
-         disturbance_percentage = "fixed") %>%
+         volume_disturbed_across_sizes = "fixed") %>%
   rename(ID_first_ecosystem = ID_unconnected_6.43_ml_autotrophic_fixed,
          ID_second_ecosystem = ID_unconnected_6.43_ml_heterotrophic_fixed) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -210,12 +210,12 @@ combinations_9.00_ml_fixed = crossing(ID_unconnected_9.00_ml_autotrophic_fixed,
                                       ID_unconnected_9.00_ml_heterotrophic_fixed) %>%
   mutate(ecosystem_size_ml = 9.00,
          connection = "unconnected",
-         disturbance_percentage = "fixed") %>%
+         volume_disturbed_across_sizes = "fixed") %>%
   rename(ID_first_ecosystem = ID_unconnected_9.00_ml_autotrophic_fixed,
          ID_second_ecosystem = ID_unconnected_9.00_ml_heterotrophic_fixed) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -223,12 +223,12 @@ combinations_15.00_ml_fixed = crossing(ID_unconnected_15.00_ml_autotrophic_fixed
                                        ID_unconnected_15.00_ml_heterotrophic_fixed) %>%
   mutate(ecosystem_size_ml = 15.00,
          connection = "unconnected",
-         disturbance_percentage = "fixed") %>%
+         volume_disturbed_across_sizes = "fixed") %>%
   rename(ID_first_ecosystem = ID_unconnected_15.00_ml_autotrophic_fixed,
          ID_second_ecosystem = ID_unconnected_15.00_ml_heterotrophic_fixed) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -236,12 +236,12 @@ combinations_45.00_ml_fixed = crossing(ID_unconnected_45.00_ml_autotrophic_fixed
                                        ID_unconnected_45.00_ml_heterotrophic_fixed) %>%
   mutate(ecosystem_size_ml = 45.00,
          connection = "unconnected",
-         disturbance_percentage = "fixed") %>%
+         volume_disturbed_across_sizes = "fixed") %>%
   rename(ID_first_ecosystem = ID_unconnected_45.00_ml_autotrophic_fixed,
          ID_second_ecosystem = ID_unconnected_45.00_ml_heterotrophic_fixed) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -249,12 +249,12 @@ combinations_6.43_ml_relative = crossing(ID_unconnected_6.43_ml_autotrophic_rela
                                          ID_unconnected_6.43_ml_heterotrophic_relative) %>%
   mutate(ecosystem_size_ml = 6.43,
          connection = "unconnected",
-         disturbance_percentage = "decreasing_with_size") %>%
+         volume_disturbed_across_sizes = "relative") %>%
   rename(ID_first_ecosystem = ID_unconnected_6.43_ml_autotrophic_relative,
          ID_second_ecosystem = ID_unconnected_6.43_ml_heterotrophic_relative) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -262,12 +262,12 @@ combinations_9.00_ml_relative = crossing(ID_unconnected_9.00_ml_autotrophic_rela
                                          ID_unconnected_9.00_ml_heterotrophic_relative) %>%
   mutate(ecosystem_size_ml = 9.00,
          connection = "unconnected",
-         disturbance_percentage = "decreasing_with_size") %>%
+         volume_disturbed_across_sizes = "relative") %>%
   rename(ID_first_ecosystem = ID_unconnected_9.00_ml_autotrophic_relative,
          ID_second_ecosystem = ID_unconnected_9.00_ml_heterotrophic_relative) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -275,12 +275,12 @@ combinations_15.00_ml_relative = crossing(ID_unconnected_15.00_ml_autotrophic_re
                                           ID_unconnected_15.00_ml_heterotrophic_relative) %>%
   mutate(ecosystem_size_ml = 15.00,
          connection = "unconnected",
-         disturbance_percentage = "decreasing_with_size") %>%
+         volume_disturbed_across_sizes = "relative") %>%
   rename(ID_first_ecosystem = ID_unconnected_15.00_ml_autotrophic_relative,
          ID_second_ecosystem = ID_unconnected_15.00_ml_heterotrophic_relative) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -288,12 +288,12 @@ combinations_45.00_ml_relative = crossing(ID_unconnected_45.00_ml_autotrophic_re
                                           ID_unconnected_45.00_ml_heterotrophic_relative) %>%
   mutate(ecosystem_size_ml = 45.00,
          connection = "unconnected",
-         disturbance_percentage = "decreasing_with_size") %>%
+         volume_disturbed_across_sizes = "relative") %>%
   rename(ID_first_ecosystem = ID_unconnected_45.00_ml_autotrophic_relative,
          ID_second_ecosystem = ID_unconnected_45.00_ml_heterotrophic_relative) %>%
   select(ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem)
 
@@ -321,7 +321,7 @@ combinations_unconnected = rbind(combinations_6.43_ml_fixed,
   select(metaecosystem_ID,
          ecosystem_size_ml,
          connection,
-         disturbance_percentage,
+         volume_disturbed_across_sizes,
          ID_first_ecosystem,
          ID_second_ecosystem,
          ecosystems_combined)
@@ -368,7 +368,7 @@ for (combination_i in 1:nrow(ecosystem_combinations)) {
                day,
                ecosystem_size_ml,
                connection,
-               disturbance_percentage) %>%
+               volume_disturbed_across_sizes) %>%
       summarise(total_metaecosystem_bioarea_mm2 = sum(bioarea_tot_mm2),
                 bioarea_mm2_per_ml = mean(bioarea_mm2_per_ml)) %>%
       

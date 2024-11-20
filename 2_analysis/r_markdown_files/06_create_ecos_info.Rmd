@@ -1,0 +1,29 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-11-18"
+---
+
+```{r}
+ecosystem_info = read.csv(here("..",
+                               "1_data", 
+                               "ecosystem_info.csv"), header = TRUE) %>%
+  rename(ecosystem_ID = culture_ID,
+         ecosystem_type = eco_metaeco_type,
+         ecosystem_size_ml = patch_size_ml) %>%
+  mutate(metaecosystem_ID =  metaecosystem_ID_vector,
+         connection = factor(x = ifelse(metaecosystem == "yes",
+                                        "connected",
+                                        "unconnected"),
+                             levels = connection_ordered),
+         volume_disturbed_across_sizes = factor(x = ifelse(flow == "absolute",
+                                                    "fixed",
+                                                    "relative"))) %>%
+  select(ecosystem_ID,
+         metaecosystem_ID,
+         ecosystem_size_ml,
+         trophic_type,
+         connection,
+         volume_disturbed_across_sizes)
+```
+
