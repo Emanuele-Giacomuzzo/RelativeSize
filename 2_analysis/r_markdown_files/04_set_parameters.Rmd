@@ -287,8 +287,6 @@ dark_colour_hetero = "#08306b"
 treatment_linetypes = c("connected" = "solid",
                         "unconnected" = "longdash")
 
-# Set line labels
-
 # Set figure height and width in the RMD output
 
 figures_width_rmd_output = 10
@@ -299,6 +297,11 @@ figures_height_rmd_output = 8
 legend_position = "top"
 legend_width_cm = 2
 size_legend = 12
+
+# Set parameters plot titles
+plot_title_size = 14
+plot_title_face = "bold"
+plot_title_hjust = 0.5
 
 # Set parameters boxplots
 

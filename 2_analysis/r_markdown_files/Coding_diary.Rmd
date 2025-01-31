@@ -1,0 +1,221 @@
+---
+title: "Untitled"
+output: html_document
+date: "2025-01-30"
+---
+
+**30/01/2024**
+
+# Description of the problem 
+
+## Problem
+
+My model doesn't give me the results that clearly I would expect looking at the plots. I'm afraid this is because I have heteroscedasticity (right fitted values have less variance).
+
+## Data structure
+
+-   Biomass
+-   Non-negative
+-   Non-integer
+-   Zero inflated
+
+## Model formula
+
+```{r}
+formula = as.formula(paste("bioarea_mm2_per_ml ~",
+                           "size * conn * disturb_type +",
+                           "(1 | day) +","(1 | baseline)")) %>%
+  print()
+
+model <- glmmTMB(formula,
+                 data = data_for_analysis,
+                 family = tweedie(link = "log"),
+                 dispformula = ~ day + disturb_type)
+```
+
+## Trying
+
+I tried the following:
+
+```{r}
+# Define the base formula
+formula <- as.formula(paste("bioarea_mm2_per_ml ~", 
+                            "size * conn * disturb_type +", 
+                            "(1 | day) +", 
+                            "(1 | baseline)")) %>%
+  print()
+
+# Define families and links
+gaussian_family <- gaussian(link = "identity")
+nbinom2_family <- nbinom2(link = "log")
+tweedie_family <- tweedie(link = "log")
+lognormal_family <- gaussian(link = "log")
+
+# Define dispersion formulas
+disp1 <- ~ 1
+disp2 <- ~ day
+disp3 <- ~ disturb_type
+disp4 <- ~ day + disturb_type
+
+# Model 1: Gaussian with dispersion ~ 1
+model_gaussian_disp1 <- glmmTMB(formula, 
+                                data = data_for_analysis, 
+                                family = gaussian_family, 
+                                dispformula = disp1)
+# Run Type III Anova
+print("Results for Gaussian with dispersion ~ 1")
+print(car::Anova(model_gaussian_disp1, type = "III"))
+
+# Model 2: Gaussian with dispersion ~ day
+model_gaussian_disp2 <- glmmTMB(formula, 
+                                data = data_for_analysis, 
+                                family = gaussian_family, 
+                                dispformula = disp2)
+# Run Type III Anova
+print("Results for Gaussian with dispersion ~ day")
+print(car::Anova(model_gaussian_disp2, type = "III"))
+
+# Model 3: Gaussian with dispersion ~ disturb_type
+model_gaussian_disp3 <- glmmTMB(formula, 
+                                data = data_for_analysis, 
+                                family = gaussian_family, 
+                                dispformula = disp3)
+# Run Type III Anova
+print("Results for Gaussian with dispersion ~ disturb_type")
+print(car::Anova(model_gaussian_disp3, type = "III"))
+
+# Model 4: Gaussian with dispersion ~ day + disturb_type
+model_gaussian_disp4 <- glmmTMB(formula, 
+                                data = data_for_analysis, 
+                                family = gaussian_family, 
+                                dispformula = disp4)
+# Run Type III Anova
+print("Results for Gaussian with dispersion ~ day + disturb_type")
+print(car::Anova(model_gaussian_disp4, type = "III"))
+
+# Model 5: Negative Binomial (nbinom2) with dispersion ~ 1
+model_nbinom2_disp1 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = nbinom2_family, 
+                               dispformula = disp1)
+# Run Type III Anova
+print("Results for Negative Binomial (nbinom2) with dispersion ~ 1")
+print(car::Anova(model_nbinom2_disp1, type = "III"))
+
+# Model 6: Negative Binomial (nbinom2) with dispersion ~ day
+model_nbinom2_disp2 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = nbinom2_family, 
+                               dispformula = disp2)
+# Run Type III Anova
+print("Results for Negative Binomial (nbinom2) with dispersion ~ day")
+print(car::Anova(model_nbinom2_disp2, type = "III"))
+
+# Model 7: Negative Binomial (nbinom2) with dispersion ~ disturb_type
+model_nbinom2_disp3 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = nbinom2_family, 
+                               dispformula = disp3)
+# Run Type III Anova
+print("Results for Negative Binomial (nbinom2) with dispersion ~ disturb_type")
+print(car::Anova(model_nbinom2_disp3, type = "III"))
+
+# Model 8: Negative Binomial (nbinom2) with dispersion ~ day + disturb_type
+model_nbinom2_disp4 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = nbinom2_family, 
+                               dispformula = disp4)
+# Run Type III Anova
+print("Results for Negative Binomial (nbinom2) with dispersion ~ day + disturb_type")
+print(car::Anova(model_nbinom2_disp4, type = "III"))
+
+# Model 9: Tweedie with dispersion ~ 1
+model_tweedie_disp1 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = tweedie_family, 
+                               dispformula = disp1)
+# Run Type III Anova
+print("Results for Tweedie with dispersion ~ 1")
+print(car::Anova(model_tweedie_disp1, type = "III"))
+
+# Model 10: Tweedie with dispersion ~ day
+model_tweedie_disp2 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = tweedie_family, 
+                               dispformula = disp2)
+# Run Type III Anova
+print("Results for Tweedie with dispersion ~ day")
+print(car::Anova(model_tweedie_disp2, type = "III"))
+
+# Model 11: Tweedie with dispersion ~ disturb_type
+model_tweedie_disp3 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = tweedie_family, 
+                               dispformula = disp3)
+# Run Type III Anova
+print("Results for Tweedie with dispersion ~ disturb_type")
+print(car::Anova(model_tweedie_disp3, type = "III"))
+
+# Model 12: Tweedie with dispersion ~ day + disturb_type
+model_tweedie_disp4 <- glmmTMB(formula, 
+                               data = data_for_analysis, 
+                               family = tweedie_family, 
+                               dispformula = disp4)
+# Run Type III Anova
+print("Results for Tweedie with dispersion ~ day + disturb_type")
+print(car::Anova(model_tweedie_disp4, type = "III"))
+
+# Model 13: Lognormal with dispersion ~ 1
+model_lognormal_disp1 <- glmmTMB(formula, 
+                                 data = data_for_analysis, 
+                                 family = lognormal_family, 
+                                 dispformula = disp1)
+# Run Type III Anova
+print("Results for Lognormal with dispersion ~ 1")
+print(car::Anova(model_lognormal_disp1, type = "III"))
+
+# Model 14: Lognormal with dispersion ~ day
+model_lognormal_disp2 <- glmmTMB(formula, 
+                                 data = data_for_analysis, 
+                                 family = lognormal_family, 
+                                 dispformula = disp2)
+# Run Type III Anova
+print("Results for Lognormal with dispersion ~ day")
+print(car::Anova(model_lognormal_disp2, type = "III"))
+
+# Model 15: Lognormal with dispersion ~ disturb_type
+model_lognormal_disp3 <- glmmTMB(formula, 
+                                 data = data_for_analysis, 
+                                 family = lognormal_family, 
+                                 dispformula = disp3)
+# Run Type III Anova
+print("Results for Lognormal with dispersion ~ disturb_type")
+print(car::Anova(model_lognormal_disp3, type = "III"))
+
+# Model 16: Lognormal with dispersion ~ day + disturb_type
+model_lognormal_disp4 <- glmmTMB(formula, 
+                                 data = data_for_analysis, 
+                                 family = lognormal_family, 
+                                 dispformula = disp4)
+# Run Type III Anova
+print("Results for Lognormal with dispersion ~ day + disturb_type")
+print(car::Anova(model_lognormal_disp4, type = "III"))
+```
+
+I therefore put into ChatGPT the previous code and asked what I could try next. It gave me the following suggestions:
+
+1) Change the random effects
+
+2) Use another zero-inflated model such as **zero-inflated negative binomial (ZINB)** or **zero-inflated Poisson (ZIP).**
+
+3) Use other dispersion models such as **generalized additive models (GAMs)** for your dispersion term or try **generalized least squares (GLS)**.
+
+4) In case the variance increases with the fitted values (heteroscedasticity), consider using **variance functions** (such as `varPower` in the `nlme` package) to model the non-constant variance.
+
+```{r}
+library(nlme)
+model_varPower <- glmmTMB(formula, 
+                          data = data_for_analysis, 
+                          family = tweedie(link = "log"), 
+                          dispformula = ~ day + disturb_type + varPower())
+```

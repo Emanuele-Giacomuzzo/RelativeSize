@@ -2,6 +2,8 @@
 title: "Untitled"
 output: html_document
 date: "2024-03-27"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ### R and package versions
@@ -48,6 +50,248 @@ write.csv(ds_metaecosystems,
 
 write.csv(ds_metaecosystems,
           file = here("files_for_ds_metaecos_es", "ds_metaecosystems.csv"))
+```
+
+### Create circles for design figure
+
+```{r}
+
+# Set parameters
+
+resource_flow_ml = 5.25
+small_ecos_ml = 7.5
+medium_ecos_ml = 22.5
+large_ecos_ml = 37.5
+
+colour_autotorophs_dark = "#2ca25f"
+colour_autotorophs_light = "#bbe1c1"
+
+colour_heterotrophs_dark = "#3182bd"
+colour_heterotrophs_light = "#ADD8E6"
+
+colour_grey_dark = "#404040"
+colour_grey_light = "#A0A0A0"
+```
+
+```{r}
+
+# Create a function to plot the circles
+
+generate_circle_plot <- function(eco_ml, 
+                                 disturbed_percentage, 
+                                 diameter, 
+                                 colour_selected) {
+  
+  # Select colour
+  
+  if(colour_selected == "autotorophs_dark"){
+    colour_circles = colour_autotorophs_dark
+  }
+  if(colour_selected == "autotorophs_light"){
+    colour_circles = colour_autotorophs_light
+  }
+  if(colour_selected == "heterotrophs_dark"){
+    colour_circles = colour_heterotrophs_dark
+  }
+  if(colour_selected == "heterotrophs_light"){
+    colour_circles = colour_heterotrophs_light
+  }
+  
+  if(colour_selected == "colour_grey_dark"){
+    colour_circles = colour_grey_dark
+  }
+  
+  # Calculate circle parameters
+  
+  circle_area <- eco_ml    # mm²
+  radius <- sqrt(circle_area / pi)  # Calculate radius
+  
+  # Target segment coverage (minor segment)
+  
+  minor_target_coverage <- (100 - disturbed_percentage) / 100
+  
+  # Function to calculate segment height for a given coverage
+  
+  calculate_segment_height <- function(radius, target_coverage) {
+    
+    # Define optimization function
+
+    optimize_height <- function(h) {
+      r <- radius
+      segment_area <- r*r * acos((r-h)/r) - (r-h) * sqrt(2*r*h - h*h)
+      abs(segment_area / (pi * r*r) - target_coverage)
+    }
+    
+    # Use optimization to find the height
+    
+    result <- optim(par = radius/2, 
+                    fn = optimize_height, 
+                    method = "Brent", 
+                    lower = 0, 
+                    upper = radius)
+    
+    return(result$par)
+  }
+  
+  # Calculate the segment height for the desired coverage
+  
+  minor_segment_height <- calculate_segment_height(radius, minor_target_coverage)
+  
+  # Angle corresponding to the minor segment's height
+  
+  theta_minor <- acos((radius - minor_segment_height) / radius)
+  
+  # Create points for the circle and the chord
+  
+  n_points <- 200
+  angle_seq <- seq(0, 2*pi, length.out = n_points)  # Full circle
+  
+  # Circle data
+  
+  circle_data <- data.frame(x = radius * cos(angle_seq),
+                            y = radius * sin(angle_seq))
+  
+  # Chord endpoints (start and end of the minor segment)
+  
+  chord_x <- c(radius * cos(theta_minor), radius * cos(-theta_minor))
+  chord_y <- c(radius * sin(theta_minor), radius * sin(-theta_minor))
+  
+  # Plot
+  
+  plot_to_save <- ggplot() +
+    
+    # Outer full circle
+    
+    geom_polygon(data = circle_data, 
+                 aes(x = x, 
+                     y = y), 
+                 fill = colour_circles, 
+                 color = "black") +
+    
+    # Chord that divides the circle
+    
+    geom_segment(aes(x = chord_x[1], 
+                     y = chord_y[1], 
+                     xend = chord_x[2], 
+                     yend = chord_y[2]), 
+                 color = "red", 
+                 size = 0.5) +
+    coord_fixed() +
+    theme_void()
+  
+  # Save the plot
+  
+  ggsave(here("..", 
+              "3_results", 
+              "figures",
+              "other_graphic_elements",
+              paste0(colour_selected,
+                     "_",
+                     eco_ml, 
+                     "_ml.png")), 
+         plot = plot_to_save, 
+         width = diameter, 
+         height = diameter, 
+         dpi = 300)
+}
+```
+
+```{r}
+
+# Autotrophic ecosystems with dark colour
+
+colour_selected = "autotorophs_dark"
+
+generate_circle_plot(eco_ml = small_ecos_ml, 
+                     disturbed_percentage = (resource_flow_ml/ small_ecos_ml) * 100, 
+                     diameter = 3.088, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = medium_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ medium_ecos_ml) * 100, 
+                     diameter = 5.360, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = large_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ large_ecos_ml) * 100, 
+                     diameter = 6.920, 
+                     colour_selected = colour_selected)
+
+# Autotrophic ecosystems with light colour
+
+colour_selected = "autotorophs_light"
+
+generate_circle_plot(eco_ml = small_ecos_ml, 
+                     disturbed_percentage = (resource_flow_ml/ small_ecos_ml) * 100, 
+                     diameter = 3.088, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = medium_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ medium_ecos_ml) * 100, 
+                     diameter = 5.360, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = large_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ large_ecos_ml) * 100, 
+                     diameter = 6.920, 
+                     colour_selected = colour_selected)
+
+# Heterotrophic ecosystems with dark colour
+
+colour_selected = "heterotrophs_dark"
+
+generate_circle_plot(eco_ml = small_ecos_ml, 
+                     disturbed_percentage = (resource_flow_ml/ small_ecos_ml) * 100, 
+                     diameter = 3.088, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = medium_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ medium_ecos_ml) * 100, 
+                     diameter = 5.360, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = large_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ large_ecos_ml) * 100, 
+                     diameter = 6.920, 
+                     colour_selected = colour_selected)
+
+# Autotrophic ecosystems with light colour
+
+colour_selected = "heterotrophs_light"
+
+generate_circle_plot(eco_ml = small_ecos_ml, 
+                     disturbed_percentage = (resource_flow_ml/ small_ecos_ml) * 100, 
+                     diameter = 3.088, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = medium_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ medium_ecos_ml) * 100, 
+                     diameter = 5.360, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = large_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ large_ecos_ml) * 100, 
+                     diameter = 6.920, 
+                     colour_selected = colour_selected)
+
+# Generic ecosystem with dark colour
+
+colour_selected = "colour_grey_dark"
+
+generate_circle_plot(eco_ml = small_ecos_ml, 
+                     disturbed_percentage = (resource_flow_ml/ small_ecos_ml) * 100, 
+                     diameter = 3.088, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = medium_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ medium_ecos_ml) * 100, 
+                     diameter = 5.360, 
+                     colour_selected = colour_selected)
+
+generate_circle_plot(eco_ml = large_ecos_ml, 
+                     disturbed_percentage = 100 - (resource_flow_ml/ large_ecos_ml) * 100, 
+                     diameter = 6.920, 
+                     colour_selected = colour_selected)
 ```
 
 ```{r echo=FALSE, message=FALSE}

@@ -13,7 +13,7 @@ editor_options:
 response_variable_selected = "bioarea_mm2_per_ml"
 ```
 
-<details>
+<details open = "open">
 <summary>Plot original data</summary>
 ```{r plot-original-data-one-size-per-plot-metaeecos-biomass, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
@@ -21,8 +21,15 @@ response_variable_selected = "bioarea_mm2_per_ml"
 
 plot.metaecos.sizes.one.by.one.means(ds_metaecosystems,
                                      response_variable_selected,
-                                     y_upper_limit = 25)
+                                     y_upper_limit = 25) + 
+  ggtitle("Meta-ecosystem level effects") +
+  theme(plot.title = element_text(size = plot_title_size, 
+                                  face = plot_title_face, 
+                                  hjust = plot_title_hjust))
 ```
+
+Figure 2. Time series of biomass at the meta-ecosystem level. Left panels show fixed volume disturbance effects (red), while right panels show volume disturbance relative to size (yellow) across four different disturbance volumes (6.43, 9, 15, and 45 ml). Solid lines represent connected meta-ecosystems, and dashed lines represent unconnected meta-ecosystems. Points represent means and error bars indicate 95 % confidence intervals. Vertical grey lines are disturbance events. To reduce overlapping, data points were slightly jittered along the x axis. The grey shading shows periods before the initial disturbance and resource flow, which were excluded from the analysis.
+
 </details>
 
 <details>
@@ -65,11 +72,6 @@ plot.metaecos.sizes.one.by.one.means(data_for_analysis,
 ```
 </details>
 
-<details open = "open">
-<summary>Figures with results</summary>
-![](../../4_other/figures_w_significance/1_metaecos_biomass_significance.png)
-</details>
-
 <details>
 <summary>Create model</summary>
 ```{r create-model-metaecos}
@@ -88,7 +90,6 @@ data_for_analysis = data_for_analysis %>%
 
 formula = as.formula(paste("bioarea_mm2_per_ml ~",
                            "size * conn * disturb_type +",
-                           "(1 | metaecosystem_ID) +",
                            "(1 | time_point) +",
                            "(1 | baseline)")) %>%
   print()
@@ -96,8 +97,10 @@ formula = as.formula(paste("bioarea_mm2_per_ml ~",
 # Create model 
 
 model <- glmmTMB(formula,
-                 family = Gamma(link = "log"), 
-                 data = data_for_analysis)
+                 data = data_for_analysis,
+                 family = tweedie(link = "log"),
+                 dispformula = ~ bioarea_mm2_per_ml)
+car::Anova(model, type = "III")
 ```
 
 ```{r show-model-summary}
@@ -120,6 +123,8 @@ emmeans_output = emmeans(model,
                          lmer.df = "satterthwaite") 
 
 emmeans_output
+
+
 
 # Give a name for each level which you want to compare
 
@@ -151,7 +156,41 @@ contrasts = contrast(emmeans_output,
                                    "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
                                    "9.00 ml relative" = con_relative_9 - uncon_relative_9,
                                    "15.00 ml relative" = con_relative_15 - uncon_relative_15,
-                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) %>% 
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) 
+
+nested_contrasts <- contrast(contrasts, 
+                             method = list(
+                               "Difference in effects at 6.43 ml" = c(1, 0, 0, 0, -1, 0, 0, 0),
+                               "Difference in effects at 9.00 ml" = c(0, 1, 0, 0, 0, -1, 0, 0),
+                               "Difference in effects at 15.00 ml" = c(0, 0, 1, 0, 0, 0, -1, 0),
+                               "Difference in effects at 45.00 ml" = c(0, 0, 0, 1, 0, 0, 0, -1)
+                             ))
+
+# Tidy up the contrasts & Sidak correct
+
+contrasts = contrasts %>% 
+  as.data.frame() %>%
+  mutate(p.value = round(p.value, digits = n_of_digits),
+         estimate = round(estimate, digits = n_of_digits),
+         SE = round(SE, digits = n_of_digits),
+         df = round(df, digits = n_of_digits),
+         z.ratio = round(z.ratio, digits = n_of_digits),
+         e = "",
+         e = ifelse(p.value > 0.1, 
+                           "",
+                           e),
+         e = ifelse(p.value < 0.05, 
+                           "*",
+                           e),
+         e = ifelse(p.value < 0.01, 
+                           "**",
+                           e),
+         e = ifelse(p.value < 0.001, 
+                           "***",
+                           e)) %>%
+  rename(" " = e)
+
+nested_contrasts = nested_contrasts %>% 
   as.data.frame() %>%
   mutate(p.value = round(p.value, digits = n_of_digits),
          estimate = round(estimate, digits = n_of_digits),
@@ -192,6 +231,7 @@ car::Anova(model, type = "III")
 # --- SHOW MODEL CONTRASTS --- #
 
 contrasts
+nested_contrasts
 ```
 </details>
 

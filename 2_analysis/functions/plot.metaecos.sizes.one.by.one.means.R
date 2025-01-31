@@ -8,13 +8,24 @@ plot.metaecos.sizes.one.by.one.means = function(data = ds_metaecosystems,
   p = list()
   plot_n = 0
   
-  metaecos_colours = c("fixed" = "#e31a1c",
-                       "relative" = "#fecc5c")
+  volume_disturbed_types = c("volume disturbed fixed",
+                             "volume disturbed relative to size")
+  
+  metaecos_colours = c("volume disturbed fixed" = "#e31a1c",
+                       "volume disturbed relative to size" = "#fecc5c")
+  
+  # Change factor names 
+  
+  data = data %>%
+    mutate(volume_disturbed_across_sizes = case_when(
+      volume_disturbed_across_sizes == "fixed" ~ "volume disturbed fixed",
+      volume_disturbed_across_sizes == "relative" ~ "volume disturbed relative to size",
+      TRUE ~ volume_disturbed_across_sizes))
   
   # Plot meta-ecosystem plots
   
   for (eco_size_i in 1:length(ecosystem_sizes_ml)) {
-    for(volume_disturbed_i in 1:length(volume_disturbed_across_sizes_levels)){
+    for(volume_disturbed_i in 1:length(volume_disturbed_types)){
       
       # Define parameter
       
@@ -25,7 +36,7 @@ plot.metaecos.sizes.one.by.one.means = function(data = ds_metaecosystems,
       data_for_plotting = data %>%
         filter(ecosystem_size_ml == ecosystem_sizes_ml[eco_size_i],
                volume_disturbed_across_sizes == 
-                 volume_disturbed_across_sizes_levels[volume_disturbed_i]) %>%
+                 volume_disturbed_types[volume_disturbed_i]) %>%
         mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
                                                         ecosystem_size_ml), 
                                                 "ml"),

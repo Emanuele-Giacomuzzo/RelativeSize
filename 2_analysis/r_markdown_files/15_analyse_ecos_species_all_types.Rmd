@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-<details>
+<details  open = "open">
 <summary>Plot original data</summary>
 ```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
@@ -20,11 +20,15 @@ plot.ecos.sizes.one.by.one.means(ds_ecosystems,
                                  response_variable_selected,
                                  light_colour_hetero,
                                  dark_colour_hetero,
-                                 y_upper_limit_selected)
+                                 y_upper_limit_selected) +
+  ggtitle("Heterotrophic ecosystem level effects") +
+  theme(plot.title = element_text(size = plot_title_size, 
+                                  face = plot_title_face, 
+                                  hjust = plot_title_hjust))
 ```
 </details>
 
-<details open = "open">
+<details>
 <summary>Prepare & plot data for analysis</summary>
 ```{r}
 

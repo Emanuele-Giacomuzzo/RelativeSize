@@ -6,7 +6,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-<details>
+<details open = "open">
 <summary>Plot original data</summary>
 ```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
@@ -18,11 +18,15 @@ plot.ecos.sizes.one.by.one.means(ds_ecosystems,
                                  response_variable_selected,
                                  light_colour_hetero,
                                  dark_colour_hetero,
-                                 y_upper_limit_selected)
+                                 y_upper_limit_selected) +
+  ggtitle("Heterotrophic ecosystem level effects") +
+  theme(plot.title = element_text(size = plot_title_size, 
+                                  face = plot_title_face, 
+                                  hjust = plot_title_hjust))
 ```
 </details>
 
-<details open = "open">
+<details>
 <summary>Prepare & plot data for analysis</summary>
 ```{r}
 
@@ -86,8 +90,7 @@ data_for_analysis = data_for_analysis %>%
 
 formula = as.formula(paste("get(response_variable_selected) ~",
                            "conn * size * disturb_type +",
-                           "(1 | ecosystem_ID) +",
-                           #"(1 | baseline) +",
+                           "(1 | baseline) +",
                            "(1 | day)")) %>%
   print()
 
@@ -112,39 +115,38 @@ print(summary(model), digits = 3)
 
 # --- CODE MODEL CONSTRASTS --- #
 
-# Estimate marginal means (Least-squares means)
+# Estimate marginal means (least-squares means)
 
 emmeans_output = emmeans(model,
-                         specs = ~  conn * disturb_type * size,  # Calculate emmeans for the interaction of conn, disturb_type, and size
-                         adjust = "sidak",  # Use Sidak adjustment for multiple comparisons
-                         bias.adj = TRUE,  # Apply bias adjustment
-                         lmer.df = "satterthwaite")  # Use Satterthwaite approximation for degrees of freedom
+                         specs = ~  conn * disturb_type * size,
+                         adjust = "sidak",
+                         bias.adj = TRUE,
+                         lmer.df = "satterthwaite") 
 
 emmeans_output
 
-# Define contrast vectors for each group
+# Give a name for each level which you want to compare
 
-uncon_fixed_6_43 = c(1, rep(0,15)) # Autotrophic, unconnected, 6.43 ml decrease
-con_fixed_6_43 = c(rep(0,1), 1, rep(0,14)) # Autotrophic, connected, 6.43 ml decrease
-uncon_relative_6_43 = c(rep(0,2), 1, rep(0,13)) # Autotrophic, unconnected, 6.43 ml fixed
-con_relative_6_43 = c(rep(0,3), 1, rep(0,12)) # Autotrophic, connected, 6.43 ml fixed
-uncon_fixed_9 = c(rep(0,4), 1, rep(0,11)) # Autotrophic, unconnected, 9.00 ml decrease
-con_fixed_9 = c(rep(0,5), 1, rep(0,10)) # Autotrophic, connected, 9.00 ml decrease
-uncon_relative_9 = c(rep(0,6), 1, rep(0,9)) # Autotrophic, unconnected, 9.00 ml fixed
-con_relative_9 = c(rep(0,7), 1, rep(0,8)) # Autotrophic, connected, 9.00 ml fixed
-uncon_fixed_15 = c(rep(0,8), 1, rep(0,7)) # Autotrophic, unconnected, 15.00 ml decrease
-con_fixed_15 = c(rep(0,9), 1, rep(0,6)) # Autotrophic, connected, 15.00 ml decrease
-uncon_relative_15 = c(rep(0,10), 1, rep(0,5)) # Autotrophic, unconnected, 15.00 ml fixed
-con_relative_15 = c(rep(0,11), 1, rep(0,4)) # Autotrophic, connected, 15.00 ml fixed
-uncon_fixed_45 = c(rep(0,12), 1, rep(0,3)) # Autotrophic, unconnected, 45.00 ml decrease
-con_fixed_45 = c(rep(0,13), 1, rep(0,2)) # Autotrophic, connected, 45.00 ml decrease
-uncon_relative_45 = c(rep(0,14), 1, rep(0,1)) # Autotrophic, unconnected, 45.00 ml fixed
-con_relative_45 = c(rep(0,15), 1) # Autotrophic, connected, 45.00 ml fixed
+uncon_fixed_6_43 = c(1, rep(0,15)) 
+con_fixed_6_43 = c(rep(0,1), 1, rep(0,14)) 
+uncon_relative_6_43 = c(rep(0,2), 1, rep(0,13)) 
+con_relative_6_43 = c(rep(0,3), 1, rep(0,12)) 
+uncon_fixed_9 = c(rep(0,4), 1, rep(0,11)) 
+con_fixed_9 = c(rep(0,5), 1, rep(0,10)) 
+uncon_relative_9 = c(rep(0,6), 1, rep(0,9)) 
+con_relative_9 = c(rep(0,7), 1, rep(0,8)) 
+uncon_fixed_15 = c(rep(0,8), 1, rep(0,7))
+con_fixed_15 = c(rep(0,9), 1, rep(0,6))
+uncon_relative_15 = c(rep(0,10), 1, rep(0,5))
+con_relative_15 = c(rep(0,11), 1, rep(0,4))
+uncon_fixed_45 = c(rep(0,12), 1, rep(0,3))
+con_fixed_45 = c(rep(0,13), 1, rep(0,2))
+uncon_relative_45 = c(rep(0,14), 1, rep(0,1))
+con_relative_45 = c(rep(0,15), 1)
 
-n_of_digits = 3 # Set number of digits for rounding
+# Compute the contrasts
 
-# Calculate contrasts using the defined vectors
-
+n_of_digits = 3
 contrasts = contrast(emmeans_output, 
                      method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
                                    "9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
@@ -153,27 +155,61 @@ contrasts = contrast(emmeans_output,
                                    "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
                                    "9.00 ml relative" = con_relative_9 - uncon_relative_9,
                                    "15.00 ml relative" = con_relative_15 - uncon_relative_15,
-                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) %>% 
-  as.data.frame() %>%  # Convert the contrast output to a data frame
-  mutate(p.value = round(p.value, digits = n_of_digits),  # Round p-value to specified digits
-         estimate = round(estimate, digits = n_of_digits),  # Round estimate
-         SE = round(SE, digits = n_of_digits),  # Round standard error
-         df = round(df, digits = n_of_digits),  # Round degrees of freedom
-         t.ratio = round(t.ratio, digits = n_of_digits),  # Round t-ratio (t.ratio)
-         e = "",  # Initialize a column for significance indicators
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) 
+
+nested_contrasts <- contrast(contrasts, 
+                             method = list(
+                               "Difference in effects at 6.43 ml" = c(1, 0, 0, 0, -1, 0, 0, 0),
+                               "Difference in effects at 9.00 ml" = c(0, 1, 0, 0, 0, -1, 0, 0),
+                               "Difference in effects at 15.00 ml" = c(0, 0, 1, 0, 0, 0, -1, 0),
+                               "Difference in effects at 45.00 ml" = c(0, 0, 0, 1, 0, 0, 0, -1)
+                             ))
+
+# Tidy up the contrasts & Sidak correct
+
+contrasts = contrasts %>% 
+  as.data.frame() %>%
+  mutate(p.value = round(p.value, digits = n_of_digits),
+         estimate = round(estimate, digits = n_of_digits),
+         SE = round(SE, digits = n_of_digits),
+         df = round(df, digits = n_of_digits),
+         t.ratio = round(t.ratio, digits = n_of_digits),
+         e = "",
          e = ifelse(p.value > 0.1, 
-                           "",  # No symbol if p-value > 0.1
+                           "",
                            e),
          e = ifelse(p.value < 0.05, 
-                           "*",  # Add * if p-value < 0.05
+                           "*",
                            e),
          e = ifelse(p.value < 0.01, 
-                           "**",  # Add ** if p-value < 0.01
+                           "**",
                            e),
          e = ifelse(p.value < 0.001, 
-                           "***",  # Add *** if p-value < 0.001
+                           "***",
                            e)) %>%
-  rename(" " = e)  # Rename column to show significance markers
+  rename(" " = e)
+
+nested_contrasts = nested_contrasts %>% 
+  as.data.frame() %>%
+  mutate(p.value = round(p.value, digits = n_of_digits),
+         estimate = round(estimate, digits = n_of_digits),
+         SE = round(SE, digits = n_of_digits),
+         df = round(df, digits = n_of_digits),
+         t.ratio = round(t.ratio, digits = n_of_digits),
+         e = "",
+         e = ifelse(p.value > 0.1, 
+                           "",
+                           e),
+         e = ifelse(p.value < 0.05, 
+                           "*",
+                           e),
+         e = ifelse(p.value < 0.01, 
+                           "**",
+                           e),
+         e = ifelse(p.value < 0.001, 
+                           "***",
+                           e)) %>%
+  rename(" " = e)
 ```
 </details>
 
@@ -194,6 +230,7 @@ car::Anova(model, type = "III")
 # --- SHOW MODEL CONTRASTS --- #
 
 contrasts
+nested_contrasts
 ```
 </details>
 

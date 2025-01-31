@@ -14,10 +14,31 @@ plot.ecos.sizes.one.by.one.means = function(data = ds_ecosystems,
   p = list()
   plot_n = 0
   
+  volume_disturbed_types = c("volume disturbed fixed",
+                             "volume disturbed relative to size")
+  
+  if(trophy_selected == "heterotrophic"){
+    ecos_colours = c("volume disturbed fixed" = dark_colour_hetero,
+                     "volume disturbed relative to size" = light_colour_hetero)
+  }
+  
+  if(trophy_selected == "autotrophic"){
+    ecos_colours = c("volume disturbed fixed" = dark_colour_auto,
+                     "volume disturbed relative to size" = light_colour_auto)
+  }
+  
+  # Change factor names 
+  
+  data = data %>%
+    mutate(volume_disturbed_across_sizes = case_when(
+      volume_disturbed_across_sizes == "fixed" ~ "volume disturbed fixed",
+      volume_disturbed_across_sizes == "relative" ~ "volume disturbed relative to size",
+      TRUE ~ volume_disturbed_across_sizes))
+  
   # Plot ecosystems size by size
   
   for (eco_size_i in 1:length(ecosystem_sizes_ml)) {
-    for(volume_disturbed_i in 1:length(volume_disturbed_across_sizes_levels)){
+    for(volume_disturbed_i in 1:length(volume_disturbed_types)){
       
       # Define parameter
       
@@ -28,7 +49,7 @@ plot.ecos.sizes.one.by.one.means = function(data = ds_ecosystems,
       data_for_plotting = data %>%
         filter(ecosystem_size_ml == ecosystem_sizes_ml[eco_size_i],
                volume_disturbed_across_sizes == 
-                 volume_disturbed_across_sizes_levels[volume_disturbed_i],
+                 volume_disturbed_types[volume_disturbed_i],
                trophic_type == trophy_selected) %>%
         mutate(ecosystem_size_ml = factor(paste(sprintf("%.2f", 
                                                         ecosystem_size_ml), 

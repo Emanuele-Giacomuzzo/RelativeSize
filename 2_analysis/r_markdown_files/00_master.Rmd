@@ -88,7 +88,22 @@ save.image(file = here("..",
 
 ### Biomass {.tabset .tabset-dropdown}
 
-```{r child = here("r_markdown_files", "13_analyse_ecos_biomass.Rmd")}
+#### Heterotrophic
+
+```{r}
+trophic_type_selected = "heterotrophic"
+```
+
+```{r child = here("r_markdown_files", "13_analyse_ecos_biomass_one_type.Rmd")}
+```
+
+#### Autotrophic
+
+```{r}
+trophic_type_selected = "autotrophic"
+```
+
+```{r child = here("r_markdown_files", "13_analyse_ecos_biomass_one_type.Rmd")}
 ```
 
 ### Shannon {.tabset .tabset-dropdown}
@@ -98,7 +113,7 @@ response_variable_selected = "shannon"
 y_upper_limit_selected = 2
 ```
 
-```{r child = here("r_markdown_files", "14_analyse_ecos_diversity.Rmd")}
+```{r child = here("r_markdown_files", "14_analyse_ecos_diversity_all_types.Rmd")}
 ```
 
 ### Simpson {.tabset .tabset-dropdown}
@@ -108,7 +123,7 @@ response_variable_selected = "simpson"
 y_upper_limit_selected = 1
 ```
 
-```{r child = here("r_markdown_files", "14_analyse_ecos_diversity.Rmd")}
+```{r child = here("r_markdown_files", "14_analyse_ecos_diversity_all_types.Rmd")}
 ```
 
 ### Species Richness {.tabset .tabset-dropdown}
@@ -118,7 +133,7 @@ response_variable_selected = "species_richness"
 y_upper_limit_selected = 12
 ```
 
-```{r child = here("r_markdown_files", "14_analyse_ecos_diversity.Rmd")}
+```{r child = here("r_markdown_files", "14_analyse_ecos_diversity_all_types.Rmd")}
 ```
 
 ### Dominances {.tabset .tabset-pills}
@@ -130,7 +145,7 @@ response_variable_selected = "Ble_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Cep
@@ -140,7 +155,7 @@ response_variable_selected = "Cep_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Col
@@ -150,7 +165,7 @@ response_variable_selected = "Col_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Eup
@@ -160,7 +175,7 @@ response_variable_selected = "Eup_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Lox
@@ -170,7 +185,7 @@ response_variable_selected = "Lox_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Pau
@@ -180,7 +195,7 @@ response_variable_selected = "Pau_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Pca
@@ -190,7 +205,7 @@ response_variable_selected = "Pca_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Spi
@@ -200,7 +215,7 @@ response_variable_selected = "Spi_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Spi te
@@ -210,7 +225,7 @@ response_variable_selected = "Spi_te_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 #### Tet
@@ -220,7 +235,7 @@ response_variable_selected = "Tet_bioarea_mm2_per_ml_dominance"
 y_upper_limit_selected = 100
 ```
 
-```{r child = here("r_markdown_files", "15_analyse_ecos_species.Rmd")}
+```{r child = here("r_markdown_files", "15_analyse_ecos_species_all_types.Rmd")}
 ```
 
 ### BEF
