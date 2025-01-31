@@ -4,6 +4,6 @@ output: html_document
 date: "2024-10-07"
 ---
 
-![](../../4_other/Design_paper.png)
+![](../../4_other/Design.png)
 
 Figure 1. Experimental design. Light-coloured section of the ecosystem with lightning bolt = portion disturbed to be turn into nonliving resources and exchanged between ecosystems (in connected meta-ecosystems) or retained (in unconnected meta-ecosystems). Ecosystem treatments were replicated six times (2 trophic types x 2 connection types x 4 ecosystem sizes * 2 disturbed volume types * 6 replicates = 192 ecosystems).

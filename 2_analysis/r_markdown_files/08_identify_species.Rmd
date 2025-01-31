@@ -18,9 +18,9 @@ for(i in 1:length(threshold_levels)){
   
   training_individuals[[i]] = read.csv(here("..",
                                             "1_data",
-                                            paste0(threshold_levels[i],
-                                                   "_threshold_analysis"),
-                                            "training.csv")) %>%
+                                            paste0("training_threshold_",
+                                                   threshold_levels[i],
+                                                   ".csv"))) %>%
     
   # Exclude Euglena from training monocultures to prevent misidentification 
   # (Eug was only in autotrophic ecosystems).

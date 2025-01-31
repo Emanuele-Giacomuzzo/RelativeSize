@@ -439,7 +439,7 @@ display: none;
 
 <h1 class="title toc-ignore">PhD Chapter 3 - RelativeSize</h1>
 <h4 class="author">Emanuele Giacomuzzo</h4>
-<h4 class="date">2025-01-31 13:17</h4>
+<h4 class="date">2025-01-31 15:36</h4>
 
 </div>
 
@@ -917,7 +917,6 @@ for(time_point in time_points){
   
   ds_individuals[[time_point + 1]] = read.csv(here(&quot;..&quot;,
                                                    &quot;1_data&quot;,
-                                                   &quot;13_threshold_analysis&quot;,
                                                    paste0(&quot;t&quot;, 
                                                           time_point, 
                                                           &quot;.csv&quot;))) %&gt;%
@@ -979,9 +978,9 @@ for(i in 1:length(threshold_levels)){
   
   training_individuals[[i]] = read.csv(here(&quot;..&quot;,
                                             &quot;1_data&quot;,
-                                            paste0(threshold_levels[i],
-                                                   &quot;_threshold_analysis&quot;),
-                                            &quot;training.csv&quot;)) %&gt;%
+                                            paste0(&quot;training_threshold_&quot;,
+                                                   threshold_levels[i],
+                                                   &quot;.csv&quot;))) %&gt;%
     
   # Exclude Euglena from training monocultures to prevent misidentification 
   # (Eug was only in autotrophic ecosystems).

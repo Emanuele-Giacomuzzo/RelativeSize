@@ -18,7 +18,6 @@ for(time_point in time_points){
   
   ds_individuals[[time_point + 1]] = read.csv(here("..",
                                                    "1_data",
-                                                   "13_threshold_analysis",
                                                    paste0("t", 
                                                           time_point, 
                                                           ".csv"))) %>%
