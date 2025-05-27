@@ -14,8 +14,9 @@ editor_options:
 response_variable_selected = "bioarea_mm2_per_ml"
 ```
 
+
 <details open="open">
-<summary>Plot original data</summary>
+<summary>Original data</summary>
 ```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
 # --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
@@ -32,13 +33,10 @@ if(trophic_type_selected == "heterotrophic"){
                                           light_colour_hetero,
                                           dark_colour_hetero,
                                           y_upper_limit = 6.2) +
-    ggtitle("Heterotrophic ecosystem level effects") +
+    ggtitle("Heterotrophic patch level") +
     theme(plot.title = element_text(size = plot_title_size, 
                                     face = plot_title_face, 
                                     hjust = plot_title_hjust)) 
-  
-  caption = "Figure 3. Time series of biomass at the heterotrophic ecosystem level. Left panels show fixed volume disturbance effects (red), while right panels show volume disturbance relative to size (yellow) across four different disturbance volumes (6.43, 9, 15, and 45 ml). Solid lines represent connected heterotrophic ecosystems, and dashed lines represent unconnected heterotrophic ecosystems. Points represent means and error bars indicate 95 % confidence intervals. Vertical grey lines are disturbance events. To reduce overlapping, data points were slightly jittered along the x axis. The grey shading shows periods before the initial disturbance and resource flow, which were excluded from the analysis."
-  
 }
 
 if(trophic_type_selected == "autotrophic"){
@@ -53,18 +51,43 @@ if(trophic_type_selected == "autotrophic"){
                                           light_colour_auto,
                                           dark_colour_auto,
                                           y_upper_limit = 48) +
-    ggtitle("Autotrophic ecosystem level effects") +
+    ggtitle("Autotrophic patch level") +
     theme(plot.title = element_text(size = plot_title_size, 
                                     face = plot_title_face, 
                                     hjust = plot_title_hjust))
-
-  caption = "Figure 4. Time series of biomass at the autotrophic ecosystem level. Left panels show fixed volume disturbance effects (red), while right panels show volume disturbance relative to size (yellow) across four different disturbance volumes (6.43, 9, 15, and 45 ml). Solid lines represent connected autotrophic ecosystems, and dashed lines represent unconnected autotrophic ecosystems. Points represent means and error bars indicate 95 % confidence intervals. Vertical grey lines are disturbance events. To reduce overlapping, data points were slightly jittered along the x axis. The grey shading shows periods before the initial disturbance and resource flow, which were excluded from the analysis."
 
 }
 
 system_type_to_print
 plot
-caption
+```
+</details>
+
+<details>
+<summary>Effect sizes</summary>
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+
+if(trophic_type_selected == "heterotrophic"){
+  plot.ecos.sizes.one.by.one.es(ds_ecosystems_effect_size,
+                              trophic_type_selected,
+                              response_variable_selected,
+                              light_colour_hetero,
+                              dark_colour_hetero,
+                              y_upper_limit = 4,
+                              legend_row_n_selected = 1,
+                              y_lower_limit = -2)
+}
+
+if(trophic_type_selected == "autotrophic"){
+  plot.ecos.sizes.one.by.one.es(ds_ecosystems_effect_size,
+                              trophic_type_selected,
+                              response_variable_selected,
+                              light_colour_auto,
+                              dark_colour_auto,
+                              y_upper_limit = 10,
+                              legend_row_n_selected = 1,
+                              y_lower_limit = -6)
+}
 ```
 </details>
 
@@ -187,8 +210,7 @@ print(summary(model), digits = 3)
 emmeans_output = emmeans(model,
                          specs = ~  conn * disturb_type * size,
                          adjust = "sidak",
-                         bias.adj = TRUE,
-                         lmer.df = "satterthwaite") 
+                         lmer.df = "satterthwaite")
 
 emmeans_output
 
@@ -213,7 +235,6 @@ con_relative_45 = c(rep(0,15), 1)
 
 # Compute the contrasts
 
-n_of_digits = 3
 contrasts = contrast(emmeans_output, 
                      method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
                                    "9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
@@ -222,63 +243,77 @@ contrasts = contrast(emmeans_output,
                                    "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
                                    "9.00 ml relative" = con_relative_9 - uncon_relative_9,
                                    "15.00 ml relative" = con_relative_15 - uncon_relative_15,
-                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) 
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45),
+                     type = "response")
 
-nested_contrasts <- contrast(contrasts, 
+nested_contrasts <- contrast(contrasts,
                              method = list(
                                "Difference in effects at 6.43 ml" = c(1, 0, 0, 0, -1, 0, 0, 0),
                                "Difference in effects at 9.00 ml" = c(0, 1, 0, 0, 0, -1, 0, 0),
                                "Difference in effects at 15.00 ml" = c(0, 0, 1, 0, 0, 0, -1, 0),
-                               "Difference in effects at 45.00 ml" = c(0, 0, 0, 1, 0, 0, 0, -1)
-                             ))
+                               "Difference in effects at 45.00 ml" = c(0, 0, 0, 1, 0, 0, 0, -1)))
 
-# Tidy up the contrasts & Sidak correct
+# Tidy up contrasts
 
-contrasts = contrasts %>% 
-  as.data.frame() %>%
-  mutate(p.value = round(p.value, digits = n_of_digits),
-         estimate = round(estimate, digits = n_of_digits),
-         SE = round(SE, digits = n_of_digits),
-         df = round(df, digits = n_of_digits),
-         z.ratio = round(z.ratio, digits = n_of_digits),
-         e = "",
-         e = ifelse(p.value > 0.1, 
-                           "",
-                           e),
-         e = ifelse(p.value < 0.05, 
-                           "*",
-                           e),
-         e = ifelse(p.value < 0.01, 
-                           "**",
-                           e),
-         e = ifelse(p.value < 0.001, 
-                           "***",
-                           e)) %>%
-  rename(" " = e)
+upper_CI = (confint(contrasts)$asymp.UCL - 1) * 100
+lower_CI = (confint(contrasts)$asymp.LCL - 1) * 100
 
-nested_contrasts = nested_contrasts %>% 
-  as.data.frame() %>%
-  mutate(p.value = round(p.value, digits = n_of_digits),
-         estimate = round(estimate, digits = n_of_digits),
-         SE = round(SE, digits = n_of_digits),
-         df = round(df, digits = n_of_digits),
-         z.ratio = round(z.ratio, digits = n_of_digits),
-         e = "",
-         e = ifelse(p.value > 0.1, 
-                           "",
-                           e),
-         e = ifelse(p.value < 0.05, 
-                           "*",
-                           e),
-         e = ifelse(p.value < 0.01, 
-                           "**",
-                           e),
-         e = ifelse(p.value < 0.001, 
-                           "***",
-                           e)) %>%
-  rename(" " = e)
+contrasts = contrasts %>%
+  as.data.frame(.) %>%
+  mutate(ratio = round(ratio, 2),
+         percentage = (ratio-1)*100,
+         SE = round(SE, 2),
+         lower.CL = round(lower_CI, 2),  # Lower confidence limit
+         upper.CL = round(upper_CI, 2),  # Upper confidence limit
+         z.ratio = round(z.ratio, 2),
+         p.value = round(p.value, 3)) %>%
+  select(contrast, 
+         percentage, 
+         lower.CL,
+         upper.CL,
+         SE, 
+         z.ratio, 
+         p.value)
+
+contrasts$" " <- ""
+contrasts$" "[contrasts$p.value < 0.05] <- "*"
+contrasts$" "[contrasts$p.value < 0.01] <- "**"
+contrasts$" "[contrasts$p.value < 0.001] <- "***"
+
+# Tidy up nested contrasts
+
+upper_CI = (confint(nested_contrasts)$asymp.UCL - 1) * 100
+lower_CI = (confint(nested_contrasts)$asymp.LCL - 1) * 100
+
+nested_contrasts = nested_contrasts %>%
+  as.data.frame(.) %>%
+  mutate(ratio = round(ratio, 2),
+         percentage = (ratio-1)*100,
+         lower.CL = round(lower_CI, 2),  # Lower confidence limit
+         upper.CL = round(upper_CI, 2),  # Upper confidence limit
+         SE = round(SE, 2),
+         z.ratio = round(z.ratio, 2),
+         p.value = round(p.value, 3)) %>%
+  select(contrast,
+         percentage,
+         lower.CL,
+         upper.CL,
+         SE,
+         z.ratio,
+         p.value)
+
+nested_contrasts$" " <- ""
+nested_contrasts$" "[nested_contrasts$p.value < 0.05] <- "*"
+nested_contrasts$" "[nested_contrasts$p.value < 0.01] <- "**"
+nested_contrasts$" "[nested_contrasts$p.value < 0.001] <- "***"
 ```
 </details>
+
+```{r}
+plot.ecos.contrasts(contrasts,
+                    trophic_type_selected,
+                    response_variable_selected)
+```
 
 <details open="open">
 <summary>Model ANOVA</summary>

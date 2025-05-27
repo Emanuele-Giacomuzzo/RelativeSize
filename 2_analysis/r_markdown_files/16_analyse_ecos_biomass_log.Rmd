@@ -1,0 +1,142 @@
+---
+title: "Analyse Ecosystem Biomass"
+output: html_document
+date: "2024-10-15"
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r}
+
+# --- DEFINE PARAMETERS --- #
+
+response_variable_selected = "log10_bioarea_mm2_per_ml"
+```
+
+<details open="open">
+<summary>Plot original data</summary>
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
+
+# Plot heterotrophic ecosystems
+
+if(trophic_type_selected == "heterotrophic"){
+  
+  system_type_to_print = "Heterotrophic ecosystems"
+  
+  plot = plot.ecos.sizes.one.by.one.means(ds_ecosystems,
+                                          "heterotrophic",
+                                          response_variable_selected,
+                                          light_colour_hetero,
+                                          dark_colour_hetero,
+                                          y_upper_limit = 1,
+                                          legend_row_n_selected = 1,
+                                          y_lower_limit = -1) +
+    ggtitle("Heterotrophic patch level effects") +
+    theme(plot.title = element_text(size = plot_title_size, 
+                                    face = plot_title_face, 
+                                    hjust = plot_title_hjust)) 
+  
+  caption = "Figure 3. Time series of biomass at the heterotrophic ecosystem level. Left panels show fixed volume disturbance effects (red), while right panels show volume disturbance relative to size (yellow) across four different disturbance volumes (6.43, 9, 15, and 45 ml). Solid lines represent connected heterotrophic ecosystems, and dashed lines represent unconnected heterotrophic ecosystems. Points represent means and error bars indicate 95 % confidence intervals. Vertical grey lines are disturbance events. To reduce overlapping, data points were slightly jittered along the x axis. The grey shading shows periods before the initial disturbance and resource flow, which were excluded from the analysis."
+  
+}
+
+if(trophic_type_selected == "autotrophic"){
+  
+  # Plot autotrophic ecosystems
+  
+  system_type_to_print = "Autotrophic ecosystems"
+  
+  plot = plot.ecos.sizes.one.by.one.means(ds_ecosystems,
+                                          "autotrophic",
+                                          response_variable_selected,
+                                          light_colour_auto,
+                                          dark_colour_auto,
+                                          y_upper_limit = 2,
+                                          legend_row_n_selected = 1,
+                                          y_lower_limit = -2) +
+    ggtitle("Autotrophic patch level effects") +
+    theme(plot.title = element_text(size = plot_title_size, 
+                                    face = plot_title_face, 
+                                    hjust = plot_title_hjust))
+
+  caption = "Figure 4. Time series of biomass at the autotrophic ecosystem level. Left panels show fixed volume disturbance effects (red), while right panels show volume disturbance relative to size (yellow) across four different disturbance volumes (6.43, 9, 15, and 45 ml). Solid lines represent connected autotrophic ecosystems, and dashed lines represent unconnected autotrophic ecosystems. Points represent means and error bars indicate 95 % confidence intervals. Vertical grey lines are disturbance events. To reduce overlapping, data points were slightly jittered along the x axis. The grey shading shows periods before the initial disturbance and resource flow, which were excluded from the analysis."
+
+}
+
+system_type_to_print
+plot
+caption
+```
+</details>
+
+<details>
+<summary>Prepare & plot data for analysis</summary>
+```{r}
+
+# --- PREPARE DATA FOR ANALYSIS --- #
+
+# Add baselines
+
+baseline = ds_ecosystems %>%
+  filter(time_point == time_point_of_baselines) %>%
+  select(ecosystem_ID,
+         all_of(response_variable_selected)) %>%
+  rename(baseline = all_of(response_variable_selected))
+
+data_for_analysis = ds_ecosystems %>%
+  left_join(baseline)
+
+# Filter and mutate
+
+data_for_analysis = data_for_analysis %>%
+  filter(time_point %in% time_points_model,
+         !is.na(!!sym(response_variable_selected)),
+         trophic_type == trophic_type_selected) %>%
+  mutate(trophic_type = as.factor(trophic_type),
+         size = as.factor(ecosystem_size_ml),
+         conn = factor(x = ifelse(connection == "connected", 
+                                  "con", 
+                                  "unconnected"),
+                       levels = c("unconnected", "con")),
+         volume_disturbed_across_sizes = as.factor(volume_disturbed_across_sizes),
+         day = as.double(day),
+         ecosystem_ID = as.factor(ecosystem_ID))
+```
+
+```{r fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
+
+# --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
+
+if(trophic_type_selected == "heterotrophic"){
+  
+  # Plot heterotrophic ecosystems
+  
+  print("Heterotrophic ecosystems")
+  
+  plot.ecos.sizes.one.by.one.means(data_for_analysis,
+                                   "heterotrophic",
+                                   response_variable_selected,
+                                   light_colour_hetero,
+                                   dark_colour_hetero,
+                                   y_upper_limit = 6.2)
+  
+}
+
+if(trophic_type_selected == "autotrophic"){
+  
+  # Plot autotrophic ecosystems
+  
+  print("Autotrophic ecosystems")
+  
+  plot.ecos.sizes.one.by.one.means(data_for_analysis,
+                                   "autotrophic",
+                                   response_variable_selected,
+                                   light_colour_auto,
+                                   dark_colour_auto,
+                                   y_upper_limit = 48)
+}
+```
+</details>

@@ -376,6 +376,7 @@ for (combination_i in 1:nrow(ecosystem_combinations)) {
       
       mutate(sqrt_bioarea_mm2_per_ml = sqrt(bioarea_mm2_per_ml),
              log_bioarea_mm2_per_ml = log(bioarea_mm2_per_ml),
+             log10_bioarea_mm2_per_ml = log10(bioarea_mm2_per_ml),
              inv_bioarea_mm2_per_ml = 1 / bioarea_mm2_per_ml,
              exp_bioarea_mm2_per_ml = exp(bioarea_mm2_per_ml)) %>%
       

@@ -1,10 +1,26 @@
 ---
-title: "Analyse meta-ecosystem biomass"
-output: html_document
-date: "2023-02-07"
+title: "R Notebook"
+output: html_notebook
 editor_options: 
   chunk_output_type: console
 ---
+
+# Set up the stage
+
+I'm trying now to code contrasts with the following structure:
+
+-   contrasts as ratios
+
+-   nested contrasts as differences between contrasts
+
+I start by erasing all the environment and reloading my datasets.
+
+```{r}
+rm(list = ls())
+load("~/Documents/Github/RelativeSize/3_results/environments/after_ds.RData")
+```
+
+Then, let's set up the stage.
 
 ```{r define-parameters-metaecos-biomass}
 
@@ -13,8 +29,10 @@ editor_options:
 response_variable_selected = "bioarea_mm2_per_ml"
 ```
 
-<details open = "open">
+<details open="open">
+
 <summary>Plot original data</summary>
+
 ```{r plot-original-data-one-size-per-plot-metaeecos-biomass, fig.height = figures_height_rmd_output, fig.width = figures_width_rmd_output}
 
 # --- PLOT ONE PLOT PER ECOSYSTEM SIZE --- #
@@ -33,7 +51,9 @@ Figure 2. Time series of biomass at the meta-ecosystem level. Left panels show f
 </details>
 
 <details>
+
 <summary>Prepare & plot data for analysis</summary>
+
 ```{r prepare-data-for-analysis-metaecos}
 
 # --- PREPARE DATA FOR ANALYSIS --- #
@@ -70,10 +90,13 @@ plot.metaecos.sizes.one.by.one.means(data_for_analysis,
                                      response_variable_selected,
                                      y_upper_limit = 25)
 ```
+
 </details>
 
 <details>
+
 <summary>Create model</summary>
+
 ```{r create-model-metaecos}
 
 # --- CREATE MODEL --- #
@@ -110,8 +133,13 @@ car::Anova(model, type = "III")
 print(summary(model), digits = 3)
 ```
 
-```{r code-model-contrasts-metaecos}
+# Look into the marginal means
 
+Now we want to have marginal means that are back transformed.
+
+This is the one with the log.
+
+```{r}
 # --- CODE MODEL CONSTRASTS --- #
 
 # Estimate marginal means (least-squares means)
@@ -119,13 +147,30 @@ print(summary(model), digits = 3)
 emmeans_output = emmeans(model,
                          specs = ~  conn * disturb_type * size,
                          adjust = "sidak",
-                         bias.adj = TRUE,
                          lmer.df = "satterthwaite") 
 
 emmeans_output
+```
 
+This is the on with the back transformation.
 
+```{r}
+# --- CODE MODEL CONSTRASTS --- #
 
+# Estimate marginal means (least-squares means)
+
+emmeans_output = emmeans(model,
+                         specs = ~  conn * disturb_type * size,
+                         adjust = "sidak",
+                         lmer.df = "satterthwaite",
+                         type = "response") 
+
+emmeans_output
+```
+
+Good.
+
+```{r}
 # Give a name for each level which you want to compare
 
 uncon_fixed_6_43 = c(1, rep(0,15)) 
@@ -144,10 +189,17 @@ uncon_fixed_45 = c(rep(0,12), 1, rep(0,3))
 con_fixed_45 = c(rep(0,13), 1, rep(0,2))
 uncon_relative_45 = c(rep(0,14), 1, rep(0,1))
 con_relative_45 = c(rep(0,15), 1)
+```
 
+# Look into the contrasts
+
+Let's now try to get contrasts which are based on ratios and not on differences of absolute values.
+
+These are with the absolute values.
+
+```{r}
 # Compute the contrasts
 
-n_of_digits = 3
 contrasts = contrast(emmeans_output, 
                      method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
                                    "9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
@@ -156,130 +208,93 @@ contrasts = contrast(emmeans_output,
                                    "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
                                    "9.00 ml relative" = con_relative_9 - uncon_relative_9,
                                    "15.00 ml relative" = con_relative_15 - uncon_relative_15,
-                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) 
-
-nested_contrasts <- contrast(contrasts, 
-                             method = list(
-                               "Difference in effects at 6.43 ml" = c(1, 0, 0, 0, -1, 0, 0, 0),
-                               "Difference in effects at 9.00 ml" = c(0, 1, 0, 0, 0, -1, 0, 0),
-                               "Difference in effects at 15.00 ml" = c(0, 0, 1, 0, 0, 0, -1, 0),
-                               "Difference in effects at 45.00 ml" = c(0, 0, 0, 1, 0, 0, 0, -1)
-                             ))
-
-# Tidy up the contrasts & Sidak correct
-
-contrasts = contrasts %>% 
-  as.data.frame() %>%
-  mutate(p.value = round(p.value, digits = n_of_digits),
-         estimate = round(estimate, digits = n_of_digits),
-         SE = round(SE, digits = n_of_digits),
-         df = round(df, digits = n_of_digits),
-         z.ratio = round(z.ratio, digits = n_of_digits),
-         e = "",
-         e = ifelse(p.value > 0.1, 
-                           "",
-                           e),
-         e = ifelse(p.value < 0.05, 
-                           "*",
-                           e),
-         e = ifelse(p.value < 0.01, 
-                           "**",
-                           e),
-         e = ifelse(p.value < 0.001, 
-                           "***",
-                           e)) %>%
-  rename(" " = e)
-
-nested_contrasts = nested_contrasts %>% 
-  as.data.frame() %>%
-  mutate(p.value = round(p.value, digits = n_of_digits),
-         estimate = round(estimate, digits = n_of_digits),
-         SE = round(SE, digits = n_of_digits),
-         df = round(df, digits = n_of_digits),
-         z.ratio = round(z.ratio, digits = n_of_digits),
-         e = "",
-         e = ifelse(p.value > 0.1, 
-                           "",
-                           e),
-         e = ifelse(p.value < 0.05, 
-                           "*",
-                           e),
-         e = ifelse(p.value < 0.01, 
-                           "**",
-                           e),
-         e = ifelse(p.value < 0.001, 
-                           "***",
-                           e)) %>%
-  rename(" " = e)
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45))
 ```
-</details>
 
-<details open="open">
-<summary>Model ANOVA</summary>
-```{r show-model-anova}
+1.  [Put into Claude:]{.underline}
 
-# --- SHOW MODEL ANOVA --- #
+    *Transform this*
 
-car::Anova(model, type = "III")
+*contrasts = contrast(emmeans_output,
+method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
+"9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
+"15.00 ml fixed" = con_fixed_15 - uncon_fixed_15,
+"45.00 ml fixed" = con_fixed_45 - uncon_fixed_45,
+"6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
+"9.00 ml relative" = con_relative_9 - uncon_relative_9,
+"15.00 ml relative" = con_relative_15 - uncon_relative_15,
+"45.00 ml relative" = con_relative_45 - uncon_relative_45))*
+
+*into the ratios instead of the differences. This should give the same results right?*
+
+2.  Claude replied to use the code
+
+```{r}
+contrasts = contrast(emmeans_output, 
+                     method = list("6.43 ml fixed" = con_fixed_6_43 / uncon_fixed_6_43,
+                                   "9.00 ml fixed" = con_fixed_9 / uncon_fixed_9,
+                                   "15.00 ml fixed" = con_fixed_15 / uncon_fixed_15,
+                                   "45.00 ml fixed" = con_fixed_45 / uncon_fixed_45,
+                                   "6.43 ml relative" = con_relative_6_43 / uncon_relative_6_43,
+                                   "9.00 ml relative" = con_relative_9 / uncon_relative_9,
+                                   "15.00 ml relative" = con_relative_15 / uncon_relative_15,
+                                   "45.00 ml relative" = con_relative_45 / uncon_relative_45))
 ```
-</details>
 
-<details open = "open">
-<summary>Model contrasts</summary>
-```{r show-model-contrasts}
+but this gives me the results
 
-# --- SHOW MODEL CONTRASTS --- #
+*contrast estimate SE df z.ratio p.value*
 
-contrasts
-nested_contrasts
+*6.43 ml fixed nonEst NA NA NA NA*
+
+*9.00 ml fixed nonEst NA NA NA NA*
+
+*15.00 ml fixed nonEst NA NA NA NA*
+
+*45.00 ml fixed nonEst NA NA NA NA*
+
+*6.43 ml relative nonEst NA NA NA NA*
+
+*9.00 ml relative nonEst NA NA NA NA*
+
+*15.00 ml relative nonEst NA NA NA NA*
+
+*45.00 ml relative nonEst NA NA NA NA*
+
+3.  [Put into Claude]{.underline}
+
+*it gives me the reply*
+
+*contrast estimate SE df z.ratio p.value
+6.43 ml fixed nonEst NA NA NA NA
+9.00 ml fixed nonEst NA NA NA NA
+15.00 ml fixed nonEst NA NA NA NA
+45.00 ml fixed nonEst NA NA NA NA
+6.43 ml relative nonEst NA NA NA NA
+9.00 ml relative nonEst NA NA NA NA
+15.00 ml relative nonEst NA NA NA NA
+45.00 ml relative nonEst NA NA NA NA*
+
+4.  Claude said that if my model was on a log scale to use
+
+```         
+ratios = pairs(emmeans_output, 
+               by = c("volume", "condition"),
+               type = "response")
 ```
-</details>
 
-<details open="open">
-<summary>Model residuals</summary>
-```{r plot-model-residuals-metaecos, fig.width = figures_height_rmd_output}
+I therefore avoid the backtransformation and then go for the contrasts.
 
-# --- PLOT MODEL RESIDUALS --- #
+5.  i tried but then pairs gave me Error in .find.by.rows(args, by) : 'by' variables are not all in the grid.
 
-# Simulate residuals from the fitted model
-
-simulationOutput <- simulateResiduals(fittedModel = model, 
-                                      n = 1000) 
-
-# Test for overdispersion in the model to check if variance exceeds mean
-
-testDispersion(simulationOutput)
-
-# Plot Q-Q and Residuals vs Fitted plots
-
-plot(simulationOutput)
-
-# Plot residuals against specific predictors to check if residuals are 
-# independent of these variables - fixed variables
-
-plotResiduals(simulationOutput,
-              form = data_for_analysis$size)
-plotResiduals(simulationOutput,
-              form = data_for_analysis$conn)
-plotResiduals(simulationOutput,
-              form = data_for_analysis$disturb_type)
-
-# Plot residuals against specific predictors to check if residuals are 
-# independent of these variables - random variables
-
-plotResiduals(simulationOutput,
-              form = data_for_analysis$metaecosystem_ID)
-plotResiduals(simulationOutput,
-              form = data_for_analysis$time_point)
-plotResiduals(simulationOutput,
-              form = data_for_analysis$baseline)
-
-# Test for outliers 
-
-testOutliers(simulationOutput)
-
-# Test for zero inflation not accounted for
- 
-testZeroInflation(simulationOutput)
+```{r}
+pairs(emmeans_output,
+      method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
+                                   "9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
+                                   "15.00 ml fixed" = con_fixed_15 - uncon_fixed_15,
+                                   "45.00 ml fixed" = con_fixed_45 - uncon_fixed_45,
+                                   "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
+                                   "9.00 ml relative" = con_relative_9 - uncon_relative_9,
+                                   "15.00 ml relative" = con_relative_15 - uncon_relative_15,
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45))
 ```
-</details>

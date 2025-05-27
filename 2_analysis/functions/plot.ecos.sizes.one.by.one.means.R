@@ -4,35 +4,36 @@ plot.ecos.sizes.one.by.one.means = function(data = ds_ecosystems,
                                             light_colour = light_colour_hetero,
                                             dark_colour = dark_colour_hetero,
                                             y_upper_limit = 2.4,
-                                            legend_row_n_selected = 1) {
+                                            legend_row_n_selected = 1,
+                                            y_lower_limit = 0) {
   
   # Set parameters & initialise list to store plots
   
-  ecos_colours = c("fixed" = dark_colour,
-                   "relative" = light_colour)
+  ecos_colours = c("Fixed" = dark_colour,
+                   "Relative" = light_colour)
   
   p = list()
   plot_n = 0
   
-  volume_disturbed_types = c("volume disturbed fixed",
-                             "volume disturbed relative to size")
+  volume_disturbed_types = c("Fixed disturbance",
+                             "Relative disturbance")
   
   if(trophy_selected == "heterotrophic"){
-    ecos_colours = c("volume disturbed fixed" = dark_colour_hetero,
-                     "volume disturbed relative to size" = light_colour_hetero)
+    ecos_colours = c("Fixed disturbance" = dark_colour_hetero,
+                     "Relative disturbance" = light_colour_hetero)
   }
   
   if(trophy_selected == "autotrophic"){
-    ecos_colours = c("volume disturbed fixed" = dark_colour_auto,
-                     "volume disturbed relative to size" = light_colour_auto)
+    ecos_colours = c("Fixed disturbance" = dark_colour_auto,
+                     "Relative disturbance" = light_colour_auto)
   }
   
   # Change factor names 
   
   data = data %>%
     mutate(volume_disturbed_across_sizes = case_when(
-      volume_disturbed_across_sizes == "fixed" ~ "volume disturbed fixed",
-      volume_disturbed_across_sizes == "relative" ~ "volume disturbed relative to size",
+      volume_disturbed_across_sizes == "fixed" ~ "Fixed disturbance",
+      volume_disturbed_across_sizes == "relative" ~ "Relative disturbance",
       TRUE ~ volume_disturbed_across_sizes))
   
   # Plot ecosystems size by size
@@ -131,7 +132,7 @@ plot.ecos.sizes.one.by.one.means = function(data = ds_ecosystems,
       
       # Modify the plot
       
-      p[[plot_n]] = p[[plot_n]] + coord_cartesian(ylim = c(0, 
+      p[[plot_n]] = p[[plot_n]] + coord_cartesian(ylim = c(y_lower_limit, 
                                                            y_upper_limit))
       
       if (plot_n %in% c(1:6)) {

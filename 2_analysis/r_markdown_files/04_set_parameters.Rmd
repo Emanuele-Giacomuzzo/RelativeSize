@@ -143,7 +143,6 @@ variables_ecosystems = c("bioarea_mm2_per_ml",
                         "species_richness",
                         "shannon",
                         "evenness_pielou",
-                        protist_species_indiv_per_ml,
                         protist_species_dominance)
 
 # Number of ecosystems
@@ -171,11 +170,29 @@ metaecosystem_ID_vector = c(metaecosystem_ID_vector_first_half,
 connection_ordered = c("unconnected", "connected")
 ecosystem_sizes_ml = c(6.43, 9.00, 15.00, 45.00)
 
-# Import the information about ecosystems
-
 # Find the number of ecosystems in the experiment
 
 n_ecosystems = 192
+
+# Define treatments and controls 
+
+df = expand.grid(trophic = c("autotrophic", "heterotrophic"),
+                 size = c(6.43, 9, 15, 45),
+                 disturbance = c("fixed", "relative"))
+
+# Create clean IDs with no spaces
+
+treatments_and_controls = df %>%
+  mutate(
+    treatment = paste0(trophic, "_", size, "_", disturbance, "_connected"),
+    control = paste0(trophic, "_", size, "_", disturbance, "_unconnected")
+  ) %>%
+  select(treatment, control)
+
+treatments_and_controls_metaecos = df %>%
+  mutate(treatment = paste0(size, "_", disturbance, "_connected"),
+         control = paste0(size, "_", disturbance, "_unconnected")) %>%
+  select(treatment, control)
 ```
 
 ```{r metaecosystems-parameters}
@@ -192,7 +209,8 @@ metaecosystems_to_take_off = NA
 
 # Define the variables you want to calculate for each meta-ecosystem
 
-variables_metaecos = c("total_metaecosystem_bioarea_mm2")
+variables_metaecos = c("bioarea_mm2_per_ml",
+                       "log10_bioarea_mm2_per_ml")
 
 # Select which unconnected meta-ecosystems should be linked to form unconnected 
 # meta-ecosystems
@@ -387,14 +405,19 @@ axis_names = data.frame(variable = NA,
 
   add_row(variable = "bioarea_tot", axis_name = "Total Biomass (mm²)") %>%
   add_row(variable = "bioarea_mm2_per_ml", axis_name = "Biomass (mm²/ml)") %>%
-  add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Biomass Density ES (Hedge's d)") %>%
+  add_row(variable = "bioarea_mm2_per_ml_contrast", axis_name = "Biomass response to connection (%)") %>%
+  add_row(variable = "log10_bioarea_mm2_per_ml", axis_name = "Log Biomass (mm²/ml)") %>%
+  add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Biomass Density ES") %>%
   add_row(variable = "indiv_per_ml", axis_name = "Abundance (ind/ml)") %>%
   add_row(variable = "indiv_per_ml_d", axis_name = "Abundance ES") %>%
   add_row(variable = "shannon", axis_name = "Shannon Index") %>%
   add_row(variable = "shannon_d", axis_name = "Shannon Index ES") %>%
+  add_row(variable = "shannon_contrasts", axis_name = "Shannon Index response to connection") %>%
   add_row(variable = "simpson", axis_name = "Simpson Index") %>%
+  add_row(variable = "simpson_contrast", axis_name = "Simpson Index response to connection") %>%
   add_row(variable = "species_richness", axis_name = "Species Richness") %>%
   add_row(variable = "species_richness_d", axis_name = "Species Richness ES") %>%
+  add_row(variable = "species_richness_contrast", axis_name = "Species Richness Response toConnection") %>%
   add_row(variable = "evenness_pielou", axis_name = "Evenness (Pielou's Index)") %>%
   add_row(variable = "evenness_pielou_d", axis_name = "Evenness ES") %>%
   add_row(variable = "median_body_area_µm2", axis_name = "Median Body Size (µm²)") %>%
@@ -456,5 +479,6 @@ axis_names = data.frame(variable = NA,
 # --- SET PARAMETERS FOR MODELLING --- #
 
 time_point_of_baselines = 1
+time_points_for_ES = 0:7
 time_points_model = 2:7 # Time point 2 is the first after disturbance
 ```

@@ -120,8 +120,7 @@ print(summary(model), digits = 3)
 emmeans_output = emmeans(model,
                          specs = ~  conn * disturb_type * size,
                          adjust = "sidak",
-                         bias.adj = TRUE,
-                         lmer.df = "satterthwaite") 
+                         lmer.df = "satterthwaite")
 
 emmeans_output
 
@@ -146,7 +145,6 @@ con_relative_45 = c(rep(0,15), 1)
 
 # Compute the contrasts
 
-n_of_digits = 3
 contrasts = contrast(emmeans_output, 
                      method = list("6.43 ml fixed" = con_fixed_6_43 - uncon_fixed_6_43,
                                    "9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
@@ -155,63 +153,78 @@ contrasts = contrast(emmeans_output,
                                    "6.43 ml relative" = con_relative_6_43 - uncon_relative_6_43,
                                    "9.00 ml relative" = con_relative_9 - uncon_relative_9,
                                    "15.00 ml relative" = con_relative_15 - uncon_relative_15,
-                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45)) 
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45),
+                     type = "response")
 
-nested_contrasts <- contrast(contrasts, 
+nested_contrasts <- contrast(contrasts,
                              method = list(
                                "Difference in effects at 6.43 ml" = c(1, 0, 0, 0, -1, 0, 0, 0),
                                "Difference in effects at 9.00 ml" = c(0, 1, 0, 0, 0, -1, 0, 0),
                                "Difference in effects at 15.00 ml" = c(0, 0, 1, 0, 0, 0, -1, 0),
-                               "Difference in effects at 45.00 ml" = c(0, 0, 0, 1, 0, 0, 0, -1)
-                             ))
+                               "Difference in effects at 45.00 ml" = c(0, 0, 0, 1, 0, 0, 0, -1)))
 
-# Tidy up the contrasts & Sidak correct
+# Tidy up contrasts
 
-contrasts = contrasts %>% 
-  as.data.frame() %>%
-  mutate(p.value = round(p.value, digits = n_of_digits),
-         estimate = round(estimate, digits = n_of_digits),
-         SE = round(SE, digits = n_of_digits),
-         df = round(df, digits = n_of_digits),
-         t.ratio = round(t.ratio, digits = n_of_digits),
-         e = "",
-         e = ifelse(p.value > 0.1, 
-                           "",
-                           e),
-         e = ifelse(p.value < 0.05, 
-                           "*",
-                           e),
-         e = ifelse(p.value < 0.01, 
-                           "**",
-                           e),
-         e = ifelse(p.value < 0.001, 
-                           "***",
-                           e)) %>%
-  rename(" " = e)
+upper_CI = (confint(contrasts)$upper.CL - 1) * 100
+lower_CI = (confint(contrasts)$lower.CL - 1) * 100
 
-nested_contrasts = nested_contrasts %>% 
-  as.data.frame() %>%
-  mutate(p.value = round(p.value, digits = n_of_digits),
-         estimate = round(estimate, digits = n_of_digits),
-         SE = round(SE, digits = n_of_digits),
-         df = round(df, digits = n_of_digits),
-         t.ratio = round(t.ratio, digits = n_of_digits),
-         e = "",
-         e = ifelse(p.value > 0.1, 
-                           "",
-                           e),
-         e = ifelse(p.value < 0.05, 
-                           "*",
-                           e),
-         e = ifelse(p.value < 0.01, 
-                           "**",
-                           e),
-         e = ifelse(p.value < 0.001, 
-                           "***",
-                           e)) %>%
-  rename(" " = e)
+contrasts = contrasts %>%
+  as.data.frame(.) %>%
+  mutate(estimate = round(estimate, 2),
+         percentage = (estimate-1)*100,
+         SE = round(SE, 2),
+         lower.CL = round(lower_CI, 2),  # Lower confidence limit
+         upper.CL = round(upper_CI, 2),  # Upper confidence limit
+         t.ratio = round(t.ratio, 2),
+         p.value = round(p.value, 3)) %>%
+  select(contrast, 
+         percentage, 
+         lower.CL,
+         upper.CL,
+         SE, 
+         t.ratio, 
+         p.value)
+
+contrasts$" " <- ""
+contrasts$" "[contrasts$p.value < 0.05] <- "*"
+contrasts$" "[contrasts$p.value < 0.01] <- "**"
+contrasts$" "[contrasts$p.value < 0.001] <- "***"
+
+# Tidy up nested contrasts
+
+upper_CI = (confint(nested_contrasts)$upper.CL - 1) * 100
+lower_CI = (confint(nested_contrasts)$lower.CL - 1) * 100
+
+nested_contrasts = nested_contrasts %>%
+  as.data.frame(.) %>%
+  mutate(estimate = round(estimate, 2),
+         percentage = (estimate-1)*100,
+         SE = round(SE, 2),
+         lower.CL = round(lower_CI, 2),  # Lower confidence limit
+         upper.CL = round(upper_CI, 2),  # Upper confidence limit
+         t.ratio = round(t.ratio, 2),
+         p.value = round(p.value, 3)) %>%
+  select(contrast, 
+         percentage, 
+         lower.CL,
+         upper.CL,
+         SE, 
+         t.ratio, 
+         p.value)
+
+nested_contrasts$" " <- ""
+nested_contrasts$" "[nested_contrasts$p.value < 0.05] <- "*"
+nested_contrasts$" "[nested_contrasts$p.value < 0.01] <- "**"
+nested_contrasts$" "[nested_contrasts$p.value < 0.001] <- "***"
 ```
 </details>
+
+```{r}
+plot.ecos.contrasts(contrasts,
+                    trophic_type_selected,
+                    response_variable_selected)
+```
+
 
 <details open="open">
 <summary>Show model ANOVA</summary>

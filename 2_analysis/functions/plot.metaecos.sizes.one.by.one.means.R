@@ -1,25 +1,26 @@
 plot.metaecos.sizes.one.by.one.means = function(data = ds_metaecosystems,
                                                 response_variable_selected = "bioarea_mm2_per_ml",
                                                 y_upper_limit = 25,
-                                                legend_row_n_selected = 1) {
+                                                legend_row_n_selected = 1,
+                                                y_lower_limit = 0) {
   
   # Initialise parameters
   
   p = list()
   plot_n = 0
   
-  volume_disturbed_types = c("volume disturbed fixed",
-                             "volume disturbed relative to size")
+  volume_disturbed_types = c("Fixed disturbance",
+                             "Relative disturbance")
   
-  metaecos_colours = c("volume disturbed fixed" = "#e31a1c",
-                       "volume disturbed relative to size" = "#fecc5c")
+  metaecos_colours = c("Fixed disturbance" = "#e31a1c",
+                       "Relative disturbance" = "#fecc5c")
   
   # Change factor names 
   
   data = data %>%
     mutate(volume_disturbed_across_sizes = case_when(
-      volume_disturbed_across_sizes == "fixed" ~ "volume disturbed fixed",
-      volume_disturbed_across_sizes == "relative" ~ "volume disturbed relative to size",
+      volume_disturbed_across_sizes == "fixed" ~ "Fixed disturbance",
+      volume_disturbed_across_sizes == "relative" ~ "Relative disturbance",
       TRUE ~ volume_disturbed_across_sizes))
   
   # Plot meta-ecosystem plots
@@ -116,7 +117,7 @@ plot.metaecos.sizes.one.by.one.means = function(data = ds_metaecosystems,
     
     # Modify plot 
     
-    p[[plot_n]] = p[[plot_n]] + coord_cartesian(ylim = c(0, 
+    p[[plot_n]] = p[[plot_n]] + coord_cartesian(ylim = c(y_lower_limit, 
                                                          y_upper_limit))
     
     if (plot_n %in% c(1, 2, 3, 4, 5, 6)) {
