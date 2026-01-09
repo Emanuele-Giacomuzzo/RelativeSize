@@ -1,0 +1,277 @@
+---
+title: "Untitled"
+output: html_document
+date: "2025-12-17"
+editor_options: 
+  chunk_output_type: console
+---
+
+#### Without the smallest patches (6.43 ml)
+
+As the smallest patches at the fixed and relative disturbance had the same 
+disturbance level, I rerun the analysis to see if it's robust to taking off 
+these patch sizes. 
+
+```{r}
+ds_metaecosystems_without_6.43 = ds_metaecosystems %>%
+  filter(ecosystem_size_ml != 6.43)
+```
+
+<details>
+<summary>Prepare & plot data for analysis</summary>
+```{r}
+
+# --- PREPARE DATA FOR ANALYSIS --- #
+
+# Add baselines
+
+baseline = ds_metaecosystems_without_6.43 %>%
+  filter(time_point == time_point_of_baselines) %>%
+  select(metaecosystem_ID,
+         all_of(response_variable_selected)) %>%
+  rename(baseline = all_of(response_variable_selected))
+
+data_for_analysis = ds_metaecosystems_without_6.43 %>%
+  left_join(baseline)
+
+# Filter and mutate
+
+data_for_analysis = data_for_analysis %>%
+  filter(time_point %in% time_points_model,
+         !is.na(!!sym(response_variable_selected)),
+         connection == "connected" | 
+          ecosystems_combined %in% unconnected_metaecosystems_selected) %>%
+  mutate(conn = factor(x = ifelse(connection == "connected", 
+                                  "con", 
+                                  "unconnected"),
+                       levels = c("unconnected", "con")))
+```
+
+</details>
+
+<details>
+
+<summary>Create model</summary>
+
+```{r}
+
+# --- CREATE MODEL --- #
+
+# Prepare data
+
+data_for_analysis = data_for_analysis %>% 
+  rename(size = ecosystem_size_ml,
+         disturb_type = volume_disturbed_across_sizes) %>%
+  mutate(size = as.factor(size),
+         day = as.factor(day))
+
+# Define formula
+
+formula <- as.formula(paste(response_variable_selected, 
+                            "~",
+                            "size * conn * disturb_type +",
+                            "(1 | time_point) +",
+                            "(1 | baseline)")) %>%
+  print()
+
+
+# Create model 
+
+model <- glmmTMB(formula,
+                 data = data_for_analysis,
+                 family = tweedie(link = "log"),
+                 dispformula = ~ bioarea_mm2_per_ml)
+car::Anova(model, type = "III")
+```
+
+```{r}
+
+# --- SHOW MODEL SUMMARY --- #
+
+print(summary(model), digits = 3)
+```
+
+```{r}
+
+# --- CODE MODEL CONSTRASTS --- #
+
+# Estimate marginal means (least-squares means)
+
+emmeans_output = emmeans(model,
+                         specs = ~  conn * disturb_type * size,
+                         adjust = "sidak",
+                         lmer.df = "satterthwaite")
+
+emmeans_output
+
+# Give a name for each level which you want to compare
+
+uncon_fixed_9 = c(1, rep(0,11)) 
+con_fixed_9 = c(rep(0,1), 1, rep(0,10)) 
+uncon_relative_9 = c(rep(0,2), 1, rep(0,9)) 
+con_relative_9 = c(rep(0,3), 1, rep(0,8)) 
+uncon_fixed_15 = c(rep(0,4), 1, rep(0,7)) 
+con_fixed_15 = c(rep(0,5), 1, rep(0,6)) 
+uncon_relative_15 = c(rep(0,6), 1, rep(0,5)) 
+con_relative_15 = c(rep(0,7), 1, rep(0,4)) 
+uncon_fixed_45 = c(rep(0,8), 1, rep(0,3))
+con_fixed_45 = c(rep(0,9), 1, rep(0,2))
+uncon_relative_45 = c(rep(0,10), 1, rep(0,1))
+con_relative_45 = c(rep(0,11), 1)
+
+# Compute the contrasts
+
+contrasts = contrast(emmeans_output, 
+                     method = list("9.00 ml fixed" = con_fixed_9 - uncon_fixed_9,
+                                   "15.00 ml fixed" = con_fixed_15 - uncon_fixed_15,
+                                   "45.00 ml fixed" = con_fixed_45 - uncon_fixed_45,
+                                   "9.00 ml relative" = con_relative_9 - uncon_relative_9,
+                                   "15.00 ml relative" = con_relative_15 - uncon_relative_15,
+                                   "45.00 ml relative" = con_relative_45 - uncon_relative_45),
+                     type = "response")
+
+nested_contrasts <- contrast(contrasts,
+                             method = list(
+                               "Difference in effects at 9.00 ml" = c(1, 0, 0, -1, 0, 0),
+                               "Difference in effects at 15.00 ml" = c(0, 1, 0, 0, -1, 0),
+                               "Difference in effects at 45.00 ml" = c(0, 0, 1, 0, 0, -1)))
+
+# Tidy up contrasts
+
+upper_CI = (confint(contrasts)$asymp.UCL - 1) * 100
+lower_CI = (confint(contrasts)$asymp.LCL - 1) * 100
+
+contrasts = contrasts %>%
+  as.data.frame(.) %>%
+  mutate(ratio = round(ratio, 2),
+         percentage = (ratio-1)*100,
+         SE = round(SE, 2),
+         lower.CL = round(lower_CI, 2),  # Lower confidence limit
+         upper.CL = round(upper_CI, 2),  # Upper confidence limit
+         z.ratio = round(z.ratio, 2),
+         p.value = round(p.value, 3)) %>%
+  select(contrast, 
+         percentage, 
+         lower.CL,
+         upper.CL,
+         SE, 
+         z.ratio, 
+         p.value)
+
+contrasts$" " <- ""
+contrasts$" "[contrasts$p.value < 0.05] <- "*"
+contrasts$" "[contrasts$p.value < 0.01] <- "**"
+contrasts$" "[contrasts$p.value < 0.001] <- "***"
+
+# Tidy up nested contrasts
+
+upper_CI = (confint(nested_contrasts)$asymp.UCL - 1) * 100
+lower_CI = (confint(nested_contrasts)$asymp.LCL - 1) * 100
+
+nested_contrasts = nested_contrasts %>%
+  as.data.frame(.) %>%
+  mutate(ratio = round(ratio, 2),
+         percentage = (ratio-1)*100,
+         lower.CL = round(lower_CI, 2),  # Lower confidence limit
+         upper.CL = round(upper_CI, 2),  # Upper confidence limit
+         SE = round(SE, 2),
+         z.ratio = round(z.ratio, 2),
+         p.value = round(p.value, 3)) %>%
+  select(contrast,
+         percentage,
+         lower.CL,
+         upper.CL,
+         SE,
+         z.ratio,
+         p.value)
+
+nested_contrasts$" " <- ""
+nested_contrasts$" "[nested_contrasts$p.value < 0.05] <- "*"
+nested_contrasts$" "[nested_contrasts$p.value < 0.01] <- "**"
+nested_contrasts$" "[nested_contrasts$p.value < 0.001] <- "***"
+```
+</details>
+
+```{r}
+plot.metaecos.contrasts(contrasts,
+                        response_variable_selected)
+```
+
+<details open="open">
+
+<summary>Model ANOVA</summary>
+
+```{r}
+
+# --- SHOW MODEL ANOVA --- #
+
+car::Anova(model, type = "III")
+```
+
+</details>
+
+<details open="open">
+
+<summary>Model contrasts</summary>
+
+```{r}
+
+# --- SHOW MODEL CONTRASTS --- #
+
+contrasts
+nested_contrasts
+```
+
+</details>
+
+<details open="open">
+
+<summary>Model residuals</summary>
+
+```{r fig.width = figures_height_rmd_output}
+
+# --- PLOT MODEL RESIDUALS --- #
+
+# Simulate residuals from the fitted model
+
+simulationOutput <- simulateResiduals(fittedModel = model, 
+                                      n = 1000) 
+
+# Test for overdispersion in the model to check if variance exceeds mean
+
+testDispersion(simulationOutput)
+
+# Plot Q-Q and Residuals vs Fitted plots
+
+plot(simulationOutput)
+
+# Plot residuals against specific predictors to check if residuals are 
+# independent of these variables - fixed variables
+
+plotResiduals(simulationOutput,
+              form = data_for_analysis$size)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$conn)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$disturb_type)
+
+# Plot residuals against specific predictors to check if residuals are 
+# independent of these variables - random variables
+
+plotResiduals(simulationOutput,
+              form = data_for_analysis$metaecosystem_ID)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$time_point)
+plotResiduals(simulationOutput,
+              form = data_for_analysis$baseline)
+
+# Test for outliers 
+
+testOutliers(simulationOutput)
+
+# Test for zero inflation not accounted for
+ 
+testZeroInflation(simulationOutput)
+```
+
+</details>

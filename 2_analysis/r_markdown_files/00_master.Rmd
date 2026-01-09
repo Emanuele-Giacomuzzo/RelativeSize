@@ -88,7 +88,7 @@ save.image(file = here("..",
 
 ## Meta-ecosystems {.tabset .tabset-pills}
 
-### Biomass {.tabset .tabset-dropdown}
+### Biomass {.tabset .tabset-pills}
 
 ```{r}
 response_variable_selected = "bioarea_mm2_per_ml"
@@ -99,11 +99,14 @@ y_lower_limit = 0
 ```{r child = here("r_markdown_files", "14_analyse_metaecos.Rmd")}
 ```
 
+```{r child = here("r_markdown_files", "14b_analyse_metaecos_no_smallest_patches.Rmd")}
+```
+
 ## Ecosystems {.tabset .tabset-pills}
 
 ### Biomass {.tabset .tabset-dropdown}
 
-#### Autotrophic
+#### Autotrophic {.tabset .tabset-pills}
 
 ```{r}
 trophic_type_selected = "autotrophic"
@@ -112,7 +115,10 @@ trophic_type_selected = "autotrophic"
 ```{r child = here("r_markdown_files", "15_analyse_ecos_biomass.Rmd")}
 ```
 
-#### Heterotrophic
+```{r child = here("r_markdown_files", "15b_analyse_ecos_biomass_no_smallest_patches.Rmd")}
+```
+
+#### Heterotrophic {.tabset .tabset-pills}
 
 ```{r}
 trophic_type_selected = "heterotrophic"
@@ -121,14 +127,27 @@ trophic_type_selected = "heterotrophic"
 ```{r child = here("r_markdown_files", "15_analyse_ecos_biomass.Rmd")}
 ```
 
+```{r child = here("r_markdown_files", "15b_analyse_ecos_biomass_no_smallest_patches.Rmd")}
+```
+
 ### Shannon {.tabset .tabset-dropdown}
+
+```{r echo=FALSE, message=FALSE}
+
+# Save environment
+
+save.image(file = here("..",
+                       "3_results", 
+                       "environments", 
+                       "before_17.RData"))
+```
 
 ```{r}
 response_variable_selected = "shannon"
 y_upper_limit_selected = 2
 ```
 
-```{r child = here("r_markdown_files", "17_analyse_ecos_diversity.Rmd")}
+```{r child = here("r_markdown_files", "17_analyse_ecos_diversity.Rmd"), eval = FALSE}
 ```
 
 ### Simpson {.tabset .tabset-dropdown}
@@ -138,7 +157,7 @@ response_variable_selected = "simpson"
 y_upper_limit_selected = 1
 ```
 
-```{r child = here("r_markdown_files", "17_analyse_ecos_diversity.Rmd")}
+```{r child = here("r_markdown_files", "17_analyse_ecos_diversity.Rmd"), eval = FALSE}
 ```
 
 ### Species Richness {.tabset .tabset-dropdown}
@@ -148,7 +167,7 @@ response_variable_selected = "species_richness"
 y_upper_limit_selected = 12
 ```
 
-```{r child = here("r_markdown_files", "17_analyse_ecos_diversity.Rmd")}
+```{r child = here("r_markdown_files", "17_analyse_ecos_diversity.Rmd"), eval = FALSE}
 ```
 
 ### Dominances {.tabset .tabset-pills}
