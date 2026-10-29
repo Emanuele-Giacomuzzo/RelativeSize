@@ -398,17 +398,17 @@ size_y_axis = 14
 axis_names = data.frame(variable = NA,
                         axis_name= NA) %>%
   add_row(variable = "day", axis_name = "Time (day)") %>%
-  add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem Size (ml)") %>%
+  add_row(variable = "ecosystem_size_ml", axis_name = "Ecosystem Size (mL)") %>%
 
   add_row(variable = "total_metaecosystem_bioarea_mm2", axis_name = "Total Biomass (mm²)") %>%
   add_row(variable = "total_metaecosystem_bioarea_mm2_d", axis_name = "Total Biomass ES (Hedge's d)") %>%
 
   add_row(variable = "bioarea_tot", axis_name = "Total Biomass (mm²)") %>%
-  add_row(variable = "bioarea_mm2_per_ml", axis_name = "Biomass (mm²/ml)") %>%
+  add_row(variable = "bioarea_mm2_per_ml", axis_name = "Biomass (mm²/mL)") %>%
   add_row(variable = "bioarea_mm2_per_ml_contrast", axis_name = "Biomass response to connection (%)") %>%
-  add_row(variable = "log10_bioarea_mm2_per_ml", axis_name = "Log Biomass (mm²/ml)") %>%
+  add_row(variable = "log10_bioarea_mm2_per_ml", axis_name = "Log Biomass (mm²/mL)") %>%
   add_row(variable = "bioarea_mm2_per_ml_d", axis_name = "Biomass Density ES") %>%
-  add_row(variable = "indiv_per_ml", axis_name = "Abundance (ind/ml)") %>%
+  add_row(variable = "indiv_per_ml", axis_name = "Abundance (ind/mL)") %>%
   add_row(variable = "indiv_per_ml_d", axis_name = "Abundance ES") %>%
   add_row(variable = "shannon", axis_name = "Shannon Index") %>%
   add_row(variable = "shannon_d", axis_name = "Shannon Index ES") %>%
@@ -422,17 +422,17 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "evenness_pielou_d", axis_name = "Evenness ES") %>%
   add_row(variable = "median_body_area_µm2", axis_name = "Median Body Size (µm²)") %>%
   add_row(variable = "median_body_area_µm2_d", axis_name = "Median Body Size ES") %>%
-  add_row(variable = "Ble_indiv_per_ml", axis_name = "Ble Density (ind/ml)") %>% 
-  add_row(variable = "Cep_indiv_per_ml", axis_name = "Cep Density (ind/ml)") %>%
-  add_row(variable = "Col_indiv_per_ml", axis_name = "Col Density (ind/ml)") %>%
-  add_row(variable = "Eug_indiv_per_ml", axis_name = "Eug Density (ind/ml)") %>%
-  add_row(variable = "Eup_indiv_per_ml", axis_name = "Eup Density (ind/ml)") %>%
-  add_row(variable = "Lox_indiv_per_ml", axis_name = "Lox Density (ind/ml)") %>%
-  add_row(variable = "Pau_indiv_per_ml", axis_name = "Pau Density (ind/ml)") %>%
-  add_row(variable = "Pca_indiv_per_ml", axis_name = "Pca Density (ind/ml)") %>%
-  add_row(variable = "Spi_indiv_per_ml", axis_name = "Spi Density (ind/ml)") %>%
-  add_row(variable = "Spi_te_indiv_per_ml", axis_name = "Spi te Density (ind/ml)") %>%
-  add_row(variable = "Tet_indiv_per_ml", axis_name = "Tet Density (ind/ml)") %>%
+  add_row(variable = "Ble_indiv_per_ml", axis_name = "Ble Density (ind/mL)") %>% 
+  add_row(variable = "Cep_indiv_per_ml", axis_name = "Cep Density (ind/mL)") %>%
+  add_row(variable = "Col_indiv_per_ml", axis_name = "Col Density (ind/mL)") %>%
+  add_row(variable = "Eug_indiv_per_ml", axis_name = "Eug Density (ind/mL)") %>%
+  add_row(variable = "Eup_indiv_per_ml", axis_name = "Eup Density (ind/mL)") %>%
+  add_row(variable = "Lox_indiv_per_ml", axis_name = "Lox Density (ind/mL)") %>%
+  add_row(variable = "Pau_indiv_per_ml", axis_name = "Pau Density (ind/mL)") %>%
+  add_row(variable = "Pca_indiv_per_ml", axis_name = "Pca Density (ind/mL)") %>%
+  add_row(variable = "Spi_indiv_per_ml", axis_name = "Spi Density (ind/mL)") %>%
+  add_row(variable = "Spi_te_indiv_per_ml", axis_name = "Spi te Density (ind/mL)") %>%
+  add_row(variable = "Tet_indiv_per_ml", axis_name = "Tet Density (ind/mL)") %>%
   add_row(variable = "Ble_indiv_per_ml_d", axis_name = "Ble Density ES") %>%
   add_row(variable = "Cep_indiv_per_ml_d", axis_name = "Cep Density ES") %>%
   add_row(variable = "Col_indiv_per_ml_d", axis_name = "Col Density ES") %>%
@@ -469,7 +469,7 @@ axis_names = data.frame(variable = NA,
   add_row(variable = "dominance", axis_name = "Dominance (%)") %>%
   add_row(variable = "abundance_hedges_d", axis_name = "Density ES") %>%
   add_row(variable = "log_size_class", axis_name = "Log Size (μm2)") %>%
-  add_row(variable = "class_indiv_per_µl", axis_name = "Density (ind/ml)") %>%
+  add_row(variable = "class_indiv_per_µl", axis_name = "Density (ind/ind/mL)") %>%
   add_row(variable = "beta_diversity_from_unconnected", axis_name = "Divergence from unconnected") %>%
   slice(-1)
 ```

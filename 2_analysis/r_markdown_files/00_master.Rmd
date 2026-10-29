@@ -99,6 +99,26 @@ y_lower_limit = 0
 ```{r child = here("r_markdown_files", "14_analyse_metaecos.Rmd")}
 ```
 
+```{r}
+
+# Save figure according to Ecosphere guidelines
+
+p <- plot.metaecos.contrasts(contrasts,
+                             response_variable_selected)
+
+ggsave(
+  filename = here("..", "3_results", "figures", "paper", "Meta-ecosystems.tiff"),
+  plot = p,
+  device = "tiff",
+  width = 18,
+  height = 12,
+  units = "cm",
+  dpi = 600,
+  compression = "lzw"
+)
+```
+
+
 ```{r child = here("r_markdown_files", "14b_analyse_metaecos_no_smallest_patches.Rmd")}
 ```
 
@@ -115,6 +135,26 @@ trophic_type_selected = "autotrophic"
 ```{r child = here("r_markdown_files", "15_analyse_ecos_biomass.Rmd")}
 ```
 
+```{r}
+
+# Save figure according to Ecosphere guidelines
+
+p <- plot.ecos.contrasts(contrasts,
+                    trophic_type_selected,
+                    response_variable_selected)
+
+ggsave(
+  filename = here("..", "3_results", "figures", "paper", "Autotrophic-ecosystems.tiff"),
+  plot = p,
+  device = "tiff",
+  width = 18,
+  height = 12,
+  units = "cm",
+  dpi = 600,
+  compression = "lzw"
+)
+```
+
 ```{r child = here("r_markdown_files", "15b_analyse_ecos_biomass_no_smallest_patches.Rmd")}
 ```
 
@@ -125,6 +165,26 @@ trophic_type_selected = "heterotrophic"
 ```
 
 ```{r child = here("r_markdown_files", "15_analyse_ecos_biomass.Rmd")}
+```
+
+```{r}
+
+# Save figure according to Ecosphere guidelines
+
+p <- plot.ecos.contrasts(contrasts,
+                         trophic_type_selected,
+                         response_variable_selected)
+
+ggsave(
+  filename = here("..", "3_results", "figures", "paper", "Heterotrophic_ecosystems.tiff"),
+  plot = p,
+  device = "tiff",
+  width = 18,
+  height = 12,
+  units = "cm",
+  dpi = 600,
+  compression = "lzw"
+)
 ```
 
 ```{r child = here("r_markdown_files", "15b_analyse_ecos_biomass_no_smallest_patches.Rmd")}

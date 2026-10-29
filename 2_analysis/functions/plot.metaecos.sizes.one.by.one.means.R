@@ -110,7 +110,7 @@ plot.metaecos.sizes.one.by.one.means = function(data = ds_metaecosystems,
                  x = -Inf,
                  y = Inf,
                  label = paste(ecosystem_sizes_ml[eco_size_i],
-                               "ml"), 
+                               "mL"), 
                  hjust = -0.5, 
                  vjust = 1.5, 
                  size = 5)

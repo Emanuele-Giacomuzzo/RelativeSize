@@ -125,7 +125,7 @@ plot.ecos.sizes.one.by.one.means = function(data = ds_ecosystems,
         annotate("text",
                  x = -Inf,
                  y = Inf,
-                 label = paste(ecosystem_sizes_ml[eco_size_i], "ml"),
+                 label = paste(ecosystem_sizes_ml[eco_size_i], "mL"),
                  hjust = -0.5,
                  vjust = 1.5,
                  size = 5)

@@ -35,7 +35,7 @@ plot.metaecos.contrasts = function(data = contrasts,
                       ymin = lower.CL),
                   width = 0,
                   position = position_dodge(dodging)) +
-    labs(x = "Patch size (ml)",
+    labs(x = "Patch size (mL)",
          y = axis_names$axis_name[axis_names$variable == paste0(response_variable_selected, "_contrast")],
          color = "",
          title = "Meta-ecosystem level") +
